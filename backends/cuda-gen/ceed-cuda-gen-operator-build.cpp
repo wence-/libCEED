@@ -713,7 +713,69 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
   string qFunction(qf_data->qFunctionSource);
   code << qFunction;
 
-  // Setup
+  // Allocation of constant memory for B and G 
+  for (CeedInt i = 0; i < numinputfields; i++) {
+    ierr = CeedQFunctionFieldGetEvalMode(qfinputfields[i], &emode);
+    CeedChk(ierr);
+    if (emode == CEED_EVAL_INTERP) {
+      ierr = CeedOperatorFieldGetBasis(opinputfields[i], &basis); CeedChk(ierr);
+      bool isTensor;
+      ierr = CeedBasisGetTensorStatus(basis, &isTensor); CeedChk(ierr);
+      if (isTensor)
+      {
+        ierr = CeedBasisGetNumNodes1D(basis, &P1d); CeedChk(ierr);
+        ierr = CeedBasisGetNumQuadraturePoints1D(basis, &Q1d); CeedChk(ierr);
+        code << "__constant__ CeedScalar c_B_in_"<<i<<"["<<P1d*Q1d<<"];\n";
+      } else {
+        return CeedError(ceed, 1, "Backend does not implement operators with non-tensor basis");
+      }
+    } else if (emode == CEED_EVAL_GRAD) {
+      ierr = CeedOperatorFieldGetBasis(opinputfields[i], &basis); CeedChk(ierr);
+      bool isTensor;
+      ierr = CeedBasisGetTensorStatus(basis, &isTensor); CeedChk(ierr);
+      if (isTensor)
+      {
+        ierr = CeedBasisGetNumNodes1D(basis, &P1d); CeedChk(ierr);
+        ierr = CeedBasisGetNumQuadraturePoints1D(basis, &Q1d); CeedChk(ierr);
+        code << "__constant__ CeedScalar c_B_in_"<<i<<"["<<P1d*Q1d<<"];\n";
+        code << "__constant__ CeedScalar c_G_in_"<<i<<"["<<P1d*Q1d<<"];\n";
+      } else {
+        return CeedError(ceed, 1, "Backend does not implement operators with non-tensor basis");
+      }
+    }
+  }
+  for (CeedInt i = 0; i < numoutputfields; i++) {
+    ierr = CeedQFunctionFieldGetEvalMode(qfoutputfields[i], &emode);
+    CeedChk(ierr);
+    if (emode == CEED_EVAL_INTERP) {
+      ierr = CeedOperatorFieldGetBasis(opoutputfields[i], &basis); CeedChk(ierr);
+      bool isTensor;
+      ierr = CeedBasisGetTensorStatus(basis, &isTensor); CeedChk(ierr);
+      if (isTensor)
+      {
+        ierr = CeedBasisGetNumNodes1D(basis, &P1d); CeedChk(ierr);
+        ierr = CeedBasisGetNumQuadraturePoints1D(basis, &Q1d); CeedChk(ierr);
+        code << "__constant__ CeedScalar c_B_out_"<<i<<"["<<P1d*Q1d<<"];\n";
+      } else {
+        return CeedError(ceed, 1, "Backend does not implement operators with non-tensor basis");
+      }
+    } else if (emode == CEED_EVAL_GRAD) {
+      ierr = CeedOperatorFieldGetBasis(opoutputfields[i], &basis); CeedChk(ierr);
+      bool isTensor;
+      ierr = CeedBasisGetTensorStatus(basis, &isTensor); CeedChk(ierr);
+      if (isTensor)
+      {
+        ierr = CeedBasisGetNumNodes1D(basis, &P1d); CeedChk(ierr);
+        ierr = CeedBasisGetNumQuadraturePoints1D(basis, &Q1d); CeedChk(ierr);
+        code << "__constant__ CeedScalar c_B_out_"<<i<<"["<<P1d*Q1d<<"];\n";
+        code << "__constant__ CeedScalar c_G_out_"<<i<<"["<<P1d*Q1d<<"];\n";
+      } else {
+        return CeedError(ceed, 1, "Backend does not implement operators with non-tensor basis");
+      }
+    }
+  }
+
+  // Declaration of the operator kernel
   code << "\nextern \"C\" __global__ void oper(CeedInt nelem, void* ctx, CudaFieldsInt indices, CudaFields fields, CudaFields B, CudaFields G, CeedScalar* W) {\n";
   // Input Evecs and Restriction
   for (CeedInt i = 0; i < numinputfields; i++) {
@@ -790,9 +852,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
       data->indices.in[i] = restr_data->d_ind;
       code << "  readDofs"<<(lmode==CEED_NOTRANSPOSE?"":"Transpose")<<dim<<"d<ncomp_in_"<<i<<",P_in_"<<i<<">(data, ndofs_in_"<<i<<", elem, indices.in["<<i<<"], d_u"<<i<<", r_u"<<i<<");\n";
       code << "  CeedScalar r_t"<<i<<"[ncomp_in_"<<i<<"*Q1d];\n";
-      ierr = CeedBasisGetData(basis, (void **)&basis_data); CeedChk(ierr);
-      data->B.in[i] = basis_data->d_interp1d;
-      code << "  interp"<<dim<<"d<ncomp_in_"<<i<<",P_in_"<<i<<",Q1d>(data, r_u"<<i<<", B.in["<<i<<"], r_t"<<i<<");\n";
+      code << "  interp"<<dim<<"d<ncomp_in_"<<i<<",P_in_"<<i<<",Q1d>(data, r_u"<<i<<", c_B_in_"<<i<<", r_t"<<i<<");\n";
       break;
     case CEED_EVAL_GRAD:
       ierr = CeedOperatorFieldGetBasis(opinputfields[i], &basis); CeedChk(ierr);
@@ -807,10 +867,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
       data->indices.in[i] = restr_data->d_ind;
       code << "  readDofs"<<(lmode==CEED_NOTRANSPOSE?"":"Transpose")<<dim<<"d<ncomp_in_"<<i<<",P_in_"<<i<<">(data, ndofs_in_"<<i<<", elem, indices.in["<<i<<"], d_u"<<i<<", r_u"<<i<<");\n";
       code << "  CeedScalar r_t"<<i<<"[ncomp_in_"<<i<<"*Dim*Q1d];\n";
-      ierr = CeedBasisGetData(basis, (void **)&basis_data); CeedChk(ierr);
-      data->B.in[i] = basis_data->d_interp1d;
-      data->G.in[i] = basis_data->d_grad1d;
-      code << "  grad"<<dim<<"d<ncomp_in_"<<i<<",P_in_"<<i<<",Q1d>(data, r_u"<<i<<", B.in["<<i<<"], G.in["<<i<<"], r_t"<<i<<");\n";
+      code << "  grad"<<dim<<"d<ncomp_in_"<<i<<",P_in_"<<i<<",Q1d>(data, r_u"<<i<<", c_B_in_"<<i<<", c_G_in_"<<i<<", r_t"<<i<<");\n";
       break;
     case CEED_EVAL_WEIGHT:
       code << "  CeedScalar r_t"<<i<<"[Q1d];\n";
@@ -844,7 +901,6 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
       code << "  CeedScalar r_tt"<<i<<"[ncomp_out_"<<i<<"*Q1d];\n";
     }
   }
-  //TODO write qfunction load for this backend
   string qFunctionName(qf_data->qFunctionName);
   code << "  "<<qFunctionName<<"(ctx, "<<(dim==3?"Q1d":"1")<<", ";
   for (CeedInt i = 0; i < numinputfields; i++) {
@@ -884,9 +940,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
       ierr = CeedBasisGetNumNodes1D(basis, &P1d); CeedChk(ierr);
       code << "  const CeedInt P_out_"<<i<<" = "<<P1d<<";\n";
       code << "  CeedScalar r_v"<<i<<"[ncomp_out_"<<i<<"*P_out_"<<i<<"];\n";
-      ierr = CeedBasisGetData(basis, (void **)&basis_data); CeedChk(ierr);
-      data->B.out[i] = basis_data->d_interp1d;
-      code << "  interpTranspose"<<dim<<"d<ncomp_out_"<<i<<",P_out_"<<i<<",Q1d>(data, r_tt"<<i<<", B.out["<<i<<"], r_v"<<i<<");\n";
+      code << "  interpTranspose"<<dim<<"d<ncomp_out_"<<i<<",P_out_"<<i<<",Q1d>(data, r_tt"<<i<<", c_B_out_"<<i<<", r_v"<<i<<");\n";
       ierr = CeedElemRestrictionGetNumDoF(Erestrict, &ndof); CeedChk(ierr);
       code << "  const CeedInt ndofs_out_"<<i<<" = "<<ndof<<";\n";
       ierr = CeedOperatorFieldGetLMode(opoutputfields[i], &lmode); CeedChk(ierr);
@@ -899,10 +953,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
       ierr = CeedBasisGetNumNodes1D(basis, &P1d); CeedChk(ierr);
       code << "  const CeedInt P_out_"<<i<<" = "<<P1d<<";\n";
       code << "  CeedScalar r_v"<<i<<"[ncomp_out_"<<i<<"*P_out_"<<i<<"];\n";
-      ierr = CeedBasisGetData(basis, (void **)&basis_data); CeedChk(ierr);
-      data->B.out[i] = basis_data->d_interp1d;
-      data->G.out[i] = basis_data->d_grad1d;
-      code << "  gradTranspose"<<dim<<"d<ncomp_out_"<<i<<",P_out_"<<i<<",Q1d>(data, r_tt"<<i<<", B.out["<<i<<"], G.out["<<i<<"], r_v"<<i<<");\n";
+      code << "  gradTranspose"<<dim<<"d<ncomp_out_"<<i<<",P_out_"<<i<<",Q1d>(data, r_tt"<<i<<", c_B_out_"<<i<<", c_G_out_"<<i<<", r_v"<<i<<");\n";
       ierr = CeedElemRestrictionGetNumDoF(Erestrict, &ndof); CeedChk(ierr);
       code << "  const CeedInt ndofs_out_"<<i<<" = "<<ndof<<";\n";
       ierr = CeedOperatorFieldGetLMode(opoutputfields[i], &lmode); CeedChk(ierr);
@@ -932,6 +983,112 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
   ierr = compile(ceed, code.str().c_str(), &data->module, 0); CeedChk(ierr);
   ierr = get_kernel(ceed, data->module, "oper", &data->op);
   CeedChk(ierr);
+
+  // Initialization of constant memory B and G 
+  for (CeedInt i = 0; i < numinputfields; i++) {
+    ierr = CeedQFunctionFieldGetEvalMode(qfinputfields[i], &emode);
+    CeedChk(ierr);
+    if (emode == CEED_EVAL_INTERP) {
+      ierr = CeedOperatorFieldGetBasis(opinputfields[i], &basis); CeedChk(ierr);
+      bool isTensor;
+      ierr = CeedBasisGetTensorStatus(basis, &isTensor); CeedChk(ierr);
+      if (isTensor)
+      {
+        ierr = CeedBasisGetNumNodes1D(basis, &P1d); CeedChk(ierr);
+        ierr = CeedBasisGetNumQuadraturePoints1D(basis, &Q1d); CeedChk(ierr);
+        ostringstream Bname;
+        Bname << "c_B_in_" << i;
+        CUdeviceptr dptr;
+        size_t Bsize = P1d*Q1d*sizeof(CeedScalar);
+        ierr = cuModuleGetGlobal ( &dptr, &Bsize, data->module, Bname.str().c_str() );
+        CeedChk_Cu(ceed, (CUresult)ierr);
+        ierr = CeedBasisGetData(basis, (void **)&basis_data); CeedChk(ierr);
+        CeedScalar *d_B = basis_data->d_interp1d;
+        ierr = cudaMemcpy((void*)dptr, d_B, Bsize,
+                    cudaMemcpyDeviceToDevice); CeedChk_Cu(ceed, (CUresult)ierr);
+      } else {
+        return CeedError(ceed, 1, "Backend does not implement operators with non-tensor basis");
+      }
+    } else if (emode == CEED_EVAL_GRAD) {
+      ierr = CeedOperatorFieldGetBasis(opinputfields[i], &basis); CeedChk(ierr);
+      bool isTensor;
+      ierr = CeedBasisGetTensorStatus(basis, &isTensor); CeedChk(ierr);
+      if (isTensor)
+      {
+        ierr = CeedBasisGetNumNodes1D(basis, &P1d); CeedChk(ierr);
+        ierr = CeedBasisGetNumQuadraturePoints1D(basis, &Q1d); CeedChk(ierr);
+        ierr = CeedBasisGetData(basis, (void **)&basis_data); CeedChk(ierr);
+        CUdeviceptr dptr;
+        CeedInt size = P1d*Q1d*sizeof(CeedScalar);
+        ostringstream Bname;
+        Bname << "c_B_in_" << i;
+        ierr = cuModuleGetGlobal ( &dptr, NULL, data->module, Bname.str().c_str() );
+        CeedChk_Cu(ceed, (CUresult)ierr);
+        ierr = cudaMemcpy((void*)dptr, basis_data->d_interp1d, size,
+                    cudaMemcpyDeviceToDevice); CeedChk_Cu(ceed, (CUresult)ierr);
+        ostringstream Gname;
+        Gname << "c_G_in_" << i;
+        ierr = cuModuleGetGlobal ( &dptr, NULL, data->module, Gname.str().c_str() );
+        CeedChk_Cu(ceed, (CUresult)ierr);
+        ierr = cudaMemcpy((void*)dptr, basis_data->d_grad1d, size,
+                    cudaMemcpyDeviceToDevice); CeedChk_Cu(ceed, (CUresult)ierr);
+      } else {
+        return CeedError(ceed, 1, "Backend does not implement operators with non-tensor basis");
+      }
+    }
+  }
+  for (CeedInt i = 0; i < numoutputfields; i++) {
+    ierr = CeedQFunctionFieldGetEvalMode(qfoutputfields[i], &emode);
+    CeedChk(ierr);
+    if (emode == CEED_EVAL_INTERP) {
+      ierr = CeedOperatorFieldGetBasis(opoutputfields[i], &basis); CeedChk(ierr);
+      bool isTensor;
+      ierr = CeedBasisGetTensorStatus(basis, &isTensor); CeedChk(ierr);
+      if (isTensor)
+      {
+        ierr = CeedBasisGetNumNodes1D(basis, &P1d); CeedChk(ierr);
+        ierr = CeedBasisGetNumQuadraturePoints1D(basis, &Q1d); CeedChk(ierr);
+        ostringstream Bname;
+        Bname << "c_B_out_" << i;
+        CUdeviceptr dptr;
+        size_t Bsize = P1d*Q1d*sizeof(CeedScalar);
+        ierr = cuModuleGetGlobal ( &dptr, &Bsize, data->module, Bname.str().c_str() );
+        CeedChk_Cu(ceed, (CUresult)ierr);
+        ierr = CeedBasisGetData(basis, (void **)&basis_data); CeedChk(ierr);
+        CeedScalar *d_B = basis_data->d_interp1d;
+        ierr = cudaMemcpy((void*)dptr, d_B, Bsize,
+                    cudaMemcpyDeviceToDevice); CeedChk_Cu(ceed, (CUresult)ierr);
+      } else {
+        return CeedError(ceed, 1, "Backend does not implement operators with non-tensor basis");
+      }
+    } else if (emode == CEED_EVAL_GRAD) {
+      ierr = CeedOperatorFieldGetBasis(opoutputfields[i], &basis); CeedChk(ierr);
+      bool isTensor;
+      ierr = CeedBasisGetTensorStatus(basis, &isTensor); CeedChk(ierr);
+      if (isTensor)
+      {
+        ierr = CeedBasisGetNumNodes1D(basis, &P1d); CeedChk(ierr);
+        ierr = CeedBasisGetNumQuadraturePoints1D(basis, &Q1d); CeedChk(ierr);
+        ierr = CeedBasisGetData(basis, (void **)&basis_data); CeedChk(ierr);
+        CUdeviceptr dptr;
+        CeedInt size = P1d*Q1d*sizeof(CeedScalar);
+        ostringstream Bname;
+        Bname << "c_B_out_" << i;
+        ierr = cuModuleGetGlobal ( &dptr, NULL, data->module, Bname.str().c_str() );
+        CeedChk_Cu(ceed, (CUresult)ierr);
+        ierr = cudaMemcpy((void*)dptr, basis_data->d_interp1d, size,
+                    cudaMemcpyDeviceToDevice); CeedChk_Cu(ceed, (CUresult)ierr);
+        ostringstream Gname;
+        Gname << "c_G_out_" << i;
+        ierr = cuModuleGetGlobal ( &dptr, NULL, data->module, Gname.str().c_str() );
+        CeedChk_Cu(ceed, (CUresult)ierr);
+        ierr = cudaMemcpy((void*)dptr, basis_data->d_grad1d, size,
+                    cudaMemcpyDeviceToDevice); CeedChk_Cu(ceed, (CUresult)ierr);
+      } else {
+        return CeedError(ceed, 1, "Backend does not implement operators with non-tensor basis");
+      }
+    }
+  }
 
   ierr = CeedOperatorSetSetupDone(op); CeedChk(ierr);
 
