@@ -20,6 +20,7 @@
 #include "../cuda/ceed-cuda.h"
 #include "../cuda-reg/ceed-cuda-reg.h"
 #include "../cuda-shared/ceed-cuda-shared.h"
+#include <string.h>
 
 static const char *deviceFunctions = QUOTE(
 
@@ -1052,7 +1053,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
     double r_qt, r_q[p_cubNq], r_Aq[p_cubNq];
 
     // array of threads
-    s_D[ty][tx] = D[p_cubNq*ty+tx]; 
+    s_D[ty][tx] = 1.0; // D[p_cubNq*ty+tx];  TW
 
     if(tx<p_Nq){
 	    s_I[ty][tx] = I[p_Nq*ty+tx];
@@ -1257,7 +1258,13 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
 
   // std::cout << libPBP3 << std::endl;
 
-  ierr = CeedCompileCuda(ceed, libPBP3, &data->module, 1, "p_N", P1d-1); CeedChk(ierr);
+  if(!strcmp(qFunctionName.c_str(),"f_apply_diff_3d")){
+    std::cout << "libPBP3Op called with:" << qFunctionName << std::endl;
+    ierr = CeedCompileCuda(ceed, libPBP3, &data->module, 1, "p_N", P1d-1); CeedChk(ierr);
+  }else{
+    std::cout << "StandardOp called with:" << qFunctionName << std::endl;
+    ierr = CeedCompileCuda(ceed, code.str().c_str(), &data->module, 0); CeedChk(ierr);
+  }
   ierr = CeedGetKernelCuda(ceed, data->module, "oper", &data->op);
   CeedChk(ierr);
 
