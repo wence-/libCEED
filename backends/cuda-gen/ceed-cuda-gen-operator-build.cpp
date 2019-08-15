@@ -1260,6 +1260,15 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
 
   if(!strcmp(qFunctionName.c_str(),"f_apply_diff_3d")){
     std::cout << "libPBP3Op called with:" << qFunctionName << std::endl;
+    CeedScalar *colograd1d;
+    ierr = CeedMalloc(Q1d*Q1d, &colograd1d); CeedChk(ierr);
+    ierr = CeedBasisGetCollocatedGrad(basis, colograd1d); CeedChk(ierr);
+    CeedScalar *d_colograd1d;
+    CeedInt bytes = Q1d*Q1d*sizeof(CeedScalar)
+    ierr = cudaMalloc((void **)&d_colograd1d, bytes); CeedChk_Cu(ceed, ierr);
+    ierr = cudaMemcpy(d_colograd1d, colograd1d, bytes,
+                      cudaMemcpyHostToDevice); CeedChk_Cu(ceed, ierr);
+    B.in[0] = d_colograd1d;
     ierr = CeedCompileCuda(ceed, libPBP3, &data->module, 1, "p_N", P1d-1); CeedChk(ierr);
   }else{
     std::cout << "StandardOp called with:" << qFunctionName << std::endl;
