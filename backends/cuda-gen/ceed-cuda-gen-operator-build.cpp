@@ -1053,7 +1053,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
     double r_qt, r_q[p_cubNq], r_Aq[p_cubNq];
 
     // array of threads
-    s_D[ty][tx] = 1.0; // D[p_cubNq*ty+tx];  TW
+    s_D[ty][tx] = D[p_cubNq*ty+tx];
 
     if(tx<p_Nq){
 	    s_I[ty][tx] = I[p_Nq*ty+tx];
