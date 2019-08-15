@@ -1022,230 +1022,239 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
       const double* D = G.in[0];
       double* Aq = fields.out[0];
     
-    int e = blockIdx.x;
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-    
-    __shared__ double s_Iq[p_cubNq][p_cubNq][p_cubNq];  
-    
-    __shared__ double s_D[p_cubNq][p_cubNq];
-    __shared__ double s_I[p_cubNq][p_Nq];
-    
-    __shared__ double s_Gqr[p_cubNq][p_cubNq];
-    __shared__ double s_Gqs[p_cubNq][p_cubNq];
-    
-    double r_qt, r_q[p_cubNq], r_Aq[p_cubNq];
-    
-    // array of threads
-    s_D[ty][tx] = D[p_cubNq*ty+tx]; 
-    
-    if(tx<p_Nq){
-      s_I[ty][tx] = I[p_Nq*ty+tx];
-    }
-    
-    // load pencil of u into register
-    if(tx<p_Nq && ty<p_Nq){
-      for(int k = 0; k < p_Nq; k++) {
-        const int id = e*p_Np + k*p_Nq*p_Nq+ ty*p_Nq + tx;
-        int localId = localizedIds[id]-1;
-        r_q[k] = q[localId];
-      }
-    }
 
-    __syncthreads();
-    
-    {
-      int b = ty, a = tx;
-      if(a<p_Nq && b<p_Nq){       
-        for(int k=0;k<p_cubNq;++k){     
-    double res = 0;       
-    for(int c=0;c<p_Nq;++c){      
-      res += s_I[k][c]*r_p[c];      
-    }           
-    s_Iq[k][b][a] = res;      
-        }           
-      }
+const int p_G00ID = 0;
+const int p_G01ID = 1;
+const int p_G02ID = 2;
+const int p_G11ID = 3;
+const int p_G12ID = 4;
+const int p_G22ID = 5;
+
+
+const int p_Nq = (p_N+1);
+const int p_cubNq = (p_N+2);
+const int p_Np = ( p_Nq*p_Nq*p_Nq );
+const int p_cubNp = ( p_cubNq*p_cubNq*p_cubNq );
+  
+  int e = blockIdx.x;
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+  
+  __shared__ double s_Iq[p_cubNq][p_cubNq][p_cubNq];  
+  
+  __shared__ double s_D[p_cubNq][p_cubNq];
+  __shared__ double s_I[p_cubNq][p_Nq];
+  
+  __shared__ double s_Gqr[p_cubNq][p_cubNq];
+  __shared__ double s_Gqs[p_cubNq][p_cubNq];
+  
+  double r_qt, r_q[p_cubNq], r_Aq[p_cubNq];
+  
+  // array of threads
+  s_D[ty][tx] = D[p_cubNq*ty+tx]; 
+  
+  if(tx<p_Nq){
+    s_I[ty][tx] = I[p_Nq*ty+tx];
+  }
+  
+  // load pencil of u into register
+  if(tx<p_Nq && ty<p_Nq){
+    for(int k = 0; k < p_Nq; k++) {
+      const int id = e*p_Np + k*p_Nq*p_Nq+ ty*p_Nq + tx;
+      int localId = localizedIds[id]-1;
+      r_q[k] = q[localId];
     }
+  }
 
-    __syncthreads();
-
-    {
-      int k = ty, a = tx;
-      if(a<p_Nq){         
-        for(int b=0;b<p_Nq;++b){      
-    r_Ip[b] = s_Iq[k][b][a];      
-        }           
-        
-        for(int j=0;j<p_cubNq;++j){     
-    double res = 0;       
-    for(int b=0;b<p_Nq;++b){      
-      res += s_I[j][b]*r_Ip[b];     
-    }           
-    s_Iq[k][j][a] = res;      
-        }           
+  __syncthreads();
+  
+  {
+    int b = ty, a = tx;
+    if(a<p_Nq && b<p_Nq){       
+      for(int k=0;k<p_cubNq;++k){     
+  double res = 0;       
+  for(int c=0;c<p_Nq;++c){      
+    res += s_I[k][c]*r_q[c];      
+  }           
+  s_Iq[k][b][a] = res;      
       }           
     }
+  }
 
-    __syncthreads();
-    
-    {
-      int k = ty, j = tx;
-      for(int a=0;a<p_Nq;++a){      
-        r_Ip[a] = s_Iq[k][j][a];      
+  __syncthreads();
+
+  {
+    int k = ty, a = tx;
+    if(a<p_Nq){         
+      for(int b=0;b<p_Nq;++b){      
+  r_Aq[b] = s_Iq[k][b][a];      
       }           
       
-      for(int i=0;i<p_cubNq;++i){     
-        double res = 0;       
-        for(int a=0;a<p_Nq;++a){      
-    res += s_I[i][a]*r_Ip[a];     
-        }           
-        s_Iq[k][j][i] = res;        
+      for(int j=0;j<p_cubNq;++j){     
+  double res = 0;       
+  for(int b=0;b<p_Nq;++b){      
+    res += s_I[j][b]*r_Aq[b];     
+  }           
+  s_Iq[k][j][a] = res;      
       }           
-    }             
+    }           
+  }
+
+  __syncthreads();
+  
+  {
+    int k = ty, j = tx;
+    for(int a=0;a<p_Nq;++a){      
+      r_Aq[a] = s_Iq[k][j][a];      
+    }           
     
+    for(int i=0;i<p_cubNq;++i){     
+      double res = 0;       
+      for(int a=0;a<p_Nq;++a){      
+  res += s_I[i][a]*r_Aq[a];     
+      }           
+      s_Iq[k][j][i] = res;        
+    }           
+  }             
+  
+  {
+    for(int k = 0; k < p_cubNq; k++) {
+      r_Aq[k] = 0.f; // zero the accumulator
+    }
+  }
+  
+  // Layer by layer
+  for(int k = 0;k < p_cubNq; k++){
+    
+    __syncthreads();
+    
+    int j = ty, i = tx;
+      
+    // share u(:,:,k)
+    double qr = 0, qs = 0;
+      
+    r_qt = 0;
+      
+    for(int m = 0; m < p_cubNq; m++) {
+      double Dim = s_D[i][m];
+      double Djm = s_D[j][m];
+      double Dkm = s_D[k][m];
+  
+      qr += Dim*s_Iq[k][j][m];
+      qs += Djm*s_Iq[k][m][i];
+      r_qt += Dkm*s_Iq[m][j][i];      
+    }
+      
+    // prefetch geometric factors
+    //    const int gbase = e*p_Nggeo*p_cubNp + k*p_cubNq*p_cubNq + j*p_cubNq + i;
+    const int gbase = e*p_cubNp + k*p_cubNq*p_cubNq + j*p_cubNq + i;
+    const int stride = p_cubNp*Nelements;
+
+    const double G00 = ggeo[gbase+p_G00ID*stride];
+    const double G01 = ggeo[gbase+p_G01ID*stride];
+    const double G02 = ggeo[gbase+p_G02ID*stride];
+    const double G11 = ggeo[gbase+p_G11ID*stride];
+    const double G12 = ggeo[gbase+p_G12ID*stride];
+    const double G22 = ggeo[gbase+p_G22ID*stride];
+      
+    s_Gqr[j][i] = (G00*qr + G01*qs + G02*r_qt);
+    s_Gqs[j][i] = (G01*qr + G11*qs + G12*r_qt);
+      
+    r_qt = G02*qr + G12*qs + G22*r_qt;
+      
+    __syncthreads();
+    
+    double Aqtmp = 0;
+      
+    for(int m = 0; m < p_cubNq; m++){
+      double Dmi = s_D[m][i];
+      double Dmj = s_D[m][j];
+      double Dkm = s_D[k][m];
+  
+      Aqtmp += Dmi*s_Gqr[j][m];
+      Aqtmp += Dmj*s_Gqs[m][i];
+      r_Aq[m] += Dkm*r_qt;
+    }
+      
+    r_Aq[k] += Aqtmp;
+  }
+
+  __syncthreads();
+
+  {             
+    /* lower 'k' */
     {
       int j = ty, i = tx;
-    
-      for(int k = 0; k < p_cubNq; k++) {
-        r_Aq[k] = 0.f; // zero the accumulator
-      }
+                    
+      for(int c=0;c<p_Nq;++c){      
+  double res = 0;       
+  for(int k=0;k<p_cubNq;++k){     
+    res += s_I[k][c]*r_q[k];      
+  }           
+  s_Iq[c][j][i] = res;        
+      }           
     }
-    
-      // Layer by layer
-  #pragma unroll p_cubNq
-      for(int k = 0;k < p_cubNq; k++){
-        
-        __syncthreads();
 
-        int j = ty, i = tx;
-        
-        // share u(:,:,k)
-        double qr = 0, qs = 0;
-        
-        r_qt = 0;
-        
-  #pragma unroll p_cubNq
-        for(int m = 0; m < p_cubNq; m++) {
-    double Dim = s_D[i][m];
-    double Djm = s_D[j][m];
-    double Dkm = s_D[k][m];
-    
-    qr += Dim*s_Iq[k][j][m];
-    qs += Djm*s_Iq[k][m][i];
-    r_qt += Dkm*s_Iq[m][j][i];      
-        }
-        
-        // prefetch geometric factors
-        const int gbase = e*p_Nggeo*p_cubNp + k*p_cubNq*p_cubNq + j*p_cubNq + i;
-        
-        const double G00 = ggeo[gbase+p_G00ID*p_cubNp];
-        const double G01 = ggeo[gbase+p_G01ID*p_cubNp];
-        const double G02 = ggeo[gbase+p_G02ID*p_cubNp];
-        const double G11 = ggeo[gbase+p_G11ID*p_cubNp];
-        const double G12 = ggeo[gbase+p_G12ID*p_cubNp];
-        const double G22 = ggeo[gbase+p_G22ID*p_cubNp];
-        const double GWJ = ggeo[gbase+p_GWJID*p_cubNp];
-        
-        s_Gqr[j][i] = (G00*qr + G01*qs + G02*r_qt);
-        s_Gqs[j][i] = (G01*qr + G11*qs + G12*r_qt);
-        
-        r_qt = G02*qr + G12*qs + G22*r_qt;
-        
-        __syncthreads();
+    __syncthreads();
       
-        double Aqtmp = 0;
-        
-  #pragma unroll p_cubNq
-        for(int m = 0; m < p_cubNq; m++){
-    double Dmi = s_D[m][i];
-    double Dmj = s_D[m][j];
-    double Dkm = s_D[k][m];
+    {
+      int c = ty, i = tx;
+              
+      if(c<p_Nq){         
+  for(int j=0;j<p_cubNq;++j){     
+    r_q[j] = s_Iq[c][j][i];     
+  }           
     
-    Aqtmp += Dmi*s_Gqr[j][m];
-    Aqtmp += Dmj*s_Gqs[m][i];
-    r_Aq[m] += Dkm*r_qt;
-        }
-        
-        r_Aq[k] += Aqtmp;
-      }
+  for(int b=0;b<p_Nq;++b){      
+    double res = 0;       
+    for(int j=0;j<p_cubNq;++j){     
+      res += s_I[j][b]*r_q[j];      
+    }           
+      
+    s_Iq[c][b][i] = res;      
+  }           
+      }           
+    }
 
-      __syncthreads();
+    __syncthreads();
 
-      {             
-        /* lower 'k' */
-        {
+    {
+      int c = ty, b = tx;
+              
+      if(b<p_Nq && c<p_Nq){       
+  for(int i=0;i<p_cubNq;++i){     
+    r_q[i] = s_Iq[c][b][i];     
+  }           
+    
+  for(int a=0;a<p_Nq;++a){      
+    double res = 0;       
+    for(int i=0;i<p_cubNq;++i){     
+      res += s_I[i][a]*r_q[i];      
+    }           
+      
+    s_Iq[c][b][a] = res;      
+  }           
+      }           
+    }             
+  }
+    
+  // write out
+
+  {
     int j = ty, i = tx;
-                      
-    for(int c=0;c<p_Nq;++c){      
-      double res = 0;       
-      for(int k=0;k<p_cubNq;++k){     
-        res += s_I[k][c]*r_p[k];      
-      }           
-      s_Iq[c][j][i] = res;        
-    }           
-        }
-
-        __syncthreads();
-        
-        {
-    int c = ty, i = tx;
-                
-    if(c<p_Nq){         
-      for(int j=0;j<p_cubNq;++j){     
-        r_p[j] = s_Iq[c][j][i];     
-      }           
-      
-      for(int b=0;b<p_Nq;++b){      
-        double res = 0;       
-        for(int j=0;j<p_cubNq;++j){     
-          res += s_I[j][b]*r_p[j];      
-        }           
-        
-        s_Iq[c][b][i] = res;      
-      }           
-    }           
-        }
-
-        __syncthreads();
-
-        {
-    int c = ty, b = tx;
-                
-    if(b<p_Nq && c<p_Nq){       
-      for(int i=0;i<p_cubNq;++i){     
-        r_p[i] = s_Iq[c][b][i];     
-      }           
-      
-      for(int a=0;a<p_Nq;++a){      
-        double res = 0;       
-        for(int i=0;i<p_cubNq;++i){     
-          res += s_I[i][a]*r_p[i];      
-        }           
-        
-        s_Iq[c][b][a] = res;      
-      }           
-    }           
-        }             
-      }
-      
-      // write out
-
-      {
-        int j = ty, i = tx;
-        if(i<p_Nq && j<p_Nq){
-  #pragma unroll p_Nq
-    for(int k = 0; k < p_Nq; k++){
-      const int id = e*p_Np +k*p_Nq*p_Nq+ j*p_Nq + i;
-      int localId = localizedIds[id]-1;
-      double res = s_Iq[k][j][i];
-      atomicAdd(Aq+localId, res); // atomic assumes Aq zerod
-    }
-        }
+    if(i<p_Nq && j<p_Nq){
+      for(int k = 0; k < p_Nq; k++){
+  const int id = e*p_Np +k*p_Nq*p_Nq+ j*p_Nq + i;
+  int localId = localizedIds[id]-1;
+  double res = s_Iq[k][j][i];
+  atomicAdd(Aq+localId, res); // atomic assumes Aq zerod
       }
     }
+  }
+}
   );
 
-  ierr = CeedCompileCuda(ceed, codeLibPBP3, &data->module, 0); CeedChk(ierr);
+  ierr = CeedCompileCuda(ceed, libPBP3, &data->module, 1, "p_N", P1d-1); CeedChk(ierr);
   ierr = CeedGetKernelCuda(ceed, data->module, "oper", &data->op);
   CeedChk(ierr);
 
