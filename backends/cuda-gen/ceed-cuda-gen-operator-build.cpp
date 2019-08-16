@@ -1063,7 +1063,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
     if(tx<p_Nq && ty<p_Nq){
 	    for(int k = 0; k < p_Nq; k++) {
 		    const int id = e*p_Np + k*p_Nq*p_Nq+ ty*p_Nq + tx;
-		    int localId = localizedIds[id]-1;
+		    int localId = localizedIds[id];
 		    r_q[k] = q[localId];
 	    }
     }
@@ -1264,11 +1264,11 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
     ierr = CeedMalloc(Q1d*Q1d, &colograd1d); CeedChk(ierr);
     ierr = CeedBasisGetCollocatedGrad(basis, colograd1d); CeedChk(ierr);
     CeedScalar *d_colograd1d;
-    CeedInt bytes = Q1d*Q1d*sizeof(CeedScalar)
-    ierr = cudaMalloc((void **)&d_colograd1d, bytes); CeedChk_Cu(ceed, ierr);
+    CeedInt bytes = Q1d*Q1d*sizeof(CeedScalar);
+    ierr = cudaMalloc((void **)&d_colograd1d, bytes); CeedChk_Cu(ceed, (CUresult)ierr);
     ierr = cudaMemcpy(d_colograd1d, colograd1d, bytes,
-                      cudaMemcpyHostToDevice); CeedChk_Cu(ceed, ierr);
-    B.in[0] = d_colograd1d;
+                      cudaMemcpyHostToDevice); CeedChk_Cu(ceed, (CUresult)ierr);
+    data->G.in[0] = d_colograd1d;
     ierr = CeedCompileCuda(ceed, libPBP3, &data->module, 1, "p_N", P1d-1); CeedChk(ierr);
   }else{
     std::cout << "StandardOp called with:" << qFunctionName << std::endl;
