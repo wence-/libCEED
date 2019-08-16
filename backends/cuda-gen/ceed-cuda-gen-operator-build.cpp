@@ -1247,7 +1247,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
 	    if(i<p_Nq && j<p_Nq){
 		    for(int k = 0; k < p_Nq; k++){
 			    const int id = e*p_Np +k*p_Nq*p_Nq+ j*p_Nq + i;
-			    int localId = localizedIds[id]-1;
+			    int localId = localizedIds[id];
 			    double res = s_Iq[k][j][i];
 			    atomicAdd(Aq+localId, res); // atomic assumes Aq zerod
 		    }
