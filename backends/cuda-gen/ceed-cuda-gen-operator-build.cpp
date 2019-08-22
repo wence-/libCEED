@@ -1278,7 +1278,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
 
   // std::cout << code_str;
 
-  if(!strcmp(qFunctionName.c_str(),"f_apply_diff_3d")){
+  if(!strcmp(qFunctionName.c_str(),"f_apply_diff")){
     std::cout << "libPBP3Op called with:" << qFunctionName << std::endl;
     CeedScalar *colograd1d;
     ierr = CeedMalloc(Q1d*Q1d, &colograd1d); CeedChk(ierr);
