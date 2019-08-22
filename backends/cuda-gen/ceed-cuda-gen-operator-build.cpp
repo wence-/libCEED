@@ -681,6 +681,15 @@ inline __device__ void weight3d(BackendData& data, const CeedScalar *qweight1d, 
 
 );
 
+static void ReplaceStringInPlace(std::string& subject, const std::string& search,
+                                 const std::string& replace) {
+    size_t pos = 0;
+    while ((pos = subject.find(search, pos)) != std::string::npos) {
+         subject.replace(pos, search.length(), replace);
+         pos += replace.length();
+    }
+}
+
 extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
 
 	using std::ostringstream;
@@ -1126,6 +1135,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
     }
 
     // Layer by layer
+@pragma unroll
     for(int k = 0;k < p_cubNq; k++){
 
 	    __syncthreads();
@@ -1137,6 +1147,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
 
 	    r_qt = 0;
 
+@pragma unroll
 	    for(int m = 0; m < p_cubNq; m++) {
 		    double Dim = s_D[i][m];
 		    double Djm = s_D[j][m];
@@ -1168,6 +1179,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
 
 	    double Aqtmp = 0;
 
+@pragma unroll
 	    for(int m = 0; m < p_cubNq; m++){
 		    double Dmi = s_D[m][i];
 		    double Dmj = s_D[m][j];
@@ -1245,6 +1257,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
     {
 	    int j = ty, i = tx;
 	    if(i<p_Nq && j<p_Nq){
+@pragma unroll
 		    for(int k = 0; k < p_Nq; k++){
 			    const int id = e*p_Np +k*p_Nq*p_Nq+ j*p_Nq + i;
 			    int localId = localizedIds[id];
@@ -1258,6 +1271,13 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
 
   // std::cout << libPBP3 << std::endl;
 
+  string code_str = libPBP3;
+  ReplaceStringInPlace(code_str, "@if __CUDA_ARCH__ < 600", "\n#if __CUDA_ARCH__ < 600\n");
+  ReplaceStringInPlace(code_str, "@endif", "\n#endif\n");
+  ReplaceStringInPlace(code_str, "@pragma unroll", "\n#pragma unroll\n");
+
+  // std::cout << code_str;
+
   if(!strcmp(qFunctionName.c_str(),"f_apply_diff_3d")){
     std::cout << "libPBP3Op called with:" << qFunctionName << std::endl;
     CeedScalar *colograd1d;
@@ -1269,7 +1289,7 @@ extern "C" int CeedCudaGenOperatorBuild(CeedOperator op) {
     ierr = cudaMemcpy(d_colograd1d, colograd1d, bytes,
                       cudaMemcpyHostToDevice); CeedChk_Cu(ceed, (CUresult)ierr);
     data->G.in[0] = d_colograd1d;
-    ierr = CeedCompileCuda(ceed, libPBP3, &data->module, 1, "p_N", P1d-1); CeedChk(ierr);
+    ierr = CeedCompileCuda(ceed, code_str.c_str(), &data->module, 1, "p_N", P1d-1); CeedChk(ierr);
   }else{
     std::cout << "StandardOp called with:" << qFunctionName << std::endl;
     ierr = CeedCompileCuda(ceed, code.str().c_str(), &data->module, 0); CeedChk(ierr);
