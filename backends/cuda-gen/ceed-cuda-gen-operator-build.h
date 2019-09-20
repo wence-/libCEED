@@ -15,3 +15,5 @@
 // testbed platforms, in support of the nation's exascale computing imperative.
 
 CEED_INTERN int CeedCudaGenOperatorBuild(CeedOperator op);
+
+CEED_INTERN CeedInt CeedCudaGenElemPerBlock(CeedInt dim, CeedInt Q1d);
