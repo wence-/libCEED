@@ -1,0 +1,337 @@
+// KERNEL: NONE
+
+@kernel
+void oper(void* ctx,
+          CeedInt elementCount,
+          CudaFieldsInt indices(in[16], out[16]),
+          CudaFields fields(in[16], out[16]),
+          CudaFields B(in[16], out[16]),
+          CudaFields G(in[16], out[16]),
+          CeedScalar* W) {
+
+  const CeedScalar* d_u<i> = fields.in[i];
+
+  CeedScalar* d_v<i> = fields.out[i];
+  @shared CeedScalar slice[elemsPerBlock*Q1d*Q1d];
+
+  @inputFor {
+    const CeedInt ncomp_in_<i> = ncomp<i>;
+    const CeedInt nquads_in_<i> = nnodes<i>;
+  }
+
+  @outputFor {
+    const CeedInt ncomp_out_<i> = ncomp;
+    const CeedInt nquads_out_<i> = nnodes;
+  }
+
+  @elemFor {
+    CeedScalar r_t<i>[ncomp_in_<i>*Q1d];
+    readQuads /*(lmode==CEED_NOTRANSPOSE?"":"Transpose")*/ <<dimd<ncomp_in_<i>,Q1d>(data, nquads_in_<i>, elem, d_u<i>, r_t<i>);
+  }
+
+  @outputFor {
+    CeedScalar r_tt<i>[ncomp_out_<i>*Q1d];
+  }
+
+  if (basis_data->d_collograd1d) {
+#pragma unroll
+    for (CeedInt q=0; q<Q1d; q++) {
+      @inputFor {
+        CeedScalar r_q<i>[ncomp_in_<i>];
+        readSliceQuads /*(lmode==CEED_NOTRANSPOSE?"":"Transpose")*/ 3d<ncomp_in_<i>,Q1d>(data, nquads_in_<i>, elem, q, d_u<i>, r_q<i>);
+      }
+
+      @outputFor {
+        CeedScalar r_qq<i>[ncomp_out_<i>];
+      }
+    }
+  } else {
+    @inputFor {
+      CeedScalar* r_q<i> = r_t<i>;
+    }
+    @outputFor {
+      CeedScalar* r_qq<i> = r_tt<i>;
+    }
+  }
+
+  // in
+  CeedScalar* in[numinputfields];
+  @inputFor {
+    in[i] = r_q<i>;
+  }
+  // out
+  CeedScalar* out[numoutputfields];
+  @outputFor {
+    out[i] = r_qq<i>;
+  }
+
+  QFUNCTION_NAME(ctx, 1 || Q1d, in, out);
+
+  for (CeedInt j = 0; j < ncomp_out_<i> ; ++j) {
+    r_tt<i>[q + j*Q1d] = r_qq<i>[j];
+  }
+}
+
+@ouputFor {
+  writeQuads /*(lmode==CEED_NOTRANSPOSE?"":"Transpose")*/ <<dimd<ncomp_out_<i>,Q1d>(data, nquads_out_<i>, elem, r_tt<i>, d_v<i>);
+}
+
+// KERNEL: INTERP
+
+@kernel
+void oper(void* ctx,
+          CeedInt elementCount,
+          CudaFieldsInt indices(in[16], out[16]),
+          CudaFields fields(in[16], out[16]),
+          CudaFields B(in[16], out[16]),
+          CudaFields G(in[16], out[16]),
+          CeedScalar* W) {
+
+  const CeedScalar* d_u<i> = fields.in[i];
+
+  CeedScalar* d_v<i> = fields.out[i];
+  @shared CeedScalar slice[elemsPerBlock*Q1d*Q1d];
+
+  @inputFor {
+    const CeedInt P_in_<i> = P1d<i>;
+    const CeedInt ncomp_in_<i> = ncomp<i>;
+    const CeedInt nnodes_in_<i> = nnodes<i>;
+    @shared double s_B_in_<i>[<<P1d<i> * Q1d];
+    loadMatrix<P_in_<i>,Q1d>(data, B.in[i], s_B_in_<i>);
+  }
+
+  @outputFor {
+    const CeedInt P_out_<i> = P1d;
+    const CeedInt ncomp_out_<i> = ncomp;
+    const CeedInt nnodes_out_<i> = nnodes;
+
+    @shared double s_B_out_<i>[P1d*Q1d];
+    loadMatrix<P_out_<i>,Q1d>(data, B.out[i], s_B_out_<i>);
+  }
+
+  @barrier();
+
+  @elemFor {
+    CeedScalar r_u<i>[ncomp_in_<i>*P_in_<i>];
+    readDofs /*(lmode==CEED_NOTRANSPOSE?"":"Transpose")*/ <<dimd<ncomp_in_<i>,P_in_<i>>(data, nnodes_in_<i>, elem, indices.in[i], d_u<i>, r_u<i>);
+    CeedScalar r_t<i>[ncomp_in_<i>*Q1d];
+    interpdimd<ncomp_in_<i>,P_in_<i>,Q1d>(data, r_u<i>, s_B_in_<i>, r_t<i>);
+  }
+
+  @outputFor {
+    CeedScalar r_tt<i>[ncomp_out_<i>*Q1d];
+  }
+
+  if (basis_data->d_collograd1d) {
+#pragma unroll
+    for (CeedInt q=0; q<Q1d; q++) {
+      @inputFor {
+        CeedScalar r_q<i>[ncomp_in_<i>];
+        for (CeedInt j = 0; j < ncomp_in_<i> ; ++j) {
+          r_q<i>[j] = r_t<i>[q + j*Q1d];
+        }
+      }
+
+      @outputFor {
+        CeedScalar r_qq<i>[ncomp_out_<i>];
+      }
+    }
+  } else {
+    @inputFor {
+      CeedScalar* r_q<i> = r_t<i>;
+    }
+    @outputFor {
+      CeedScalar* r_qq<i> = r_tt<i>;
+    }
+  }
+
+  // in
+  CeedScalar* in[numinputfields];
+  @inputFor {
+    in[i] = r_q<i>;
+  }
+  // out
+  CeedScalar* out[numoutputfields];
+  @outputFor {
+    out[i] = r_qq<i>;
+  }
+
+  QFUNCTION_NAME(ctx, 1 || Q1d, in, out);
+
+  for (CeedInt j = 0; j < ncomp_out_<i> ; ++j) {
+    r_tt<i>[q + j*Q1d] = r_qq<i>[j];
+  }
+}
+
+@ouputFor {
+  CeedScalar r_v<i>[ncomp_out_<i>*P_out_<i>];
+  interpTransposedimd<ncomp_out_<i>,P_out_<i>,Q1d>(data, r_tt<i>, s_B_out_<i>, r_v<i>);
+  writeDofs /*(lmode==CEED_NOTRANSPOSE?"":"Transpose")*/ <<dimd<ncomp_out_<i>,P_out_<i>>(data, nnodes_out_<i>, elem, indices.out[i], r_v<i>, d_v<i>);
+}
+
+// KERNEL: GRAD
+
+@kernel
+void oper(void* ctx,
+          CeedInt elementCount,
+          CudaFieldsInt indices(in[16], out[16]),
+          CudaFields fields(in[16], out[16]),
+          CudaFields B(in[16], out[16]),
+          CudaFields G(in[16], out[16]),
+          CeedScalar* W) {
+
+  const CeedScalar* d_u<i> = fields.in[i];
+
+  CeedScalar* d_v<i> = fields.out[i];
+  @shared CeedScalar slice[elemsPerBlock*Q1d*Q1d];
+
+  @inputFor {
+    const CeedInt ncomp_in_<i> = ncomp;
+    const CeedInt nnodes_in_<i> = nnodes;
+    const CeedInt P_in_<i> = P1d;
+
+    data->B.in[i] = basis_data->d_interp1d;
+
+    @shared double s_B_in_<i>[P1d*Q1d];
+    loadMatrix<P_in_<i>,Q1d>(data, B.in[i], s_B_in_<i>);
+
+    if (basis_data->d_collograd1d) {
+      data->G.in[i] = basis_data->d_collograd1d;
+      @shared double s_G_in_<i>[Q1d*Q1d];
+      loadMatrix<Q1d,Q1d>(data, G.in[i], s_G_in_<i>);
+    } else {
+      data->G.in[i] = basis_data->d_grad1d;
+      @shared double s_G_in_<i>[P1d*Q1d];
+      loadMatrix<P_in_<i>,Q1d>(data, G.in[i], s_G_in_<i>);
+    }
+  }
+
+  @outputFor {
+    const CeedInt ncomp_out_<i> = ncomp;
+    const CeedInt P_out_<i> = P1d;
+
+    @shared double s_B_out_<i>[P1d*Q1d];
+    loadMatrix<P_out_<i>,Q1d>(data, B.out[i], s_B_out_<i>);
+
+    if (basis_data->d_collograd1d) {
+      @shared double s_G_out_<i>[Q1d*Q1d];
+      loadMatrix<Q1d,Q1d>(data, G.out[i], s_G_out_<i>);
+    } else {
+      @shared double s_G_out_<i>[P1d*Q1d];
+      loadMatrix<P_out_<i>,Q1d>(data, G.out[i], s_G_out_<i>);
+    }
+  }
+
+  @barrier();
+
+  @elemFor {
+    CeedScalar r_u<i>[ncomp_in_<i>*P_in_<i>];
+    readDofs /*(lmode==CEED_NOTRANSPOSE?"":"Transpose")*/ <<dimd<ncomp_in_<i>,P_in_<i>>(data, nnodes_in_<i>, elem, indices.in[i], d_u<i>, r_u<i>);
+    CeedScalar r_t<i>[ncomp_in_<i>*Q1d];
+    interpdimd<ncomp_in_<i>,P_in_<i>,Q1d>(data, r_u<i>, s_B_in_<i>, r_t<i>);
+    CeedScalar r_t<i>[ncomp_in_<i>*Dim*Q1d];
+    graddimd<ncomp_in_<i>,P_in_<i>,Q1d>(data, r_u<i>, s_B_in_<i>, s_G_in_<i>, r_t<i>);
+    CeedScalar r_t<i>[Q1d];
+    weightdimd<Q1d>(data, W, r_t<i>);
+  }
+
+  @outputFor {
+    if (basis_data->d_collograd1d) {
+      CeedScalar r_tt<i>[ncomp_out_<i>*Q1d];
+      for (CeedInt i = 0; i < ncomp_out_<i>; ++i) {
+        for (CeedInt j = 0; j < Q1d; ++j) {
+          r_tt<i>[j + i*Q1d] = 0.0;
+        }
+      }
+    } else {
+      CeedScalar r_tt<i>[ncomp_out_<i>*Dim*Q1d];
+    }
+  }
+
+  if (basis_data->d_collograd1d) {
+#pragma unroll
+    for (CeedInt q=0; q<Q1d; q++) {
+      @inputFor {
+        CeedScalar r_q<i>[ncomp_in_<i>*Dim];
+        gradCollo3d<ncomp_in_<i>,Q1d>(data, q, r_t<i>, s_G_in_<i>, r_q<i>);
+      }
+
+      @outputFor {
+        CeedScalar r_qq<i>[ncomp_out_<i>*Dim];
+      }
+    }
+  } else {
+    @inputFor {
+      CeedScalar* r_q<i> = r_t<i>;
+    }
+    @outputFor {
+      CeedScalar* r_qq<i> = r_tt<i>;
+    }
+  }
+
+  // in
+  CeedScalar* in[numinputfields];
+  @inputFor {
+    in[i] = r_q<i>;
+  }
+  // out
+  CeedScalar* out[numoutputfields];
+  @outputFor {
+    out[i] = r_qq<i>;
+  }
+
+  QFUNCTION_NAME(ctx, 1 || Q1d, in, out);
+
+  gradColloTranspose3d<ncomp_out_<i>,Q1d>(data, q, r_qq<i>, s_G_out_<i>, r_tt<i>);
+
+  @ouputFor {
+    CeedScalar r_v<i>[ncomp_out_<i>*P_out_<i>];
+    interpTransposedimd<ncomp_out_<i>,P_out_<i>,Q1d>(data, r_tt<i>, s_B_out_<i>, r_v<i>);
+    gradTransposedimd<ncomp_out_<i>,P_out_<i>,Q1d>(data, r_tt<i>, s_B_out_<i>, s_G_out_<i>, r_v<i>);
+    writeDofs /*(lmode==CEED_NOTRANSPOSE?"":"Transpose")*/ <<dimd<ncomp_out_<i>,P_out_<i>>(data, nnodes_out_<i>, elem, indices.out[i], r_v<i>, d_v<i>);
+  }
+}
+
+// KERNEL: WEIGHT
+
+@kernel
+void oper(void* ctx,
+          CeedInt elementCount,
+          CudaFieldsInt indices(in[16], out[16]),
+          CudaFields fields(in[16], out[16]),
+          CudaFields B(in[16], out[16]),
+          CudaFields G(in[16], out[16]),
+          CeedScalar* W) {
+
+  CeedScalar* d_v<i> = fields.out[i];
+  @shared CeedScalar slice[elemsPerBlock*Q1d*Q1d];
+
+  if (basis_data->d_collograd1d) {
+#pragma unroll
+    for (CeedInt q=0; q<Q1d; q++) {
+        CeedScalar r_q<i>[1];
+        r_q<i>[0] = r_t<i>[q];
+      }
+    }
+  } else {
+    @inputFor {
+      CeedScalar* r_q<i> = r_t<i>;
+    }
+    @outputFor {
+      CeedScalar* r_qq<i> = r_tt<i>;
+    }
+  }
+
+  // in
+  CeedScalar* in[numinputfields];
+  @inputFor {
+    in[i] = r_q<i>;
+  }
+  // out
+  CeedScalar* out[numoutputfields];
+  @outputFor {
+    out[i] = r_qq<i>;
+  }
+
+  QFUNCTION_NAME(ctx, 1 || Q1d, in, out);
+}

@@ -1,0 +1,58 @@
+// KERNEL: NONE
+
+@kernel
+void oper(void* ctx,
+          CeedInt elementCount,
+          QFUNCTION_INPUTS,
+          QFUNCTION_OUTPUTS) {
+
+  CeedScalar r_input_{i}[INPUT_COMPONENT_COUNT_{i} * Q1D];
+  readQuads ## INPUT_TRANSPOSED_{i} ## DIM(e, input_{i}, r_input{i});
+
+  CeedScalar r_output_{i}[OUTPUT_COMPONENT_COUNT_{i} * Q1D];
+
+  for (int q = 0; q < Q1D; ++q) {
+    CeedScalar r_q_{i}[INPUT_COMPONENT_COUNT_{i}];
+    readSliceQuads ## DIM ## INPUT_TRANSPOSED_{i} (e, q, input{i}, r_q_{i});
+
+    CeedScalar r_q_{i}[OUTPUT_COMPONENT_COUNT_{i}];
+
+    if (basis_data->d_collograd1d) {
+#pragma unroll
+      for (CeedInt q=0; q<Q1d; q++) {
+        @inputFor {
+          CeedScalar r_q<i>[ncomp_in_<i>];
+          readSliceQuads /*(lmode==CEED_NOTRANSPOSE?"":"Transpose")*/ 3d<ncomp_in_<i>,Q1d>(data, nquads_in_<i>, elem, q, d_u<i>, r_q<i>);
+        }
+
+        @outputFor {
+          CeedScalar r_qq<i>[ncomp_out_<i>];
+        }
+      }
+    } else {
+      @inputFor {
+        CeedScalar* r_q<i> = r_t<i>;
+      }
+      @outputFor {
+        CeedScalar* r_qq<i> = r_tt<i>;
+      }
+    }
+
+    // in
+    CeedScalar* in[numinputfields];
+    @inputFor {
+      in[i] = r_q<i>;
+    }
+    // out
+    CeedScalar* out[numoutputfields];
+    @outputFor {
+      out[i] = r_qq<i>;
+    }
+
+    QFUNCTION_NAME(ctx, 1 || Q1d, in, out);
+
+    for (CeedInt j = 0; j < ncomp_out_<i> ; ++j) {
+      r_tt<i>[q + j*Q1d] = r_qq<i>[j];
+    }
+  }
+}
