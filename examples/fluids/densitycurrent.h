@@ -155,12 +155,13 @@ static inline int Exact_DC(CeedInt dim, CeedScalar time, const CeedScalar X[],
   // -- Density
   const CeedScalar rho = P0 * pow(Pi, cv/Rd) / (Rd*theta);
 
-  // Initial Conditions
-  q[0] = rho;
-  q[1] = 0.0;
-  q[2] = 0.0;
-  q[3] = 0.0;
-  q[4] = rho * (cv*theta*Pi + g*z);
+  // Euler ICs for linear equations
+  const CeedScalar p = 1.0;
+  q[0] = 1 + 0.5*sin(M_PI*(x + y));
+  q[1] = 1.0;
+  q[2] = 1.0;
+  q[3] = 1.0;
+  q[4] = p/(cp/cv -1) + 0.5*rho*(q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
 
   return 0;
 }
