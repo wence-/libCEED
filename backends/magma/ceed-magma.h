@@ -20,6 +20,7 @@
 
 #include <string.h>
 #include <ceed-backend.h>
+#include "../cuda/ceed-cuda.h"
 #include <magma_v2.h>
 
 typedef enum {
@@ -56,42 +57,49 @@ typedef struct {
 } CeedElemRestriction_Magma;
 
 typedef struct {
-  const CeedScalar **inputs;
-  CeedScalar **outputs;
-  bool setupdone;
+  CUmodule module;
+  char *qFunctionName;
+  char *qFunctionSource;
+  CUfunction qFunction;
+  Fields_Cuda fields;
+  void *d_c;
 } CeedQFunction_Magma;
+
+typedef struct {
+  const CeedScalar *inputs[16];
+  CeedScalar *outputs[16];
+} Fields_Magma;
 
 #define USE_MAGMA_BATCH
 #define USE_MAGMA_BATCH2
 #define USE_MAGMA_BATCH3
 #define USE_MAGMA_BATCH4
 
-#ifdef __cplusplus
-CEED_INTERN {
-#endif
+  CEED_INTERN int magma_rtc_cuda(Ceed ceed, const char *source, CUmodule *module,
+              const CeedInt numopts, ...);
 
-  magma_int_t magma_interp_1d(
+  CEED_INTERN magma_int_t magma_interp_1d(
     magma_int_t P, magma_int_t Q, magma_int_t ncomp,
     const CeedScalar *dT, CeedTransposeMode tmode,
     const CeedScalar *dU, magma_int_t estrdU, magma_int_t cstrdU,
     CeedScalar *dV, magma_int_t estrdV, magma_int_t cstrdV,
     magma_int_t nelem, magma_int_t maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_interp_2d(
+  CEED_INTERN magma_int_t magma_interp_2d(
     magma_int_t P, magma_int_t Q, magma_int_t ncomp,
     const CeedScalar *dT, CeedTransposeMode tmode,
     const CeedScalar *dU, magma_int_t estrdU, magma_int_t cstrdU,
     CeedScalar *dV, magma_int_t estrdV, magma_int_t cstrdV,
     magma_int_t nelem, magma_int_t maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_interp_3d(
+  CEED_INTERN magma_int_t magma_interp_3d(
     magma_int_t P, magma_int_t Q, magma_int_t ncomp,
     const CeedScalar *dT, CeedTransposeMode tmode,
     const CeedScalar *dU, magma_int_t estrdU, magma_int_t cstrdU,
     CeedScalar *dV, magma_int_t estrdV, magma_int_t cstrdV,
     magma_int_t nelem, magma_int_t maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_interp_generic(magma_int_t P, magma_int_t Q,
+  CEED_INTERN magma_int_t magma_interp_generic(magma_int_t P, magma_int_t Q,
                                    magma_int_t dim, magma_int_t ncomp,
                                    const double *dT, CeedTransposeMode tmode,
                                    const double *dU, magma_int_t u_elemstride,
@@ -100,7 +108,7 @@ CEED_INTERN {
                                    magma_int_t cstrdV,
                                    magma_int_t nelem, magma_queue_t queue);
 
-  magma_int_t magma_interp(
+  CEED_INTERN magma_int_t magma_interp(
     magma_int_t P, magma_int_t Q,
     magma_int_t dim, magma_int_t ncomp,
     const double *dT, CeedTransposeMode tmode,
@@ -108,110 +116,110 @@ CEED_INTERN {
     double *dV, magma_int_t estrdV, magma_int_t cstrdV,
     magma_int_t nelem, magma_kernel_mode_t kernel_mode, magma_int_t *maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_grad_1d(
+  CEED_INTERN magma_int_t magma_grad_1d(
     magma_int_t P, magma_int_t Q, magma_int_t ncomp,
     const CeedScalar *dTinterp, const CeedScalar *dTgrad, CeedTransposeMode tmode,
     const CeedScalar *dU, magma_int_t estrdU, magma_int_t cstrdU,
     CeedScalar *dV, magma_int_t estrdV, magma_int_t cstrdV,
     magma_int_t nelem, magma_int_t maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_gradn_2d(
+  CEED_INTERN magma_int_t magma_gradn_2d(
     magma_int_t P, magma_int_t Q, magma_int_t ncomp,
     const CeedScalar *dinterp1d, const CeedScalar *dgrad1d, CeedTransposeMode tmode,
     const CeedScalar *dU, magma_int_t estrdU, magma_int_t cstrdU, magma_int_t dstrdU,
     CeedScalar *dV, magma_int_t estrdV, magma_int_t cstrdV, magma_int_t dstrdV,
     magma_int_t nelem, magma_int_t maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_gradt_2d(
+  CEED_INTERN magma_int_t magma_gradt_2d(
     magma_int_t P, magma_int_t Q, magma_int_t ncomp,
     const CeedScalar *dinterp1d, const CeedScalar *dgrad1d, CeedTransposeMode tmode,
     const CeedScalar *dU, magma_int_t estrdU, magma_int_t cstrdU, magma_int_t dstrdU,
     CeedScalar *dV, magma_int_t estrdV, magma_int_t cstrdV, magma_int_t dstrdV,
     magma_int_t nelem, magma_int_t maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_gradn_3d(
+  CEED_INTERN magma_int_t magma_gradn_3d(
     magma_int_t P, magma_int_t Q, magma_int_t ncomp,
     const CeedScalar *dinterp1d, const CeedScalar *dgrad1d, CeedTransposeMode tmode,
     const CeedScalar *dU, magma_int_t estrdU, magma_int_t cstrdU, magma_int_t dstrdU,
     CeedScalar *dV, magma_int_t estrdV, magma_int_t cstrdV, magma_int_t dstrdV,
     magma_int_t nelem, magma_int_t maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_gradt_3d(
+  CEED_INTERN magma_int_t magma_gradt_3d(
     magma_int_t P, magma_int_t Q, magma_int_t ncomp,
     const CeedScalar *dinterp1d, const CeedScalar *dgrad1d, CeedTransposeMode tmode,
     const CeedScalar *dU, magma_int_t estrdU, magma_int_t cstrdU, magma_int_t dstrdU,
     CeedScalar *dV, magma_int_t estrdV, magma_int_t cstrdV, magma_int_t dstrdV,
     magma_int_t nelem, magma_int_t maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_grad_generic(
+  CEED_INTERN magma_int_t magma_grad_generic(
     magma_int_t P, magma_int_t Q, magma_int_t dim, magma_int_t ncomp,
     const CeedScalar* dinterp1d, const CeedScalar *dgrad1d, CeedTransposeMode tmode,
     const CeedScalar *dU, magma_int_t estrdU, magma_int_t cstrdU, magma_int_t dstrdU,
     CeedScalar *dV, magma_int_t estrdV, magma_int_t cstrdV, magma_int_t dstrdV,
     magma_int_t nelem, magma_queue_t queue);
 
-  magma_int_t magma_grad(
+  CEED_INTERN magma_int_t magma_grad(
     magma_int_t P, magma_int_t Q, magma_int_t dim, magma_int_t ncomp,
     const CeedScalar *dinterp1d, const CeedScalar *dgrad1d, CeedTransposeMode tmode,
     const CeedScalar *dU, magma_int_t u_elemstride, magma_int_t cstrdU, magma_int_t dstrdU,
     CeedScalar *dV, magma_int_t v_elemstride, magma_int_t cstrdV, magma_int_t dstrdV,
     magma_int_t nelem, magma_kernel_mode_t kernel_mode, magma_int_t *maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_weight_1d(
+  CEED_INTERN magma_int_t magma_weight_1d(
     magma_int_t Q, const CeedScalar *dqweight1d,
     CeedScalar *dV, magma_int_t v_stride,
     magma_int_t nelem, magma_int_t maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_weight_2d(
+  CEED_INTERN magma_int_t magma_weight_2d(
     magma_int_t Q, const CeedScalar *dqweight1d,
     CeedScalar *dV, magma_int_t v_stride,
     magma_int_t nelem, magma_int_t maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_weight_3d(
+  CEED_INTERN magma_int_t magma_weight_3d(
     magma_int_t Q, const CeedScalar *dqweight1d,
     CeedScalar *dV, magma_int_t v_stride,
     magma_int_t nelem, magma_int_t maxthreads, magma_queue_t queue);
 
-  magma_int_t magma_weight_generic(
+  CEED_INTERN magma_int_t magma_weight_generic(
     magma_int_t Q, magma_int_t dim,
     const CeedScalar *dqweight1d,
     CeedScalar *dV, magma_int_t vstride,
     magma_int_t nelem, magma_queue_t queue);
 
-  magma_int_t magma_weight(
+  CEED_INTERN magma_int_t magma_weight(
     magma_int_t Q, magma_int_t dim,
     const CeedScalar *dqweight1d,
     CeedScalar *dV, magma_int_t v_stride,
     magma_int_t nelem, magma_kernel_mode_t kernel_mode, magma_int_t *maxthreads, magma_queue_t queue);
 
-  void magma_weight_nontensor(magma_int_t grid, magma_int_t threads, magma_int_t nelem,
+  CEED_INTERN void magma_weight_nontensor(magma_int_t grid, magma_int_t threads, magma_int_t nelem,
                               magma_int_t Q,
                               double *dqweight, double *dv, magma_queue_t queue);
 
 
-  void magma_readDofsOffset(const magma_int_t NCOMP,
+  CEED_INTERN void magma_readDofsOffset(const magma_int_t NCOMP,
                             const magma_int_t compstride,
                             const magma_int_t esize, const magma_int_t nelem,
                             magma_int_t *offsets, const double *du, double *dv,
                             magma_queue_t queue);
 
-  void magma_readDofsStrided(const magma_int_t NCOMP, const magma_int_t esize,
+  CEED_INTERN void magma_readDofsStrided(const magma_int_t NCOMP, const magma_int_t esize,
                              const magma_int_t nelem, magma_int_t *strides,
                              const double *du, double *dv,
                              magma_queue_t queue);
 
-  void magma_writeDofsOffset(const magma_int_t NCOMP,
+  CEED_INTERN void magma_writeDofsOffset(const magma_int_t NCOMP,
                              const magma_int_t compstride,
                              const magma_int_t esize, const magma_int_t nelem,
                              magma_int_t *offsets,const double *du, double *dv,
                              magma_queue_t queue);
 
-  void magma_writeDofsStrided(const magma_int_t NCOMP, const magma_int_t esize,
+  CEED_INTERN void magma_writeDofsStrided(const magma_int_t NCOMP, const magma_int_t esize,
                               const magma_int_t nelem, magma_int_t *strides,
                               const double *du, double *dv,
                               magma_queue_t queue);
 
-  int magma_dgemm_nontensor(
+  CEED_INTERN int magma_dgemm_nontensor(
     magma_trans_t transA, magma_trans_t transB,
     magma_int_t m, magma_int_t n, magma_int_t k,
     double alpha, const double *dA, magma_int_t ldda,
@@ -220,10 +228,9 @@ CEED_INTERN {
     magma_queue_t queue );
 
 
-  magma_int_t
-  magma_isdevptr(const void *A);
+  CEED_INTERN magma_int_t magma_isdevptr(const void *A);
 
-  int CeedBasisCreateTensorH1_Magma(CeedInt dim, CeedInt P1d,
+  CEED_INTERN int CeedBasisCreateTensorH1_Magma(CeedInt dim, CeedInt P1d,
                                     CeedInt Q1d,
                                     const CeedScalar *interp1d,
                                     const CeedScalar *grad1d,
@@ -231,7 +238,7 @@ CEED_INTERN {
                                     const CeedScalar *qweight1d,
                                     CeedBasis basis);
 
-  int CeedBasisCreateH1_Magma(CeedElemTopology topo, CeedInt dim,
+  CEED_INTERN int CeedBasisCreateH1_Magma(CeedElemTopology topo, CeedInt dim,
                               CeedInt ndof, CeedInt nqpts,
                               const CeedScalar *interp,
                               const CeedScalar *grad,
@@ -239,21 +246,19 @@ CEED_INTERN {
                               const CeedScalar *qweight,
                               CeedBasis basis);
 
-  int CeedElemRestrictionCreate_Magma(CeedMemType mtype,
+  CEED_INTERN int CeedElemRestrictionCreate_Magma(CeedMemType mtype,
                                       CeedCopyMode cmode,
                                       const CeedInt *offsets,
                                       CeedElemRestriction r);
 
-  int CeedElemRestrictionCreateBlocked_Magma(const CeedMemType mtype,
+  CEED_INTERN int CeedElemRestrictionCreateBlocked_Magma(const CeedMemType mtype,
       const CeedCopyMode cmode,
       const CeedInt *offsets,
       const CeedElemRestriction res);
 
-  int CeedOperatorCreate_Magma(CeedOperator op);
+  CEED_INTERN int CeedOperatorCreate_Magma(CeedOperator op);
 
-  #ifdef __cplusplus
-}
-  #endif
+  CEED_INTERN int CeedQFunctionCreate_Magma(CeedQFunction qf);
 
 // comment the line below to use the default magma_is_devptr function
 #define magma_is_devptr magma_isdevptr
