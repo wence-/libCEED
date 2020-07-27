@@ -138,6 +138,11 @@ static int CeedInit_Magma(const char *resource, Ceed ceed) {
                                 CeedDestroy_Magma); CeedChk(ierr);
   ierr = CeedSetBackendFunction(ceed, "Ceed", ceed, "QFunctionCreate",
                                 CeedQFunctionCreate_Magma); CeedChk(ierr);
+  ierr = CeedSetBackendFunction(ceed, "Ceed", ceed, "OperatorCreate",
+                                CeedOperatorCreate_Magma); CeedChk(ierr);
+  ierr = CeedSetBackendFunction(ceed, "Ceed", ceed, "CompositeOperatorCreate",
+                                CeedCompositeOperatorCreate_Magma); CeedChk(ierr);
+
 
   return 0;
 }
