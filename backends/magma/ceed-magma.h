@@ -87,7 +87,7 @@ typedef struct {
   CeedVector *qvecsout;   // Output Q-vectors needed to apply operator
   CeedInt    numein;
   CeedInt    numeout;
-  CeedOperatorDiag_Cuda *diag;
+  CeedOperatorDiag_Magma *diag;
 } CeedOperator_Magma;
 
 typedef struct {
