@@ -63,7 +63,32 @@ typedef struct {
   CUfunction qFunction;
   Fields_Cuda fields;
   void *d_c;
+  int dim;
+  int qe;    // Number of nodes in one direction of the tensor quadrature rule (Q = q^dim)
 } CeedQFunction_Magma;
+
+typedef struct {
+  CUmodule module;
+  CUfunction linearDiagonal;
+  CUfunction linearPointBlock;
+  CeedBasis basisin, basisout;
+  CeedElemRestriction diagrstr, pbdiagrstr;
+  CeedInt numemodein, numemodeout, nnodes;
+  CeedEvalMode *h_emodein, *h_emodeout;
+  CeedEvalMode *d_emodein, *d_emodeout;
+  CeedScalar *d_identity, *d_interpin, *d_interpout, *d_gradin, *d_gradout;
+} CeedOperatorDiag_Magma;
+
+typedef struct {
+  CeedVector
+  *evecs;   // E-vectors needed to apply operator (input followed by outputs)
+  CeedScalar **edata;
+  CeedVector *qvecsin;    // Input Q-vectors needed to apply operator
+  CeedVector *qvecsout;   // Output Q-vectors needed to apply operator
+  CeedInt    numein;
+  CeedInt    numeout;
+  CeedOperatorDiag_Cuda *diag;
+} CeedOperator_Magma;
 
 typedef struct {
   const CeedScalar *inputs[16];
@@ -256,9 +281,12 @@ typedef struct {
       const CeedInt *offsets,
       const CeedElemRestriction res);
 
+  CEED_INTERN int CeedQFunctionCreate_Magma(CeedQFunction qf);
+
   CEED_INTERN int CeedOperatorCreate_Magma(CeedOperator op);
 
-  CEED_INTERN int CeedQFunctionCreate_Magma(CeedQFunction qf);
+  CEED_INTERN int CeedCompositeOperatorCreate_Magma(CeedOperator op);
+
 
 // comment the line below to use the default magma_is_devptr function
 #define magma_is_devptr magma_isdevptr
