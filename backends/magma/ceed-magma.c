@@ -16,6 +16,71 @@
 
 #include "ceed-magma.h"
 
+//------------------------------------------------------------------------------
+// RTC
+//------------------------------------------------------------------------------
+int magma_rtc_cuda(Ceed ceed, const char *source, CUmodule *module,
+              const CeedInt numopts, ...)
+{
+  int ierr;
+  nvrtcProgram prog;
+  CeedChk_Nvrtc(ceed, nvrtcCreateProgram(&prog, source, NULL, 0, NULL, NULL));
+
+  // Get kernel specific options, such as kernel constants
+  const int optslen = 32;
+  const int optsextra = 4;
+  const char *opts[numopts + optsextra];
+  char buf[numopts][optslen];
+  if (numopts > 0) {
+    va_list args;
+    va_start(args, numopts);
+    char *name;
+    int val;
+    for (int i = 0; i < numopts; i++) {
+      name = va_arg(args, char *);
+      val = va_arg(args, int);
+      snprintf(&buf[i][0], optslen,"-D%s=%d", name, val);
+      opts[i] = &buf[i][0];
+    }
+    va_end(args);
+  }
+
+  // Standard backend options
+  opts[numopts]     = "-DCeedScalar=double";
+  opts[numopts + 1] = "-DCeedInt=int";
+  opts[numopts + 2] = "-default-device";
+  struct cudaDeviceProp prop;
+  Ceed_Magma *magma_data;
+  ierr = CeedGetData(ceed, (void *)&magma_data); CeedChk(ierr);
+  ierr = cudaGetDeviceProperties(&prop, magma_data->device);
+  CeedChk_Cu(ceed, ierr);
+  char buff[optslen];
+  snprintf(buff, optslen,"-arch=compute_%d%d", prop.major, prop.minor);
+  opts[numopts + 3] = buff;
+
+  // Compile kernel
+  nvrtcResult result = nvrtcCompileProgram(prog, numopts + optsextra, opts);
+  if (result != NVRTC_SUCCESS) {
+    size_t logsize;
+    CeedChk_Nvrtc(ceed, nvrtcGetProgramLogSize(prog, &logsize));
+    char *log;
+    ierr = CeedMalloc(logsize, &log); CeedChk(ierr);
+    CeedChk_Nvrtc(ceed, nvrtcGetProgramLog(prog, log));
+    return CeedError(ceed, (int)result, "%s\n%s", nvrtcGetErrorString(result), log);
+  }
+
+  size_t ptxsize;
+  CeedChk_Nvrtc(ceed, nvrtcGetPTXSize(prog, &ptxsize));
+  char *ptx;
+  ierr = CeedMalloc(ptxsize, &ptx); CeedChk(ierr);
+  CeedChk_Nvrtc(ceed, nvrtcGetPTX(prog, ptx));
+  CeedChk_Nvrtc(ceed, nvrtcDestroyProgram(&prog));
+
+  CeedChk_Cu(ceed, cuModuleLoadData(module, ptx));
+  ierr = CeedFree(&ptx); CeedChk(ierr);
+  return 0;
+}
+
 static int CeedDestroy_Magma(Ceed ceed) {
   int ierr;
   Ceed_Magma *data;
@@ -71,6 +136,9 @@ static int CeedInit_Magma(const char *resource, Ceed ceed) {
                                 CeedBasisCreateH1_Magma); CeedChk(ierr);
   ierr = CeedSetBackendFunction(ceed, "Ceed", ceed, "Destroy",
                                 CeedDestroy_Magma); CeedChk(ierr);
+  ierr = CeedSetBackendFunction(ceed, "Ceed", ceed, "QFunctionCreate",
+                                CeedQFunctionCreate_Magma); CeedChk(ierr);
+
   return 0;
 }
 
