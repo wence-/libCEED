@@ -1,0 +1,8 @@
+name: libCEED-tutorial-environment
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - numpy
+  - altair
+  - petsc
