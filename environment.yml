@@ -7,3 +7,4 @@ dependencies:
   - altair
   - gcc_linux-64
   - petsc
+  - libxsmm
