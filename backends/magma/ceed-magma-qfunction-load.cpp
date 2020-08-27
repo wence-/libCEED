@@ -55,6 +55,8 @@ extern "C" int CeedMagmaBuildQFunction(CeedQFunction qf) {
   if (!data->qFunctionSource)
     return 0;
 
+  printf("CeedMagmaBuildQFunction: (dim, Q) = (%d, %d) \n", data->dim, data->qe);
+
   // QFunction kernel generation
   CeedInt numinputfields, numoutputfields, size;
   ierr = CeedQFunctionGetNumArgs(qf, &numinputfields, &numoutputfields);
@@ -104,6 +106,8 @@ extern "C" int CeedMagmaBuildQFunction(CeedQFunction qf) {
     code << "    out["<<i<<"] = r_qq"<<i<<";\n";
   }
 
+  #if 0
+  //==========================================================================================================
   // Loop over quadrature points
   code << "  for (CeedInt q = blockIdx.x * blockDim.x + threadIdx.x; q < Q; q += blockDim.x * gridDim.x) {\n";
 
@@ -123,11 +127,37 @@ extern "C" int CeedMagmaBuildQFunction(CeedQFunction qf) {
   }
   code << "  }\n";
   code << "}\n";
+  #else
+  //==========================================================================================================
+  // Loop over quadrature points
+  code << "  const CeedInt Q1d = "<<data->qe<<";\n";
+  code << "  const CeedInt dim = "<<data->dim<<";\n";
+  code << "  const CeedInt Quads_per_block = "<<CeedIntPow(data->qe, data->dim)<<";\n";
+  code << "  for (CeedInt iq = 0; iq < Q1d; iq++) {\n";
+  code << " CeedInt q = (blockIdx.x * Quads_per_block) + (iq * blockDim.x) + threadIdx.x;\n";
+  // Load inputs
+  for (CeedInt i = 0; i < numinputfields; i++) {
+    code << "// Input field "<<i<<"\n";
+    code << "  readQuads<size_in_"<<i<<">(q, Q, fields.inputs["<<i<<"], r_q"<<i<<");\n";
+  }
+  // QFunction
+  code << "// QFunction\n";
+  code << "    "<<qFunctionName<<"(ctx, 1, in, out);\n";
+
+  // Write outputs
+  for (CeedInt i = 0; i < numoutputfields; i++) {
+    code << "// Output field "<<i<<"\n";
+    code << "  writeQuads<size_out_"<<i<<">(q, Q, r_qq"<<i<<", fields.outputs["<<i<<"]);\n";
+  }
+  code << "  }\n";
+  code << "}\n";
+  //==========================================================================================================
+  #endif
 
   // View kernel for debugging
   Ceed ceed;
   CeedQFunctionGetCeed(qf, &ceed);
-  CeedDebug(code.str().c_str());
+  //printf("%s \n", code.str().c_str());
 
   // Compile kernel
   ierr = magma_rtc_cuda(ceed, code.str().c_str(), &data->module, 0);
