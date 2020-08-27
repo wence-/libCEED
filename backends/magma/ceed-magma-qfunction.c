@@ -39,7 +39,9 @@ static int CeedQFunctionApply_Magma(CeedQFunction qf, CeedInt Q,
   CeedInt numinputfields, numoutputfields;
   ierr = CeedQFunctionGetNumArgs(qf, &numinputfields, &numoutputfields);
   CeedChk(ierr);
-  const int blocksize = 1024; //ceed_Cuda->optblocksize;
+  printf("\n>>>>>>>>>> calling CeedQFunctionApply_Magma <<<<<<<<<<\n");
+  printf("QF data: (dim, Q, nQuads) = (%d, %d, %d) \n", data->dim, data->qe, Q);
+  const int blocksize = data->dim == 1 ? data->qe : CeedIntPow(data->qe, data->dim-1);
 
   // Read vectors
   for (CeedInt i = 0; i < numinputfields; i++) {
@@ -67,7 +69,7 @@ static int CeedQFunctionApply_Magma(CeedQFunction qf, CeedInt Q,
 
   // Run kernel
   void *args[] = {&data->d_c, (void *) &Q, &data->fields};
-  ierr = CeedRunKernelCuda(ceed, data->qFunction, CeedDivUpInt(Q, blocksize),
+  ierr = CeedRunKernelCuda(ceed, data->qFunction, CeedDivUpInt(Q, blocksize*data->qe),
                            blocksize, args); CeedChk(ierr);
 
 // Restore vectors
@@ -159,6 +161,8 @@ int CeedQFunctionCreate_Magma(CeedQFunction qf) {
   CeedQFunctionGetCeed(qf, &ceed);
   CeedQFunction_Magma *data;
   ierr = CeedCalloc(1,&data); CeedChk(ierr);
+  data->dim = -1;
+  data->qe = -1;
   ierr = CeedQFunctionSetData(qf, (void *)&data); CeedChk(ierr);
   CeedInt numinputfields, numoutputfields;
   ierr = CeedQFunctionGetNumArgs(qf, &numinputfields, &numoutputfields);
