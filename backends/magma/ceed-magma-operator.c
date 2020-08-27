@@ -179,6 +179,7 @@ static int CeedOperatorSetupFields_Magma(CeedQFunction qf, CeedOperator op,
 //   to the named inputs and outputs of its CeedQFunction.
 //------------------------------------------------------------------------------
 static int CeedOperatorSetup_Magma(CeedOperator op) {
+  //printf("\n>>>>>>>>>> calling CeedOperatorSetup_Magma <<<<<<<<<<\n");
   int ierr;
   bool setupdone;
   ierr = CeedOperatorIsSetupDone(op, &setupdone); CeedChk(ierr);
@@ -227,6 +228,59 @@ static int CeedOperatorSetup_Magma(CeedOperator op) {
                                       numelements); CeedChk(ierr);
 
   ierr = CeedOperatorSetSetupDone(op); CeedChk(ierr);
+
+  if(1){
+    CeedBasis basis;
+    CeedInt idim = -1, iQ = -1, dim_ = -1, Q_ = -1;
+    for(int ifield = 0; ifield < numinputfields; ifield++) {
+          idim = -1;
+          iQ = -1;
+          ierr = CeedOperatorFieldGetBasis(opinputfields[ifield], &basis); CeedChk(ierr);
+          ierr = CeedBasisGetDimension(basis, &idim); CeedChk(ierr);
+          bool isTensor;
+          ierr = CeedBasisIsTensor(basis, &isTensor); CeedChk(ierr);
+          if (isTensor == true) {
+            ierr = CeedBasisGetNumQuadraturePoints1D(basis, &iQ); CeedChk(ierr);
+          }
+          printf("[%2d]: (%2d, %2d)\n", ifield, idim, iQ);
+          if(idim > 0) {
+              if(dim_ <= 0) dim_ = idim;
+              else if( idim != dim_ ) printf("Error: idim = %d for ifield %d, but dim_ = %d\n", idim, ifield, dim_);
+          }
+          if(iQ > 0) {
+              if(Q_ <= 0) Q_ = iQ;
+              else if( iQ != Q_ ) printf("Error: iQ = %d for ifield %d, but Q_ = %d\n", iQ, ifield, Q_);
+          }
+    }
+
+    for(int ofield = 0; ofield < numoutputfields; ofield++) {
+        idim = -1;
+        iQ = -1;
+        ierr = CeedOperatorFieldGetBasis(opoutputfields[ofield], &basis); CeedChk(ierr);
+        ierr = CeedBasisGetDimension(basis, &idim); CeedChk(ierr);
+        bool isTensor;
+        ierr = CeedBasisIsTensor(basis, &isTensor); CeedChk(ierr);
+        if (isTensor == true) {
+          ierr = CeedBasisGetNumQuadraturePoints1D(basis, &iQ); CeedChk(ierr);
+        }
+        printf("[%2d]: (%2d, %2d)\n", ofield, idim, iQ);
+        if(idim > 0) {
+            if(dim_ <= 0) dim_ = idim;
+            else if( idim != dim_ ) printf("Error: idim = %d for ofield %d, but dim_ = %d\n", idim, ofield, dim_);
+        }
+        if(iQ > 0) {
+            if(Q_ <= 0) Q_ = iQ;
+            else if( iQ != Q_ ) printf("Error: iQ = %d for ofield %d, but Q_ = %d\n", iQ, ofield, Q_);
+        }
+    }
+    printf("input-fields = %d, output-fields = %d, dim = %d, Q = %d\n", numinputfields, numoutputfields, dim_, Q_);
+    //// set special QF-OP data
+    CeedQFunction_Magma* qf_impl;
+    ierr = CeedQFunctionGetData(qf, (void*)&qf_impl);
+    qf_impl->dim = dim_;
+    qf_impl->qe = Q_;
+  }
+
   return 0;
 }
 
@@ -381,6 +435,7 @@ static inline int CeedOperatorRestoreInputs_Magma(CeedInt numinputfields,
 //------------------------------------------------------------------------------
 static int CeedOperatorApplyAdd_Magma(CeedOperator op, CeedVector invec,
                                      CeedVector outvec, CeedRequest *request) {
+  //printf("\n>>>>>>>>>> calling CeedOperatorApplyAdd_Magma <<<<<<<<<<\n");
   int ierr;
   CeedOperator_Magma *impl;
   ierr = CeedOperatorGetData(op, (void *)&impl); CeedChk(ierr);
@@ -975,7 +1030,7 @@ static inline int CeedOperatorAssembleDiagonalSetup_Magma(CeedOperator op,
   ierr = CeedBasisGetNumNodes(basisin, &nnodes); CeedChk(ierr);
   ierr = CeedBasisGetNumQuadraturePoints(basisin, &nqpts); CeedChk(ierr);
   diag->nnodes = nnodes;
-  ierr = CeedCompileCuda(ceed, diagonalkernels, &diag->module, 5,
+  ierr = magma_rtc_cuda(ceed, diagonalkernels, &diag->module, 5,
                          "NUMEMODEIN", numemodein,
                          "NUMEMODEOUT", numemodeout,
                          "NNODES", nnodes,
