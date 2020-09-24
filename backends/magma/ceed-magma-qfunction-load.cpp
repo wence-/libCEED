@@ -80,84 +80,71 @@ extern "C" int CeedMagmaBuildQFunction(CeedQFunction qf) {
   code << qFunction;
   code << "extern \"C\" __global__ void "<< qFunctionKernelName <<"(void *ctx, CeedInt Q, Fields_Magma fields) {\n";
 
+  code << "  const CeedInt Q1d = "<<data->qe<<";\n";
+  code << "  const CeedInt dim = "<<data->dim<<";\n";
+  code << "  const CeedInt Quads_per_block = "<<CeedIntPow(data->qe, data->dim)<<";\n";
+
   // Inputs
   for (CeedInt i = 0; i < numinputfields; i++) {
-    code << "// Input field "<<i<<"\n";
+    code << "  // Input field "<<i<<"\n";
     ierr = CeedQFunctionFieldGetSize(qfinputfields[i], &size); CeedChk(ierr);
     code << "  const CeedInt size_in_"<<i<<" = "<<size<<";\n";
-    code << "  CeedScalar r_q"<<i<<"[size_in_"<<i<<"];\n";
+    //code << "  CeedScalar r_q"<<i<<"[size_in_"<<i<<"];\n";
+    code << "  CeedScalar r_q"<<i<<"[Q1d]"<<"[size_in_"<<i<<"];\n";
   }
 
   // Outputs
   for (CeedInt i = 0; i < numoutputfields; i++) {
-    code << "// Output field "<<i<<"\n";
+    code << "  // Output field "<<i<<"\n";
     ierr = CeedQFunctionFieldGetSize(qfoutputfields[i], &size); CeedChk(ierr);
     code << "  const CeedInt size_out_"<<i<<" = "<<size<<";\n";
-    code << "  CeedScalar r_qq"<<i<<"[size_out_"<<i<<"];\n";
+    code << "  CeedScalar r_qq"<<i<<"[Q1d]"<<"[size_out_"<<i<<"];\n";
   }
+
+  // read all quadrature points into registers
+  code << "  for (CeedInt iq = 0; iq < Q1d; iq++) {\n";
+  code << "    CeedInt q = (blockIdx.x * Quads_per_block) + (iq * blockDim.x) + threadIdx.x;\n";
+  for (CeedInt i = 0; i < numinputfields; i++) {
+    code << "    // Input field "<<i<<"\n";
+    code << "    readQuads<size_in_"<<i<<">(q, Q, fields.inputs["<<i<<"], r_q"<<i<<"[iq]);\n";
+  }
+  code << "  }\n";
+
+  // Loop over quadrature points
+  code << "  for (CeedInt iq = 0; iq < Q1d; iq++) {\n";
+  code << "    CeedInt q = (blockIdx.x * Quads_per_block) + (iq * blockDim.x) + threadIdx.x;\n";
 
   // Setup input/output arrays
-  code << "  const CeedScalar* in["<<numinputfields<<"];\n";
+  code << "    const CeedScalar* in["<<numinputfields<<"];\n";
   for (CeedInt i = 0; i < numinputfields; i++) {
-    code << "    in["<<i<<"] = r_q"<<i<<";\n";
+    code << "    in["<<i<<"] = r_q"<<i<<"[iq];\n";
   }
-  code << "  CeedScalar* out["<<numoutputfields<<"];\n";
+  code << "    CeedScalar* out["<<numoutputfields<<"];\n";
   for (CeedInt i = 0; i < numoutputfields; i++) {
-    code << "    out["<<i<<"] = r_qq"<<i<<";\n";
+    code << "    out["<<i<<"] = r_qq"<<i<<"[iq];\n";
   }
 
-  #if 0
-  //==========================================================================================================
-  // Loop over quadrature points
-  code << "  for (CeedInt q = blockIdx.x * blockDim.x + threadIdx.x; q < Q; q += blockDim.x * gridDim.x) {\n";
-
-  // Load inputs
-  for (CeedInt i = 0; i < numinputfields; i++) {
-    code << "// Input field "<<i<<"\n";
-    code << "  readQuads<size_in_"<<i<<">(q, Q, fields.inputs["<<i<<"], r_q"<<i<<");\n";
-  }
   // QFunction
-  code << "// QFunction\n";
+  code << "    // QFunction\n";
   code << "    "<<qFunctionName<<"(ctx, 1, in, out);\n";
+  code << "  }\n";
 
   // Write outputs
-  for (CeedInt i = 0; i < numoutputfields; i++) {
-    code << "// Output field "<<i<<"\n";
-    code << "  writeQuads<size_out_"<<i<<">(q, Q, r_qq"<<i<<", fields.outputs["<<i<<"]);\n";
-  }
-  code << "  }\n";
-  code << "}\n";
-  #else
-  //==========================================================================================================
-  // Loop over quadrature points
-  code << "  const CeedInt Q1d = "<<data->qe<<";\n";
-  code << "  const CeedInt dim = "<<data->dim<<";\n";
-  code << "  const CeedInt Quads_per_block = "<<CeedIntPow(data->qe, data->dim)<<";\n";
   code << "  for (CeedInt iq = 0; iq < Q1d; iq++) {\n";
-  code << " CeedInt q = (blockIdx.x * Quads_per_block) + (iq * blockDim.x) + threadIdx.x;\n";
-  // Load inputs
-  for (CeedInt i = 0; i < numinputfields; i++) {
-    code << "// Input field "<<i<<"\n";
-    code << "  readQuads<size_in_"<<i<<">(q, Q, fields.inputs["<<i<<"], r_q"<<i<<");\n";
-  }
-  // QFunction
-  code << "// QFunction\n";
-  code << "    "<<qFunctionName<<"(ctx, 1, in, out);\n";
-
-  // Write outputs
+  code << "    CeedInt q = (blockIdx.x * Quads_per_block) + (iq * blockDim.x) + threadIdx.x;\n";
   for (CeedInt i = 0; i < numoutputfields; i++) {
     code << "// Output field "<<i<<"\n";
-    code << "  writeQuads<size_out_"<<i<<">(q, Q, r_qq"<<i<<", fields.outputs["<<i<<"]);\n";
+    code << "  writeQuads<size_out_"<<i<<">(q, Q, r_qq"<<i<<"[iq], fields.outputs["<<i<<"]);\n";
   }
   code << "  }\n";
   code << "}\n";
-  //==========================================================================================================
-  #endif
 
   // View kernel for debugging
   Ceed ceed;
   CeedQFunctionGetCeed(qf, &ceed);
+  //printf("\n************************************************************************\n");
   //printf("%s \n", code.str().c_str());
+  //printf("\n************************************************************************\n");
 
   // Compile kernel
   ierr = magma_rtc_cuda(ceed, code.str().c_str(), &data->module, 0);
