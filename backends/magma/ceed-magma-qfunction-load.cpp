@@ -55,7 +55,7 @@ extern "C" int CeedMagmaBuildQFunction(CeedQFunction qf) {
   if (!data->qFunctionSource)
     return 0;
 
-  printf("CeedMagmaBuildQFunction: (dim, Q) = (%d, %d) \n", data->dim, data->qe);
+  ceed_magma_printf("CeedMagmaBuildQFunction: (dim, Q) = (%d, %d) \n", data->dim, data->qe);
 
   // QFunction kernel generation
   CeedInt numinputfields, numoutputfields, size;
@@ -142,9 +142,9 @@ extern "C" int CeedMagmaBuildQFunction(CeedQFunction qf) {
   // View kernel for debugging
   Ceed ceed;
   CeedQFunctionGetCeed(qf, &ceed);
-  //printf("\n************************************************************************\n");
-  //printf("%s \n", code.str().c_str());
-  //printf("\n************************************************************************\n");
+  ceed_magma_printf("\n************************************************************************\n");
+  ceed_magma_printf("%s \n", code.str().c_str());
+  ceed_magma_printf("\n************************************************************************\n");
 
   // Compile kernel
   ierr = magma_rtc_cuda(ceed, code.str().c_str(), &data->module, 0);

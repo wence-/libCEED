@@ -39,8 +39,8 @@ static int CeedQFunctionApply_Magma(CeedQFunction qf, CeedInt Q,
   CeedInt numinputfields, numoutputfields;
   ierr = CeedQFunctionGetNumArgs(qf, &numinputfields, &numoutputfields);
   CeedChk(ierr);
-  printf("\n>>>>>>>>>> calling CeedQFunctionApply_Magma <<<<<<<<<<\n");
-  printf("QF data: (dim, Q, nQuads) = (%d, %d, %d) \n", data->dim, data->qe, Q);
+  ceed_magma_printf("\n>>>>>>>>>> calling CeedQFunctionApply_Magma <<<<<<<<<<\n");
+  ceed_magma_printf("QF data: (dim, Q, nQuads) = (%d, %d, %d) \n", data->dim, data->qe, Q);
   const int blocksize = data->dim == 1 ? data->qe : CeedIntPow(data->qe, data->dim-1);
 
   // Read vectors
