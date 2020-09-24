@@ -142,9 +142,11 @@ extern "C" int CeedMagmaBuildQFunction(CeedQFunction qf) {
   // View kernel for debugging
   Ceed ceed;
   CeedQFunctionGetCeed(qf, &ceed);
-  ceed_magma_printf("\n************************************************************************\n");
-  ceed_magma_printf("%s \n", code.str().c_str());
-  ceed_magma_printf("\n************************************************************************\n");
+  if(0) {
+    printf("\n************************************************************************\n");
+    printf("%s \n", code.str().c_str());
+    printf("\n************************************************************************\n");
+  }
 
   // Compile kernel
   ierr = magma_rtc_cuda(ceed, code.str().c_str(), &data->module, 0);

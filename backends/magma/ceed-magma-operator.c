@@ -244,11 +244,15 @@ static int CeedOperatorSetup_Magma(CeedOperator op) {
           ceed_magma_printf("[%2d]: (%2d, %2d)\n", ifield, idim, iQ);
           if(idim > 0) {
               if(dim_ <= 0) dim_ = idim;
-              else if( idim != dim_ ) ceed_magma_printf("Error: idim = %d for ifield %d, but dim_ = %d\n", idim, ifield, dim_);
+              else if( idim != dim_ ) {
+                ceed_magma_printf("Error: idim = %d for ifield %d, but dim_ = %d\n", idim, ifield, dim_);
+              }
           }
           if(iQ > 0) {
               if(Q_ <= 0) Q_ = iQ;
-              else if( iQ != Q_ ) ceed_magma_printf("Error: iQ = %d for ifield %d, but Q_ = %d\n", iQ, ifield, Q_);
+              else if( iQ != Q_ ) {
+                ceed_magma_printf("Error: iQ = %d for ifield %d, but Q_ = %d\n", iQ, ifield, Q_);
+              }
           }
     }
 
@@ -265,11 +269,15 @@ static int CeedOperatorSetup_Magma(CeedOperator op) {
         ceed_magma_printf("[%2d]: (%2d, %2d)\n", ofield, idim, iQ);
         if(idim > 0) {
             if(dim_ <= 0) dim_ = idim;
-            else if( idim != dim_ ) ceed_magma_printf("Error: idim = %d for ofield %d, but dim_ = %d\n", idim, ofield, dim_);
+            else if( idim != dim_ ) {
+              ceed_magma_printf("Error: idim = %d for ofield %d, but dim_ = %d\n", idim, ofield, dim_);
+            }
         }
         if(iQ > 0) {
             if(Q_ <= 0) Q_ = iQ;
-            else if( iQ != Q_ ) ceed_magma_printf("Error: iQ = %d for ofield %d, but Q_ = %d\n", iQ, ofield, Q_);
+            else if( iQ != Q_ ) {
+              ceed_magma_printf("Error: iQ = %d for ofield %d, but Q_ = %d\n", iQ, ofield, Q_);
+            }
         }
     }
     ceed_magma_printf("input-fields = %d, output-fields = %d, dim = %d, Q = %d\n", numinputfields, numoutputfields, dim_, Q_);
