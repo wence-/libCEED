@@ -90,7 +90,7 @@ extern "C" int CeedMagmaBuildQFunction(CeedQFunction qf) {
     ierr = CeedQFunctionFieldGetSize(qfinputfields[i], &size); CeedChk(ierr);
     code << "  const CeedInt size_in_"<<i<<" = "<<size<<";\n";
     //code << "  CeedScalar r_q"<<i<<"[size_in_"<<i<<"];\n";
-    code << "  CeedScalar r_q"<<i<<"[Q1d]"<<"[size_in_"<<i<<"];\n";
+    code << "  CeedScalar r_q"<<i<<"[Q1d]"<<"[size_in_"<<i<<"];\n\n";
   }
 
   // Outputs
@@ -98,7 +98,7 @@ extern "C" int CeedMagmaBuildQFunction(CeedQFunction qf) {
     code << "  // Output field "<<i<<"\n";
     ierr = CeedQFunctionFieldGetSize(qfoutputfields[i], &size); CeedChk(ierr);
     code << "  const CeedInt size_out_"<<i<<" = "<<size<<";\n";
-    code << "  CeedScalar r_qq"<<i<<"[Q1d]"<<"[size_out_"<<i<<"];\n";
+    code << "  CeedScalar r_qq"<<i<<"[Q1d]"<<"[size_out_"<<i<<"];\n\n";
   }
 
   // read all quadrature points into registers
@@ -108,18 +108,18 @@ extern "C" int CeedMagmaBuildQFunction(CeedQFunction qf) {
     code << "    // Input field "<<i<<"\n";
     code << "    readQuads<size_in_"<<i<<">(q, Q, fields.inputs["<<i<<"], r_q"<<i<<"[iq]);\n";
   }
-  code << "  }\n";
+  code << "  }\n\n";
 
   // Loop over quadrature points
+  code << "    const CeedScalar* in["<<numinputfields<<"];\n";
+  code << "    CeedScalar* out["<<numoutputfields<<"];\n";
   code << "  for (CeedInt iq = 0; iq < Q1d; iq++) {\n";
   code << "    CeedInt q = (blockIdx.x * Quads_per_block) + (iq * blockDim.x) + threadIdx.x;\n";
 
   // Setup input/output arrays
-  code << "    const CeedScalar* in["<<numinputfields<<"];\n";
   for (CeedInt i = 0; i < numinputfields; i++) {
     code << "    in["<<i<<"] = r_q"<<i<<"[iq];\n";
   }
-  code << "    CeedScalar* out["<<numoutputfields<<"];\n";
   for (CeedInt i = 0; i < numoutputfields; i++) {
     code << "    out["<<i<<"] = r_qq"<<i<<"[iq];\n";
   }
@@ -127,13 +127,13 @@ extern "C" int CeedMagmaBuildQFunction(CeedQFunction qf) {
   // QFunction
   code << "    // QFunction\n";
   code << "    "<<qFunctionName<<"(ctx, 1, in, out);\n";
-  code << "  }\n";
+  code << "  }\n\n";
 
   // Write outputs
   code << "  for (CeedInt iq = 0; iq < Q1d; iq++) {\n";
   code << "    CeedInt q = (blockIdx.x * Quads_per_block) + (iq * blockDim.x) + threadIdx.x;\n";
   for (CeedInt i = 0; i < numoutputfields; i++) {
-    code << "// Output field "<<i<<"\n";
+    code << "  // Output field "<<i<<"\n";
     code << "  writeQuads<size_out_"<<i<<">(q, Q, r_qq"<<i<<"[iq], fields.outputs["<<i<<"]);\n";
   }
   code << "  }\n";
