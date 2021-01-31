@@ -471,3 +471,39 @@ That is, given the linearization point :math:`\bm F` and solution increment :mat
    Along with 6 entries for :math:`\bm S`, this totals 27 entries of overhead compared to computing everything from :math:`\bm F`.
    This compares with 13 entries of overhead for direct storage of :math:`\{ \bm S, \bm C^{-1}, \log J \}`, which is sufficient for the Neo-Hookean model to avoid all but matrix products.
 
+
+.. _problem-hyperelasticity-finite-strain-initial:
+
+Hyperelasticity at Finite Strain at Current configuration
+----------------------------------------
+
+In this section we rewrite :math:numref:`hyperelastic-weak-form` in current configuration. The first term can be rewritten in terms of symmetric Kirchhoff stress tensor 
+:math:`\bm{\tau}=J\bm{\sigma}=\bm{P}\bm{F}^T` as
+
+.. math::
+   \nabla_X \bm{v} \colon \bm{P} = \nabla_X \bm{v} \colon \bm{\tau}\bm{F}^{-T} = \nabla_X \bm{v}\bm{F}^{-1} \colon \bm{\tau} = \nabla_x \bm{v} \colon \bm{\tau}
+
+In order to find the relationship between the unit vetor :math:`\hat{\bm{n}}` and :math:`\hat{\bm{N}}` we use Nanson's formulate
+
+.. math::
+   ds\hat{\bm{n}} = J \bm{F}^{-T}dS\hat{\bm{N}}
+
+and the boundary term in :math:numref:`hyperelastic-weak-form` can be rewritten as
+
+.. math::
+   \bm{v}\cdot(\bm{\sigma}\cdot\hat{\bm{n}})ds = \bm{v}\cdot(\bm{P}\cdot\hat{\bm{N}})dS
+
+therefore, the weak form in terms of :math:`\bm{\tau}` and :math:`\nabla_x` is
+
+.. math::
+   :label: hyperelastic-weak-form-current
+
+    \int_{\Omega_0}{\nabla_x \bm{v} \colon \bm{\tau}} \, dV
+    - \int_{\Omega_0}{\bm{v} \cdot \rho_0 \bm{g}} \, dV
+    - \int_{\partial \Omega_0}{\bm{v} \cdot (\bm{P} \cdot \hat{\bm{N}})} \, dS
+    = 0, \quad \forall \bm v \in \mathcal V,
+    
+(I don't know if we should replace the traction term above with the current configuration )
+
+Newton linearization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
