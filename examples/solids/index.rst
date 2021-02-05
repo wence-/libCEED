@@ -498,12 +498,59 @@ therefore, the weak form in terms of :math:`\bm{\tau}` and :math:`\nabla_x` is
 .. math::
    :label: hyperelastic-weak-form-current
 
-    \int_{\Omega_0}{\nabla_x \bm{v} \colon \bm{\tau}} \, dV
-    - \int_{\Omega_0}{\bm{v} \cdot \rho_0 \bm{g}} \, dV
-    - \int_{\partial \Omega_0}{\bm{v} \cdot (\bm{P} \cdot \hat{\bm{N}})} \, dS
+    \int_{\Omega_0}{\nabla_x \bm{v} \colon \bm{\tau}} \, dv
+    - \int_{\Omega_0}{\bm{v} \cdot \rho_0 \bm{g}} \, dv
+    - \int_{\partial \Omega_0}{\bm{v}\cdot(\bm{\sigma}\cdot\hat{\bm{n}})} \, ds
     = 0, \quad \forall \bm v \in \mathcal V,
     
-(I don't know if we should replace the traction term above with the current configuration )
+where :math:`dv = dV/J`
 
 Newton linearization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To derive a Newton linearization of :math:numref:`hyperelastic-weak-form-current`, first we define :math:`d_c\bm F` as
+
+.. math::
+   :label: d_cF
+
+    d_c\bm{F} = \nabla_x (d\bm{u}) = \nabla_X(d\bm{u}) \bm{F}^{-1}
+
+and :math:`\bm{\tau}` by pushing forward :math:numref:`neo-hookean-stress`
+
+.. math::
+   :label: tau
+
+    \bm{\tau} = \bm{F}\bm{S}\bm{F}^T = \mu \bm{b} + (\lambda \log J -\mu)\bm{I}_3
+
+where :math:`\bm{b}` is the left Cauchy-Green tensor. Then by expanding the directional derivative of :math:`\nabla_x \bm{v} \colon \bm{\tau}` we arrive at
+
+.. math::
+    d(\nabla_x \bm{v} \colon \bm{\tau}) = d(\nabla_x \bm{v})\colon \bm{\tau} + \nabla_x \bm{v} \colon d(\bm{\tau})
+
+where
+
+.. math::
+   \begin{aligned}
+   d(\nabla_x \bm{v})\colon \bm{\tau} &= d(\nabla_X \bm{v} \bm{F}^{-1})\colon \bm{\tau} = \Big(\underbrace{\nabla_X (d\bm{v})}_{0}\bm{F}^{-1} +  \nabla_X \bm{v}d\bm{F}^{-1}\Big)\colon \bm{\tau}\\
+     &= \Big(-\nabla_X \bm{v} \bm{F}^{-1}d\bm{F}\bm{F}^{-1}\Big)\colon \bm{\tau}=\Big(-\nabla_x \bm{v} d\bm{F}\bm{F}^{-1}\Big)\colon \bm{\tau}\\
+     &= \Big(-\nabla_x \bm{v} d_c\bm{F}\Big)\colon \bm{\tau}= -\nabla_x \bm{v}\colon\bm{\tau}d_c\bm{F}^T \,,
+   \end{aligned}
+
+Then to derive :math:`d\bm{\tau}` we need
+
+.. math::
+    d(\log J) = \frac{\partial \log J}{\partial \bm{b}}\colon d\bm{b} = \frac{\partial J}{J\partial \bm{b}}\colon d\bm{b}=\frac{1}{2}\bm{b}^{-1}\colon d\bm{b}
+
+.. math::
+    d\bm{b} = d\bm{F} \bm{F}^T + \bm{F} d\bm{F}^T = d_c\bm{F} \bm{F} \bm{F}^T + \bm{F} \bm{F}^T d_c\bm{F}^T= d_c\bm{F}\bm{b} + \bm{b} d_c\bm{F}^T
+
+which gives
+
+.. math::
+    d\bm{\tau} = \mu d\bm{b} + \frac{\lambda}{2}(\bm{b}^{-1}:d\bm{b})\bm{I}_3 
+
+Therefore
+
+.. math::
+    d(\nabla_x \bm{v} \colon \bm{\tau}) = \nabla_x \bm{v}\colon\Big(-\bm{\tau}d_c\bm{F}^T + \mu d\bm{b} + \frac{\lambda}{2}(\bm{b}^{-1}:d\bm{b})\bm{I}_3 \Big)
+
