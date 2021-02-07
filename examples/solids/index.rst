@@ -483,27 +483,16 @@ In this section we rewrite :math:numref:`hyperelastic-weak-form` in current conf
 .. math::
    \nabla_X \bm{v} \colon \bm{P} = \nabla_X \bm{v} \colon \bm{\tau}\bm{F}^{-T} = \nabla_X \bm{v}\bm{F}^{-1} \colon \bm{\tau} = \nabla_x \bm{v} \colon \bm{\tau}
 
-In order to find the relationship between the unit vetor :math:`\hat{\bm{n}}` and :math:`\hat{\bm{N}}` we use Nanson's formulate
-
-.. math::
-   ds\hat{\bm{n}} = J \bm{F}^{-T}dS\hat{\bm{N}}
-
-and the boundary term in :math:numref:`hyperelastic-weak-form` can be rewritten as
-
-.. math::
-   \bm{v}\cdot(\bm{\sigma}\cdot\hat{\bm{n}})ds = \bm{v}\cdot(\bm{P}\cdot\hat{\bm{N}})dS
-
 therefore, the weak form in terms of :math:`\bm{\tau}` and :math:`\nabla_x` is
 
 .. math::
    :label: hyperelastic-weak-form-current
 
-    \int_{\Omega_0}{\nabla_x \bm{v} \colon \bm{\tau}} \, dv
-    - \int_{\Omega_0}{\bm{v} \cdot \rho_0 \bm{g}} \, dv
-    - \int_{\partial \Omega_0}{\bm{v}\cdot(\bm{\sigma}\cdot\hat{\bm{n}})} \, ds
+    \int_{\Omega_0}{\nabla_x \bm{v} \colon \bm{\tau}} \, dV
+    - \int_{\Omega_0}{\bm{v} \cdot \rho_0 \bm{g}} \, dV
+    - \int_{\partial \Omega_0}{\bm{v}\cdot(\bm{P}\cdot\hat{\bm{N}})} \, dS
     = 0, \quad \forall \bm v \in \mathcal V,
     
-where :math:`dv = dV/J`
 
 Newton linearization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -552,5 +541,20 @@ which gives
 Therefore
 
 .. math::
-    d(\nabla_x \bm{v} \colon \bm{\tau}) = \nabla_x \bm{v}\colon\Big(-\bm{\tau}d_c\bm{F}^T + \mu d\bm{b} + \frac{\lambda}{2}(\bm{b}^{-1}:d\bm{b})\bm{I}_3 \Big)
+    :label: hyperelastic-linearization-current
 
+    d(\nabla_x \bm{v} \colon \bm{\tau}) = \nabla_x \bm{v}\colon\Big(-\bm{\tau}d_c\bm{F}^T + d\bm{\tau} \Big)
+
+Note that in initial configuration formulation, we have computed :math:`\nabla_X \bm{v}`, thus in :math:numref:`hyperelastic-weak-form-current` 
+and :math:numref:`hyperelastic-linearization-current` we can rewrite :math:`\nabla_x \bm{v}` as
+
+.. math::
+   :label: hyperelastic-final-current
+
+   \begin{aligned}
+   \nabla_x \bm{v} \colon \bm{\tau} &= \nabla_X \bm{v} \bm{F}^{-1} \colon \bm{\tau} = \nabla_X \bm{v} \colon \bm{\tau} \bm{F}^{-T} \\
+   \nabla_x \bm{v}\colon\Big(-\bm{\tau}d_c\bm{F}^T + d\bm{\tau}\Big)&= \nabla_X \bm{v}\colon\Big(\bm{\tau}d\bm{F}^{-T} + d\bm{\tau}\bm{F}^{-T} \Big) \,,
+   \end{aligned}
+
+(Since we already have :math:`\nabla_X \bm{v}` in libCEED, it is easier to implement :math:numref:`hyperelastic-final-current` in residual evaluation and action of Jacobian respectively.
+Of course from beginning :math:numref:`hyperelastic-weak-form-current` we could work with :math:`\nabla_X \bm{v}` and don't define :math:`d_c \bm{F}`...)
