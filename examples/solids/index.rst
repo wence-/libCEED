@@ -514,6 +514,8 @@ and :math:`\bm{\tau}` by pushing forward :math:numref:`neo-hookean-stress`
 where :math:`\bm{b}` is the left Cauchy-Green tensor. Then by expanding the directional derivative of :math:`\nabla_x \bm{v} \colon \bm{\tau}` we arrive at
 
 .. math::
+   :label: hyperelastic-linearization-current1
+
     d(\nabla_x \bm{v} \colon \bm{\tau}) = d(\nabla_x \bm{v})\colon \bm{\tau} + \nabla_x \bm{v} \colon d(\bm{\tau})
 
 where
@@ -536,17 +538,19 @@ Then to derive :math:`d\bm{\tau}` we need
 which gives
 
 .. math::
+   :label: dtau
+
     d\bm{\tau} = \mu d\bm{b} + \frac{\lambda}{2}(\bm{b}^{-1}:d\bm{b})\bm{I}_3 
 
-Therefore
+Therefore relation :math:numref:`hyperelastic-linearization-current1` becomes
 
 .. math::
-    :label: hyperelastic-linearization-current
+    :label: hyperelastic-linearization-current2
 
     d(\nabla_x \bm{v} \colon \bm{\tau}) = \nabla_x \bm{v}\colon\Big(-\bm{\tau}d_c\bm{F}^T + d\bm{\tau} \Big)
 
 Note that in initial configuration formulation, we have computed :math:`\nabla_X \bm{v}`, thus in :math:numref:`hyperelastic-weak-form-current` 
-and :math:numref:`hyperelastic-linearization-current` we can rewrite :math:`\nabla_x \bm{v}` as
+and :math:numref:`hyperelastic-linearization-current2` we can rewrite :math:`\nabla_x \bm{v}` as
 
 .. math::
    :label: hyperelastic-final-current
@@ -557,4 +561,4 @@ and :math:numref:`hyperelastic-linearization-current` we can rewrite :math:`\nab
    \end{aligned}
 
 (Since we already have :math:`\nabla_X \bm{v}` in libCEED, it is easier to implement :math:numref:`hyperelastic-final-current` in residual evaluation and action of Jacobian respectively.
-Of course from beginning :math:numref:`hyperelastic-weak-form-current` we could work with :math:`\nabla_X \bm{v}` and don't define :math:`d_c \bm{F}`...)
+Of course from beginning :math:numref:`hyperelastic-weak-form-current` we could work with :math:`\nabla_X \bm{v}\colon\bm{\tau}\bm{F}^{-T}` and don't define :math:`d_c \bm{F}`...)
