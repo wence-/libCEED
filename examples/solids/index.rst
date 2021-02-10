@@ -502,7 +502,7 @@ To derive a Newton linearization of :math:numref:`hyperelastic-weak-form-current
 .. math::
    :label: d_cF
 
-    d_c\bm{F} = \nabla_x (d\bm{u}) = \nabla_X(d\bm{u}) \bm{F}^{-1}
+    d_c\bm{F} = \nabla_x (d\bm{u}) = \nabla_X(d\bm{u}) \bm{F}^{-1} = d\bm{F} \bm{F}^{-1}
 
 and :math:`\bm{\tau}` by pushing forward :math:numref:`neo-hookean-stress`
 
@@ -518,7 +518,7 @@ where :math:`\bm{b}` is the left Cauchy-Green tensor. Then by expanding the dire
 
     d(\nabla_x \bm{v} \colon \bm{\tau}) = d(\nabla_x \bm{v})\colon \bm{\tau} + \nabla_x \bm{v} \colon d(\bm{\tau})
 
-where
+where (here we use :math:`d\bm{F}^{-1}=-\bm{F}^{-1} d\bm{F} \bm{F}^{-1}` and :math:numref:`d_cF`)
 
 .. math::
    \begin{aligned}
