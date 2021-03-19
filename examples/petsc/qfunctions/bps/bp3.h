@@ -119,12 +119,16 @@ CEED_QFUNCTION(SetupDiffRhs)(void *ctx, CeedInt Q,
     const CeedScalar A12 = J13*J32 - J12*J33;
     const CeedScalar A13 = J12*J23 - J13*J22;
 
-    const CeedScalar c[3] = { 0, 1., 2. };
     const CeedScalar k[3] = { 1., 2., 3. };
-
-    true_soln[i] = sin(M_PI*(c[0] + k[0]*x[i+Q*0])) *
-                   sin(M_PI*(c[1] + k[1]*x[i+Q*1])) *
-                   sin(M_PI*(c[2] + k[2]*x[i+Q*2]));
+    
+    CeedScalar s;
+    const CeedInt order = 3;
+    for (CeedInt ord=0; ord<order; ord++) {
+      s = sin(2*pow(k[0],ord)*M_PI*x[i+Q*0]) *
+          sin(2*pow(k[1],ord)*M_PI*x[i+Q*1]) *
+          sin(2*pow(k[2],ord)*M_PI*x[i+Q*2]);
+      true_soln[i] += exp(-1/s*s) * s/abs(s);
+    }
 
     const CeedScalar rho = w[i] * (J11*A11 + J21*A12 + J31*A13);
     rhs[i] = rho * M_PI*M_PI * (k[0]*k[0] + k[1]*k[1] + k[2]*k[2]) *
