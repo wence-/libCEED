@@ -370,32 +370,28 @@ CEED_QFUNCTION(ElasFSCurrentNH2dF)(void *ctx, CeedInt Q,
 
     // Cc1 = 2(mu-lambda*logJ)
     // epsilon
-    const CeedScalar epsilon[3][3] = {{(dcF[0][0] + dcF[0][0])/2.,
-                                       (dcF[0][1] + dcF[1][0])/2.,
-                                       (dcF[0][2] + dcF[2][0])/2.},
-                                      {(dcF[1][0] + dcF[0][1])/2.,
-                                       (dcF[1][1] + dcF[1][1])/2.,
-                                       (dcF[1][2] + dcF[2][1])/2.},
-                                      {(dcF[2][0] + dcF[0][2])/2.,
-                                       (dcF[2][1] + dcF[1][2])/2.,
-                                       (dcF[2][2] + dcF[2][2])/2.}
-                                     };
+    const CeedScalar epsilon[6] = {(dcF[0][0] + dcF[0][0])/2.,
+                                   (dcF[1][1] + dcF[1][1])/2.,
+                                   (dcF[2][2] + dcF[2][2])/2.,
+                                   (dcF[2][1] + dcF[1][2])/2.,
+                                   (dcF[0][2] + dcF[2][0])/2.,
+                                   (dcF[0][1] + dcF[1][0])/2.};
 
-    CeedScalar tr_eps =  epsilon[0][0] + epsilon[1][1] + epsilon[2][2];
+    CeedScalar tr_eps =  epsilon[0] + epsilon[1] + epsilon[2];
 
     dcF_tau[0][0] += lambda*tr_eps;
     dcF_tau[1][1] += lambda*tr_eps;
     dcF_tau[2][2] += lambda*tr_eps;
 
-    CeedScalar ds[3][3] = {{dcF_tau[0][0] + 2*cc1*epsilon[0][0],
-                            dcF_tau[0][1] + 2*cc1*epsilon[0][1],
-                            dcF_tau[0][2] + 2*cc1*epsilon[0][2]},
-                           {dcF_tau[1][0] + 2*cc1*epsilon[1][0],
-                            dcF_tau[1][1] + 2*cc1*epsilon[1][1],
-                            dcF_tau[1][2] + 2*cc1*epsilon[1][2]},
-                           {dcF_tau[2][0] + 2*cc1*epsilon[2][0],
-                            dcF_tau[2][1] + 2*cc1*epsilon[2][1],
-                            dcF_tau[2][2] + 2*cc1*epsilon[2][2]}
+    CeedScalar ds[3][3] = {{dcF_tau[0][0] + 2*cc1*epsilon[0],
+                            dcF_tau[0][1] + 2*cc1*epsilon[5],
+                            dcF_tau[0][2] + 2*cc1*epsilon[4]},
+                           {dcF_tau[1][0] + 2*cc1*epsilon[5],
+                            dcF_tau[1][1] + 2*cc1*epsilon[1],
+                            dcF_tau[1][2] + 2*cc1*epsilon[3]},
+                           {dcF_tau[2][0] + 2*cc1*epsilon[4],
+                            dcF_tau[2][1] + 2*cc1*epsilon[3],
+                            dcF_tau[2][2] + 2*cc1*epsilon[2]}
                           };
 
 
