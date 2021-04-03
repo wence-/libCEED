@@ -225,12 +225,13 @@ CEED_QFUNCTION(ElasFSCurrentNH2F)(void *ctx, CeedInt Q,
     CeedScalar logJ = log1p_series_shifted(detC_m1)/2.;
 
     // Cc1 = mu-lambda*log(J)
-    Cc1[0][i] = mu - lambda*logJ;
+    Cc1[0][i] = wdetJ;
+    Cc1[1][i] = mu - lambda*logJ;
 
     // tau = mu*b - Cc1*I3;
-    tau[0][i] = mu*b[0][0] - Cc1[0][i];
-    tau[1][i] = mu*b[1][1] - Cc1[0][i];
-    tau[2][i] = mu*b[2][2] - Cc1[0][i];
+    tau[0][i] = mu*b[0][0] - Cc1[1][i];
+    tau[1][i] = mu*b[1][1] - Cc1[1][i];
+    tau[2][i] = mu*b[2][2] - Cc1[1][i];
     tau[3][i] = mu*b[1][2];
     tau[4][i] = mu*b[0][2];
     tau[5][i] = mu*b[0][1];
@@ -302,14 +303,13 @@ CEED_QFUNCTION(ElasFSCurrentNH2dF)(void *ctx, CeedInt Q,
                                    CeedScalar *const *out) {
   // *INDENT-OFF*
   // Inputs
-  const CeedScalar (*deltaug)[3][CEED_Q_VLA] = (const CeedScalar(*)[3][CEED_Q_VLA])in[0],
-                   (*qdata)[CEED_Q_VLA] = (const CeedScalar(*)[CEED_Q_VLA])in[1];
+  const CeedScalar (*deltaug)[3][CEED_Q_VLA] = (const CeedScalar(*)[3][CEED_Q_VLA])in[0];
   // dXdx computed in residual
-  const CeedScalar (*dXdx)[3][CEED_Q_VLA] = (const CeedScalar(*)[3][CEED_Q_VLA])in[2];
+  const CeedScalar (*dXdx)[3][CEED_Q_VLA] = (const CeedScalar(*)[3][CEED_Q_VLA])in[1];
   // tau computed in residual
-  const CeedScalar (*tau)[CEED_Q_VLA] = (const CeedScalar(*)[CEED_Q_VLA])in[3];
+  const CeedScalar (*tau)[CEED_Q_VLA] = (const CeedScalar(*)[CEED_Q_VLA])in[2];
   // Cc1 = mu -lambda*log(J) computed in residual
-  const CeedScalar (*Cc1)[CEED_Q_VLA] = (const CeedScalar(*)[CEED_Q_VLA])in[4];
+  const CeedScalar (*Cc1)[CEED_Q_VLA] = (const CeedScalar(*)[CEED_Q_VLA])in[3];
   // Outputs
   CeedScalar (*deltadvdX)[3][CEED_Q_VLA] = (CeedScalar(*)[3][CEED_Q_VLA])out[0];
   // *INDENT-ON*
@@ -340,7 +340,8 @@ CEED_QFUNCTION(ElasFSCurrentNH2dF)(void *ctx, CeedInt Q,
                                        deltaug[2][2][i]}
                                      };
     // -- Qdata
-    const CeedScalar wdetJ      =      qdata[0][i];
+    const CeedScalar wdetJ = Cc1[0][i];
+    const CeedScalar cc1 = Cc1[1][i];
     // *INDENT-ON*
 
     // Compute dcF = \nabla_x (deltau) = deltau * dX/dx
@@ -386,15 +387,15 @@ CEED_QFUNCTION(ElasFSCurrentNH2dF)(void *ctx, CeedInt Q,
     dcF_tau[1][1] += lambda*tr_eps;
     dcF_tau[2][2] += lambda*tr_eps;
 
-    CeedScalar ds[3][3] = {{dcF_tau[0][0] + 2*Cc1[0][i]*epsilon[0][0], 
-                            dcF_tau[0][1] + 2*Cc1[0][i]*epsilon[0][1],
-                            dcF_tau[0][2] + 2*Cc1[0][i]*epsilon[0][2]},
-                           {dcF_tau[1][0] + 2*Cc1[0][i]*epsilon[1][0], 
-                            dcF_tau[1][1] + 2*Cc1[0][i]*epsilon[1][1],
-                            dcF_tau[1][2] + 2*Cc1[0][i]*epsilon[1][2]},
-                           {dcF_tau[2][0] + 2*Cc1[0][i]*epsilon[2][0], 
-                            dcF_tau[2][1] + 2*Cc1[0][i]*epsilon[2][1],
-                            dcF_tau[2][2] + 2*Cc1[0][i]*epsilon[2][2]}
+    CeedScalar ds[3][3] = {{dcF_tau[0][0] + 2*cc1*epsilon[0][0],
+                            dcF_tau[0][1] + 2*cc1*epsilon[0][1],
+                            dcF_tau[0][2] + 2*cc1*epsilon[0][2]},
+                           {dcF_tau[1][0] + 2*cc1*epsilon[1][0],
+                            dcF_tau[1][1] + 2*cc1*epsilon[1][1],
+                            dcF_tau[1][2] + 2*cc1*epsilon[1][2]},
+                           {dcF_tau[2][0] + 2*cc1*epsilon[2][0],
+                            dcF_tau[2][1] + 2*cc1*epsilon[2][1],
+                            dcF_tau[2][2] + 2*cc1*epsilon[2][2]}
                           };
 
 

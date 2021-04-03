@@ -490,8 +490,8 @@ PetscErrorCode SetupLibceedFineLevel(DM dm, DM dmEnergy, DM dmDiagnostic,
                                      (dim+1)*ncompu*nelem*Q*Q*Q/2,
                                      CEED_STRIDES_BACKEND,
                                      &data[fineLevel]->Erestricttau);
-    CeedElemRestrictionCreateStrided(ceed, nelem, Q*Q*Q, 1,
-                                     1*nelem*Q*Q*Q,
+    CeedElemRestrictionCreateStrided(ceed, nelem, Q*Q*Q, 2,
+                                     2*nelem*Q*Q*Q,
                                      CEED_STRIDES_BACKEND,
                                      &data[fineLevel]->ErestrictCc1);
     break;
@@ -562,7 +562,7 @@ PetscErrorCode SetupLibceedFineLevel(DM dm, DM dmEnergy, DM dmDiagnostic,
   case ELAS_FSCurrent_NH2:
     CeedVectorCreate(ceed, dim*ncompu*nelem*nqpts, &data[fineLevel]->dXdx);
     CeedVectorCreate(ceed, (dim+1)*ncompu*nelem*nqpts/2, &data[fineLevel]->tau);
-    CeedVectorCreate(ceed, 1*nelem*nqpts, &data[fineLevel]->Cc1);
+    CeedVectorCreate(ceed, 2*nelem*nqpts, &data[fineLevel]->Cc1);
     break;
   }
   // -- Operator action variables
@@ -634,7 +634,7 @@ PetscErrorCode SetupLibceedFineLevel(DM dm, DM dmEnergy, DM dmDiagnostic,
   case ELAS_FSCurrent_NH2:
     CeedQFunctionAddOutput(qfApply, "dXdx", ncompu*dim, CEED_EVAL_NONE);
     CeedQFunctionAddOutput(qfApply, "tau", ncompu*(dim+1)/2, CEED_EVAL_NONE);
-    CeedQFunctionAddOutput(qfApply, "Cc1", 1, CEED_EVAL_NONE);
+    CeedQFunctionAddOutput(qfApply, "Cc1", 2, CEED_EVAL_NONE);
     break;
   }
   CeedQFunctionSetContext(qfApply, physCtx);
@@ -695,28 +695,32 @@ PetscErrorCode SetupLibceedFineLevel(DM dm, DM dmEnergy, DM dmDiagnostic,
                               problemOptions[problemChoice].jacobfname,
                               &qfJacob);
   CeedQFunctionAddInput(qfJacob, "deltadu", ncompu*dim, CEED_EVAL_GRAD);
-  CeedQFunctionAddInput(qfJacob, "qdata", qdatasize, CEED_EVAL_NONE);
   switch (problemChoice) {
   case ELAS_LINEAR:
+    CeedQFunctionAddInput(qfJacob, "qdata", qdatasize, CEED_EVAL_NONE);
     break;
   case ELAS_SS_NH:
+    CeedQFunctionAddInput(qfJacob, "qdata", qdatasize, CEED_EVAL_NONE);
     CeedQFunctionAddInput(qfJacob, "gradu", ncompu*dim, CEED_EVAL_NONE);
     break;
   case ELAS_FSInitial_NH1:
+    CeedQFunctionAddInput(qfJacob, "qdata", qdatasize, CEED_EVAL_NONE);
     CeedQFunctionAddInput(qfJacob, "gradu", ncompu*dim, CEED_EVAL_NONE);
     break;
   case ELAS_FSInitial_NH2:
+    CeedQFunctionAddInput(qfJacob, "qdata", qdatasize, CEED_EVAL_NONE);
     CeedQFunctionAddInput(qfJacob, "gradu", ncompu*dim, CEED_EVAL_NONE);
     CeedQFunctionAddInput(qfJacob, "Cinv", ncompu*(dim+1)/2, CEED_EVAL_NONE);
     CeedQFunctionAddInput(qfJacob, "lamlogJ", 1, CEED_EVAL_NONE);
     break;
   case ELAS_FSCurrent_NH1:
+    CeedQFunctionAddInput(qfJacob, "qdata", qdatasize, CEED_EVAL_NONE);
     CeedQFunctionAddInput(qfJacob, "gradu", ncompu*dim, CEED_EVAL_NONE);
     break;
   case ELAS_FSCurrent_NH2:
     CeedQFunctionAddInput(qfJacob, "dXdx", ncompu*dim, CEED_EVAL_NONE);
     CeedQFunctionAddInput(qfJacob, "tau", ncompu*(dim+1)/2, CEED_EVAL_NONE);
-    CeedQFunctionAddInput(qfJacob, "Cc1", 1, CEED_EVAL_NONE);
+    CeedQFunctionAddInput(qfJacob, "Cc1", 2, CEED_EVAL_NONE);
     break;
   }
   CeedQFunctionAddOutput(qfJacob, "deltadv", ncompu*dim, CEED_EVAL_GRAD);
@@ -727,8 +731,10 @@ PetscErrorCode SetupLibceedFineLevel(DM dm, DM dmEnergy, DM dmDiagnostic,
                      &opJacob);
   CeedOperatorSetField(opJacob, "deltadu", data[fineLevel]->Erestrictu,
                        data[fineLevel]->basisu, CEED_VECTOR_ACTIVE);
-  CeedOperatorSetField(opJacob, "qdata", data[fineLevel]->Erestrictqdi,
-                       CEED_BASIS_COLLOCATED, data[fineLevel]->qdata);
+  if (problemChoice != ELAS_FSCurrent_NH2) {
+    CeedOperatorSetField(opJacob, "qdata", data[fineLevel]->Erestrictqdi,
+                         CEED_BASIS_COLLOCATED, data[fineLevel]->qdata);
+  }
   CeedOperatorSetField(opJacob, "deltadv", data[fineLevel]->Erestrictu,
                        data[fineLevel]->basisu, CEED_VECTOR_ACTIVE);
   switch (problemChoice) {
