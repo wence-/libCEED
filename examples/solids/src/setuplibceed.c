@@ -42,7 +42,7 @@
 // Data specific to each problem option
 problemData problemOptions[6] = {
   [ELAS_LINEAR] = {
-    .qdatasize = 10, // For linear elasticity, 6 would be sufficient
+    .qdatasize = 10,
     .setupgeo = SetupGeo,
     .apply = ElasLinearF,
     .jacob = ElasLineardF,
