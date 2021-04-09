@@ -39,7 +39,7 @@ ifeq (,$(filter-out undefined default,$(origin ARFLAGS)))
 endif
 NVCC ?= $(CUDA_DIR)/bin/nvcc
 NVCC_CXX ?= $(CXX)
-HIPCC ?= $(HIP_DIR)/bin/hipcc
+HIPCC ?= $(ROCM_DIR)/bin/hipcc
 SED ?= sed
 
 # ASAN must be left empty if you don't want to use it
@@ -77,8 +77,10 @@ CUDA_DIR  ?=
 CUDA_ARCH ?= 
 
 # Often /opt/rocm, but sometimes present on machines that don't support HIP
-HIP_DIR ?=
+ROCM_DIR ?=
 HIP_ARCH ?=
+# Only necessary if hipblas is not installed in ROCM_DIR
+HIPBLAS_DIR ?=
 
 # Check for PETSc in ../petsc
 ifneq ($(wildcard ../petsc/lib/libpetsc.*),)
@@ -287,7 +289,7 @@ info:
 	$(info OCCA_DIR      = $(OCCA_DIR)$(call backend_status,$(OCCA_BACKENDS)))
 	$(info MAGMA_DIR     = $(MAGMA_DIR)$(call backend_status,$(MAGMA_BACKENDS)))
 	$(info CUDA_DIR      = $(CUDA_DIR)$(call backend_status,$(CUDA_BACKENDS)))
-	$(info HIP_DIR       = $(HIP_DIR)$(call backend_status,$(HIP_BACKENDS)))
+	$(info ROCM_DIR      = $(ROCM_DIR)$(call backend_status,$(HIP_BACKENDS)))
 	$(info ------------------------------------)
 	$(info MFEM_DIR      = $(MFEM_DIR))
 	$(info NEK5K_DIR     = $(NEK5K_DIR))
@@ -394,15 +396,19 @@ ifneq ($(CUDA_LIB_DIR),)
 endif
 
 # HIP Backends
-HIP_LIB_DIR := $(wildcard $(foreach d,lib lib64,$(HIP_DIR)/$d/libamdhip64.${SO_EXT}))
+HIP_LIB_DIR := $(wildcard $(foreach d,lib lib64,$(ROCM_DIR)/$d/libamdhip64.${SO_EXT}))
 HIP_LIB_DIR := $(patsubst %/,%,$(dir $(firstword $(HIP_LIB_DIR))))
 HIP_BACKENDS = /gpu/hip/ref /gpu/hip/shared /gpu/hip/gen
 ifneq ($(HIP_LIB_DIR),)
   $(libceeds) : HIPCCFLAGS += -I./include
   ifneq ($(CXX), $(HIPCC))
-    CPPFLAGS += $(subst =,,$(shell $(HIP_DIR)/bin/hipconfig -C))
+    CPPFLAGS += $(subst =,,$(shell $(ROCM_DIR)/bin/hipconfig -C))
   endif
-  $(libceeds) : CPPFLAGS += -I$(HIP_DIR)/include
+  $(libceeds) : CPPFLAGS += -I$(ROCM_DIR)/include
+  ifneq ($(HIPBLAS_DIR),)
+    $(libceeds) : CPPFLAGS += -I$(HIPBLAS_DIR)/include
+    PKG_LIBS += -L$(abspath $(HIPBLAS_DIR))/lib
+  endif
   PKG_LIBS += -L$(abspath $(HIP_LIB_DIR)) -lamdhip64 -lhipblas
   LIBCEED_CONTAINS_CXX = 1
   libceed.c   += interface/ceed-hip.c
@@ -431,7 +437,12 @@ ifneq ($(wildcard $(MAGMA_DIR)/lib/libmagma.*),)
     endif
   else  # HIP MAGMA
     ifneq ($(HIP_LIB_DIR),)
-      hip_link = -Wl,-rpath,$(HIP_LIB_DIR) -L$(HIP_LIB_DIR) -lhipblas -lhipsparse -lamdhip64
+      MAGMA_HIP_INCLUDE = -I$(MAGMA_DIR)/include -I$(ROCM_DIR)/include
+      ifneq ($(HIPBLAS_DIR),)
+        hip_link = -Wl,-rpath,$(HIPBLAS_DIR)/lib -L$(HIPBLAS_DIR)/lib
+        MAGMA_HIP_INCLUDE += -I$(HIPBLAS_DIR)/include
+      endif
+      hip_link += -Wl,-rpath,$(HIP_LIB_DIR) -L$(HIP_LIB_DIR) -lhipblas -lhipsparse -lamdhip64
       omp_link = -fopenmp
       magma_link_static = -L$(MAGMA_DIR)/lib -lmagma $(hip_link) $(omp_link)
       magma_link_shared = -L$(MAGMA_DIR)/lib -Wl,-rpath,$(abspath $(MAGMA_DIR)/lib) -lmagma
@@ -440,11 +451,11 @@ ifneq ($(wildcard $(MAGMA_DIR)/lib/libmagma.*),)
       libceed.c  += $(magma.c)
       libceed.hip += $(magma.hip)
       ifneq ($(CXX), $(HIPCC))
-        $(magma.c:%.c=$(OBJDIR)/%.o) $(magma.c:%=%.tidy) : CPPFLAGS += -I$(MAGMA_DIR)/include -I$(HIP_DIR)/include -DHAVE_HIP -DADD_
+        $(magma.c:%.c=$(OBJDIR)/%.o) $(magma.c:%=%.tidy) : CPPFLAGS += $(MAGMA_HIP_INCLUDE) -DHAVE_HIP -DADD_
       else
-        $(magma.c:%.c=$(OBJDIR)/%.o) $(magma.c:%=%.tidy) : HIPCCFLAGS += -I$(MAGMA_DIR)/include -I$(HIP_DIR)/include -DHAVE_HIP -DADD_
+        $(magma.c:%.c=$(OBJDIR)/%.o) $(magma.c:%=%.tidy) : HIPCCFLAGS += $(MAGMA_HIP_INCLUDE) -DHAVE_HIP -DADD_
       endif
-      $(magma.hip:%.hip.cpp=$(OBJDIR)/%.o) : HIPCCFLAGS += -I$(MAGMA_DIR)/include -I$(MAGMA_DIR)/magmablas -I$(MAGMA_DIR)/control -I$(HIP_DIR)/include -DHAVE_HIP -DADD_
+      $(magma.hip:%.hip.cpp=$(OBJDIR)/%.o) : HIPCCFLAGS += $(MAGMA_HIP_INCLUDE) -I$(MAGMA_DIR)/magmablas -I$(MAGMA_DIR)/control -DHAVE_HIP -DADD_
       MAGMA_BACKENDS = /gpu/hip/magma /gpu/hip/magma/det
     endif
   endif
@@ -675,10 +686,10 @@ style : style-c style-py
 CLANG_TIDY ?= clang-tidy
 
 %.c.tidy : %.c
-	$(CLANG_TIDY) $(TIDY_OPTS) $^ -- $(CPPFLAGS) --std=c99 -I$(CUDA_DIR)/include -I$(HIP_DIR)/include
+	$(CLANG_TIDY) $(TIDY_OPTS) $^ -- $(CPPFLAGS) --std=c99 -I$(CUDA_DIR)/include -I$(ROCM_DIR)/include
 
 %.cpp.tidy : %.cpp
-	$(CLANG_TIDY) $(TIDY_OPTS) $^ -- $(CPPFLAGS) --std=c++11 -I$(CUDA_DIR)/include -I$(OCCA_DIR)/include -I$(HIP_DIR)/include
+	$(CLANG_TIDY) $(TIDY_OPTS) $^ -- $(CPPFLAGS) --std=c++11 -I$(CUDA_DIR)/include -I$(OCCA_DIR)/include -I$(ROCM_DIR)/include
 
 tidy_c   : $(libceed.c:%=%.tidy)
 tidy_cpp : $(libceed.cpp:%=%.tidy)
@@ -716,7 +727,8 @@ print-% :
 CONFIG_VARS = CC CXX FC NVCC NVCC_CXX HIPCC \
 	OPT CFLAGS CPPFLAGS CXXFLAGS FFLAGS NVCCFLAGS HIPCCFLAGS \
 	AR ARFLAGS LDFLAGS LDLIBS LIBCXX SED \
-	MAGMA_DIR OCCA_DIR XSMM_DIR CUDA_DIR CUDA_ARCH MFEM_DIR PETSC_DIR NEK5K_DIR HIP_DIR HIP_ARCH
+	MAGMA_DIR OCCA_DIR XSMM_DIR CUDA_DIR CUDA_ARCH MFEM_DIR PETSC_DIR NEK5K_DIR \
+	ROCM_DIR HIPBLAS_DIR HIP_ARCH
 
 # $(call needs_save,CFLAGS) returns true (a nonempty string) if CFLAGS
 # was set on the command line or in config.mk (where it will appear as
