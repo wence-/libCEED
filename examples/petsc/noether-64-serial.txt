@@ -1,0 +1,1140 @@
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 2
+    Number of 1D Quadrature Points (Q) : 3
+    Global nodes                       : 72384
+    Local Elements                     : 1063
+    Owned nodes                        : 904
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : DIVERGED_ITS
+    Total KSP Iterations               : 20
+    Final rnorm                        : 1.668216e-09
+  Performance:
+    Pointwise Error (max)              : 2.632094e-03
+    CG Solve Time                      : 0.0478873 (0.0478777) sec
+    DoFs/Sec in CG                     : 30.231 (30.237) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 2
+    Number of 1D Quadrature Points (Q) : 3
+    Global nodes                       : 142506
+    Local Elements                     : 2097
+    Owned nodes                        : 1612
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : DIVERGED_ITS
+    Total KSP Iterations               : 20
+    Final rnorm                        : 9.947747e-10
+  Performance:
+    Pointwise Error (max)              : 2.066371e-03
+    CG Solve Time                      : 0.0837086 (0.083697) sec
+    DoFs/Sec in CG                     : 34.0481 (34.0528) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 2
+    Number of 1D Quadrature Points (Q) : 3
+    Global nodes                       : 281600
+    Local Elements                     : 4201
+    Owned nodes                        : 3730
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : DIVERGED_ITS
+    Total KSP Iterations               : 20
+    Final rnorm                        : 5.798487e-10
+  Performance:
+    Pointwise Error (max)              : 1.653804e-03
+    CG Solve Time                      : 0.167545 (0.167529) sec
+    DoFs/Sec in CG                     : 33.6149 (33.618) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 2
+    Number of 1D Quadrature Points (Q) : 3
+    Global nodes                       : 558600
+    Local Elements                     : 8398
+    Owned nodes                        : 6875
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : DIVERGED_ITS
+    Total KSP Iterations               : 5
+    Final rnorm                        : 2.368081e-06
+  Performance:
+    Pointwise Error (max)              : 1.259159e-03
+    CG Solve Time                      : 0.0822821 (0.0822663) sec
+    DoFs/Sec in CG                     : 33.9442 (33.9507) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 2
+    Number of 1D Quadrature Points (Q) : 3
+    Global nodes                       : 1106028
+    Local Elements                     : 16777
+    Owned nodes                        : 15114
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : DIVERGED_ITS
+    Total KSP Iterations               : 5
+    Final rnorm                        : 1.245533e-06
+  Performance:
+    Pointwise Error (max)              : 1.067954e-03
+    CG Solve Time                      : 0.164031 (0.164005) sec
+    DoFs/Sec in CG                     : 33.714 (33.7194) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 3
+    Number of 1D Quadrature Points (Q) : 4
+    Global nodes                       : 72345
+    Local Elements                     : 125
+    Owned nodes                        : 699
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 17
+    Final rnorm                        : 8.363129e-11
+  Performance:
+    Pointwise Error (max)              : 1.330898e-03
+    CG Solve Time                      : 0.00525733 (0.00524955) sec
+    DoFs/Sec in CG                     : 233.933 (234.28) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 3
+    Number of 1D Quadrature Points (Q) : 4
+    Global nodes                       : 142623
+    Local Elements                     : 250
+    Owned nodes                        : 1858
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 16
+    Final rnorm                        : 7.137577e-11
+  Performance:
+    Pointwise Error (max)              : 1.044357e-03
+    CG Solve Time                      : 0.00955819 (0.00955144) sec
+    DoFs/Sec in CG                     : 238.745 (238.913) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 3
+    Number of 1D Quadrature Points (Q) : 4
+    Global nodes                       : 281951
+    Local Elements                     : 548
+    Owned nodes                        : 3788
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 15
+    Final rnorm                        : 7.547880e-11
+  Performance:
+    Pointwise Error (max)              : 7.974872e-04
+    CG Solve Time                      : 0.0172732 (0.0172647) sec
+    DoFs/Sec in CG                     : 244.846 (244.966) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 3
+    Number of 1D Quadrature Points (Q) : 4
+    Global nodes                       : 557865
+    Local Elements                     : 1063
+    Owned nodes                        : 7862
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 14
+    Final rnorm                        : 7.556814e-11
+  Performance:
+    Pointwise Error (max)              : 6.668114e-04
+    CG Solve Time                      : 0.0327089 (0.0326941) sec
+    DoFs/Sec in CG                     : 238.776 (238.884) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 3
+    Number of 1D Quadrature Points (Q) : 4
+    Global nodes                       : 1106875
+    Local Elements                     : 2097
+    Owned nodes                        : 14778
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 13
+    Final rnorm                        : 8.457695e-11
+  Performance:
+    Pointwise Error (max)              : 5.180491e-04
+    CG Solve Time                      : 0.0600166 (0.0600027) sec
+    DoFs/Sec in CG                     : 239.757 (239.812) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 4
+    Number of 1D Quadrature Points (Q) : 5
+    Global nodes                       : 72520
+    Local Elements                     : 38
+    Owned nodes                        : 798
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 14
+    Final rnorm                        : 4.899504e-11
+  Performance:
+    Pointwise Error (max)              : 5.815369e-04
+    CG Solve Time                      : 0.0018323 (0.00182713) sec
+    DoFs/Sec in CG                     : 554.103 (555.668) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 4
+    Number of 1D Quadrature Points (Q) : 5
+    Global nodes                       : 143080
+    Local Elements                     : 74
+    Owned nodes                        : 1557
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 13
+    Final rnorm                        : 6.111384e-11
+  Performance:
+    Pointwise Error (max)              : 4.761270e-04
+    CG Solve Time                      : 0.00310874 (0.00310217) sec
+    DoFs/Sec in CG                     : 598.325 (599.593) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 4
+    Number of 1D Quadrature Points (Q) : 5
+    Global nodes                       : 282112
+    Local Elements                     : 162
+    Owned nodes                        : 3807
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 12
+    Final rnorm                        : 7.231436e-11
+  Performance:
+    Pointwise Error (max)              : 3.657806e-04
+    CG Solve Time                      : 0.0053117 (0.00530573) sec
+    DoFs/Sec in CG                     : 637.337 (638.055) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 4
+    Number of 1D Quadrature Points (Q) : 5
+    Global nodes                       : 559240
+    Local Elements                     : 300
+    Owned nodes                        : 7851
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 11
+    Final rnorm                        : 6.198824e-11
+  Performance:
+    Pointwise Error (max)              : 3.103872e-04
+    CG Solve Time                      : 0.00962272 (0.00961163) sec
+    DoFs/Sec in CG                     : 639.283 (640.02) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 4
+    Number of 1D Quadrature Points (Q) : 5
+    Global nodes                       : 1107040
+    Local Elements                     : 614
+    Owned nodes                        : 14411
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 10
+    Final rnorm                        : 6.954125e-11
+  Performance:
+    Pointwise Error (max)              : 2.414607e-04
+    CG Solve Time                      : 0.0179257 (0.0179123) sec
+    DoFs/Sec in CG                     : 617.573 (618.034) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 5
+    Number of 1D Quadrature Points (Q) : 6
+    Global nodes                       : 72557
+    Local Elements                     : 16
+    Owned nodes                        : 840
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 11
+    Final rnorm                        : 8.806552e-11
+  Performance:
+    Pointwise Error (max)              : 2.924302e-04
+    CG Solve Time                      : 0.000999804 (0.000995845) sec
+    DoFs/Sec in CG                     : 798.283 (801.457) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 5
+    Number of 1D Quadrature Points (Q) : 6
+    Global nodes                       : 142557
+    Local Elements                     : 34
+    Owned nodes                        : 2016
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 11
+    Final rnorm                        : 5.120639e-11
+  Performance:
+    Pointwise Error (max)              : 2.279410e-04
+    CG Solve Time                      : 0.0015869 (0.00157947) sec
+    DoFs/Sec in CG                     : 988.168 (992.817) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 5
+    Number of 1D Quadrature Points (Q) : 6
+    Global nodes                       : 281589
+    Local Elements                     : 65
+    Owned nodes                        : 4160
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 10
+    Final rnorm                        : 6.116676e-11
+  Performance:
+    Pointwise Error (max)              : 1.807031e-04
+    CG Solve Time                      : 0.00260207 (0.00259715) sec
+    DoFs/Sec in CG                     : 1082.17 (1084.22) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 5
+    Number of 1D Quadrature Points (Q) : 6
+    Global nodes                       : 557865
+    Local Elements                     : 125
+    Owned nodes                        : 6727
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 9
+    Final rnorm                        : 6.290557e-11
+  Performance:
+    Pointwise Error (max)              : 1.463795e-04
+    CG Solve Time                      : 0.00449648 (0.00449065) sec
+    DoFs/Sec in CG                     : 1116.6 (1118.05) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 5
+    Number of 1D Quadrature Points (Q) : 6
+    Global nodes                       : 1107645
+    Local Elements                     : 250
+    Owned nodes                        : 15428
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 9
+    Final rnorm                        : 3.332955e-11
+  Performance:
+    Pointwise Error (max)              : 1.172882e-04
+    CG Solve Time                      : 0.00915277 (0.00913905) sec
+    DoFs/Sec in CG                     : 1089.16 (1090.79) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 6
+    Number of 1D Quadrature Points (Q) : 7
+    Global nodes                       : 72576
+    Local Elements                     : 9
+    Owned nodes                        : 756
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 10
+    Final rnorm                        : 4.564162e-11
+  Performance:
+    Pointwise Error (max)              : 1.829518e-04
+    CG Solve Time                      : 0.000909027 (0.000902407) sec
+    DoFs/Sec in CG                     : 798.392 (804.249) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 6
+    Number of 1D Quadrature Points (Q) : 7
+    Global nodes                       : 143136
+    Local Elements                     : 16
+    Owned nodes                        : 1595
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 9
+    Final rnorm                        : 5.604520e-11
+  Performance:
+    Pointwise Error (max)              : 1.350112e-04
+    CG Solve Time                      : 0.00109015 (0.00108427) sec
+    DoFs/Sec in CG                     : 1181.69 (1188.1) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 6
+    Number of 1D Quadrature Points (Q) : 7
+    Global nodes                       : 282296
+    Local Elements                     : 35
+    Owned nodes                        : 4125
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 9
+    Final rnorm                        : 4.114651e-11
+  Performance:
+    Pointwise Error (max)              : 9.565608e-05
+    CG Solve Time                      : 0.0018006 (0.00179563) sec
+    DoFs/Sec in CG                     : 1411.01 (1414.91) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 6
+    Number of 1D Quadrature Points (Q) : 7
+    Global nodes                       : 558656
+    Local Elements                     : 68
+    Owned nodes                        : 8075
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 8
+    Final rnorm                        : 5.978567e-11
+  Performance:
+    Pointwise Error (max)              : 8.753081e-05
+    CG Solve Time                      : 0.00295757 (0.00295157) sec
+    DoFs/Sec in CG                     : 1511.12 (1514.19) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 6
+    Number of 1D Quadrature Points (Q) : 7
+    Global nodes                       : 1107336
+    Local Elements                     : 136
+    Owned nodes                        : 14889
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 7
+    Final rnorm                        : 8.538086e-11
+  Performance:
+    Pointwise Error (max)              : 6.065354e-05
+    CG Solve Time                      : 0.00518985 (0.00517818) sec
+    DoFs/Sec in CG                     : 1493.56 (1496.93) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 7
+    Number of 1D Quadrature Points (Q) : 8
+    Global nodes                       : 73315
+    Local Elements                     : 5
+    Owned nodes                        : 835
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 9
+    Final rnorm                        : 4.048038e-11
+  Performance:
+    Pointwise Error (max)              : 1.078653e-04
+    CG Solve Time                      : 0.000661046 (0.000656015) sec
+    DoFs/Sec in CG                     : 998.168 (1005.82) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 7
+    Number of 1D Quadrature Points (Q) : 8
+    Global nodes                       : 144265
+    Local Elements                     : 10
+    Owned nodes                        : 1812
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 8
+    Final rnorm                        : 6.865932e-11
+  Performance:
+    Pointwise Error (max)              : 7.730417e-05
+    CG Solve Time                      : 0.000787456 (0.000782396) sec
+    DoFs/Sec in CG                     : 1465.63 (1475.11) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 7
+    Number of 1D Quadrature Points (Q) : 8
+    Global nodes                       : 282583
+    Local Elements                     : 18
+    Owned nodes                        : 3672
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 8
+    Final rnorm                        : 3.893507e-11
+  Performance:
+    Pointwise Error (max)              : 6.262719e-05
+    CG Solve Time                      : 0.00142244 (0.00141601) sec
+    DoFs/Sec in CG                     : 1589.29 (1596.5) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 7
+    Number of 1D Quadrature Points (Q) : 8
+    Global nodes                       : 559399
+    Local Elements                     : 38
+    Owned nodes                        : 7266
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 7
+    Final rnorm                        : 6.593691e-11
+  Performance:
+    Pointwise Error (max)              : 5.064232e-05
+    CG Solve Time                      : 0.00208114 (0.00207396) sec
+    DoFs/Sec in CG                     : 1881.57 (1888.07) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 7
+    Number of 1D Quadrature Points (Q) : 8
+    Global nodes                       : 1111135
+    Local Elements                     : 74
+    Owned nodes                        : 14166
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 6
+    Final rnorm                        : 5.719480e-11
+  Performance:
+    Pointwise Error (max)              : 4.623398e-05
+    CG Solve Time                      : 0.00335391 (0.00334011) sec
+    DoFs/Sec in CG                     : 1987.77 (1995.99) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 8
+    Number of 1D Quadrature Points (Q) : 9
+    Global nodes                       : 72500
+    Local Elements                     : 3
+    Owned nodes                        : 684
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 8
+    Final rnorm                        : 4.010683e-11
+  Performance:
+    Pointwise Error (max)              : 7.418681e-05
+    CG Solve Time                      : 0.000529974 (0.000522534) sec
+    DoFs/Sec in CG                     : 1094.39 (1109.98) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 8
+    Number of 1D Quadrature Points (Q) : 9
+    Global nodes                       : 142500
+    Local Elements                     : 7
+    Owned nodes                        : 1980
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 7
+    Final rnorm                        : 9.560083e-11
+  Performance:
+    Pointwise Error (max)              : 4.839189e-05
+    CG Solve Time                      : 0.000668245 (0.000662885) sec
+    DoFs/Sec in CG                     : 1492.72 (1504.79) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 8
+    Number of 1D Quadrature Points (Q) : 9
+    Global nodes                       : 282150
+    Local Elements                     : 12
+    Owned nodes                        : 3078
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 6
+    Final rnorm                        : 7.089094e-11
+  Performance:
+    Pointwise Error (max)              : 5.129433e-05
+    CG Solve Time                      : 0.000975952 (0.00096956) sec
+    DoFs/Sec in CG                     : 1734.61 (1746.05) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 8
+    Number of 1D Quadrature Points (Q) : 9
+    Global nodes                       : 558657
+    Local Elements                     : 25
+    Owned nodes                        : 7294
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 6
+    Final rnorm                        : 7.159966e-11
+  Performance:
+    Pointwise Error (max)              : 3.709386e-05
+    CG Solve Time                      : 0.00142605 (0.00141898) sec
+    DoFs/Sec in CG                     : 2350.51 (2362.22) million
+
+-- CEED Benchmark Problem 1 -- libCEED + PETSc --
+  MPI:
+    Hostname                           : noether
+    Total ranks                        : 64
+    Ranks per compute node             : 64
+  PETSc:
+    PETSc Vec Type                     : mpi
+  libCEED:
+    libCEED Backend                    : /cpu/self/xsmm/serial
+    libCEED Backend MemType            : host
+  Mesh:
+    Number of 1D Basis Nodes (P)       : 8
+    Number of 1D Quadrature Points (Q) : 9
+    Global nodes                       : 1107912
+    Local Elements                     : 48
+    Owned nodes                        : 15876
+    DoF per node                       : 1
+  KSP:
+    KSP Type                           : cg
+    KSP Convergence                    : CONVERGED_RTOL
+    Total KSP Iterations               : 5
+    Final rnorm                        : 7.367929e-11
+  Performance:
+    Pointwise Error (max)              : 2.813539e-05
+    CG Solve Time                      : 0.00220417 (0.00219119) sec
+    DoFs/Sec in CG                     : 2513.21 (2528.1) million
+dlerror: libalteracl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl.so: cannot open shared object file: No such file or directory
+dlerror: libintelocl_emu.so: cannot open shared object file: No such file or directory
