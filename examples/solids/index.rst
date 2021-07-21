@@ -422,7 +422,7 @@ Carrying through the differentiation :math:numref:`strain-energy-grad` for the m
 
       \Phi(I_1, I_2, J) = \frac{k_1}{2}(\log J)^2 - d \log J + \frac{\mu_1}{2}(I_1 - 3) + \frac{\mu_2}{2}(I_2 - 3),
 
-   with :math:`d = \mu_1 + 2\mu_2`. We differentiate :math:`\Phi` as in the Neo-Hookean case :math:numref:`neo-hookean-stress_coupled` to yield the second Piola-Kirchoff tensor,
+   with :math:`d = \mu_1 + 2\mu_2`. We differentiate :math:`\Phi` as in the Neo-Hookean case :math:numref:`neo-hookean-stress` to yield the second Piola-Kirchoff tensor,
 
    .. math::
       :label: mooney-rivlin-stress_coupled
@@ -431,19 +431,19 @@ Carrying through the differentiation :math:numref:`strain-energy-grad` for the m
       \bm S &= \mu_1\bm I_3 + \mu_2(I_1 \bm I_3 - \bm C) - d \bm{C}^{-1} + k_1 \log J \bm{C}^{-1}.
       \end{aligned}
 
-   The Newton linearization we want the derivative of :math:numref:`mooney-rivlin-stress_coupled` is
+   and its derivative is
 
    .. math::
       :label: mooney-rivlin-dS_coupled
 
-      dS = \frac{\mu_1}{2}\frac{\partial^2 \mathbb{I_1}}{\partial \bm E^2}\!:\! \diff \bm E + \frac{\mu_2}{2} \frac{\partial^2 \mathbb{I_2}}{\partial \bm E^2}\!:\! \diff \bm E + 2d \bm C^{-1} \diff \bm E \bm C^{-1} + k_1(\bm C^{-1}\!:\! \diff \bm E)\bm C^{-1} - 2k_1 \log J \bm C^{-1} \diff \bm E \bm C^{-1}
+      \diff\bm S = \frac{\mu_1}{2}\frac{\partial^2 \mathbb{I_1}}{\partial \bm E^2}\!:\! \diff \bm E + \frac{\mu_2}{2} \frac{\partial^2 \mathbb{I_2}}{\partial \bm E^2}\!:\! \diff \bm E + 2d \bm C^{-1} \diff \bm E \bm C^{-1} + k_1(\bm C^{-1}\!:\! \diff \bm E)\bm C^{-1} - 2k_1 \log J \bm C^{-1} \diff \bm E \bm C^{-1}
 
    where 
 
    .. math::
 
       \begin{aligned}
-         \frac{\partial^2 \mathbb{I_2}}{\partial \bm E^2} &= 2\frac{\partial \mathbb{I_2}}{\partial \bm E} \bm I_3 - 2\diff \bm E \\
+         \frac{\partial^2 \mathbb{I_2}}{\partial \bm E^2}\!:\! \diff \bm E &= 2\Big(\frac{\partial \mathbb{I_1}}{\partial \bm E} \!:\! \diff \bm E \Big) \bm I_3 - 2\diff \bm E \\
          \frac{\partial^2 \mathbb{I_1}}{\partial \bm E^2}\!:\! \diff \bm E & = 0.
       \end{aligned}
    

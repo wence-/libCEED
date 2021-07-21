@@ -158,7 +158,7 @@ static inline int commonFSMR(const CeedScalar mu_1, const CeedScalar mu_2,
                     };
   for (CeedInt m = 0; m < 6; m++)
     Cinvwork[m] = A[m] / (J2);
-
+  // *INDENT-OFF*
   // Compute the Second Piola-Kirchhoff (S) (canceled 1/2 already in S with 2 in dI1bar_dE)
   // S = mu_1*(dI1bar_dE)/2 + mu_2*(dI2bar_dE)/2 + k1*(logJ)*C^{-1}
   // dI1bar_dE/2 = J^{-2.0/3.0}*(I3 - 1.0/3.0*I_1*C^{-1})

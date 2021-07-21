@@ -96,7 +96,8 @@ int main(int argc, char **argv) {
   num_levels = app_ctx->num_levels;
   fine_level = num_levels - 1;
 
-  if ((app_ctx->problem_choice != ELAS_FSInitial_MR1) && (app_ctx->problem_choice != ELAS_FSInitial_MRc)) {
+  if ((app_ctx->problem_choice != ELAS_FSInitial_MR1)
+      && (app_ctx->problem_choice != ELAS_FSInitial_MRc)) {
     // -- Set Poison's ratio, Young's Modulus
     ierr = PetscMalloc1(1, &units); CHKERRQ(ierr);
     ierr = PetscMalloc1(1, &phys); CHKERRQ(ierr);

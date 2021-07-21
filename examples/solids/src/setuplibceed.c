@@ -535,7 +535,7 @@ PetscErrorCode SetupLibceedFineLevel(DM dm, DM dm_energy, DM dm_diagnostic,
                                      CEED_STRIDES_BACKEND,
                                      &data[fine_level]->elem_restr_gradu_i);
     break;
-    case ELAS_FSInitial_MRc: //coupled version
+  case ELAS_FSInitial_MRc: //coupled version
     // ------ Storage: dXdx, Grad(u)
     CeedElemRestrictionCreateStrided(ceed, num_elem, Q*Q*Q, dim*num_comp_u,
                                      dim*num_comp_u*num_elem*Q*Q*Q,
