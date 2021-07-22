@@ -79,7 +79,7 @@ struct Physics_private_GP {
 // Problem options
 typedef enum {
   ELAS_LINEAR = 0, ELAS_SS_NH = 1, ELAS_FSInitial_NH1 = 2, ELAS_FSInitial_NH2 = 3,
-  ELAS_FSCurrent_NH1 = 4, ELAS_FSCurrent_NH2 = 5, ELAS_FSInitial_MR1 = 6, ELAS_FSInitial_MRc = 7
+  ELAS_FSCurrent_NH1 = 4, ELAS_FSCurrent_NH2 = 5, ELAS_FSInitial_MR1 = 6, ELAS_FSInitial_MR1dc = 7
 } problemType;
 static const char *const problemTypes[] = {"Linear",
                                            "SS-NH",
@@ -88,7 +88,7 @@ static const char *const problemTypes[] = {"Linear",
                                            "FSCurrent-NH1",
                                            "FSCurrent-NH2",
                                            "FSInitial-MR1",
-                                           "FSInitial-MRc",
+                                           "FSInitial-MR1dc",
                                            "problemType","ELAS_",0
                                           };
 static const char *const problemTypesForDisp[] = {"Linear elasticity",
@@ -98,7 +98,7 @@ static const char *const problemTypesForDisp[] = {"Linear elasticity",
                                                   "Hyperelasticity finite strain Current config Neo-Hookean w/ dXref_dxinit, Grad(u) storage",
                                                   "Hyperelasticity finite strain Current config Neo-Hookean w/ dXref_dxcurr, tau, constant storage",
                                                   "Hyperelasticity finite strain Initial config Moony-Rivlin w/ dXref_dxinit, Grad(u) storage",
-                                                  "Hyperelasticity finite strain Initial config coupled Moony-Rivlin w/ dXref_dxinit, Grad(u) storage"
+                                                  "Hyperelasticity finite strain Initial config decoupled Moony-Rivlin w/ dXref_dxinit, Grad(u) storage"
                                                  };
 
 // Forcing function options
