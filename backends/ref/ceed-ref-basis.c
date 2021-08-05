@@ -22,7 +22,7 @@
 #include "ceed-ref.h"
 
 //------------------------------------------------------------------------------
-// Basis Apply
+// Basis Apply H1
 //------------------------------------------------------------------------------
 static int CeedBasisApply_Ref(CeedBasis basis, CeedInt num_elem,
                               CeedTransposeMode t_mode, CeedEvalMode eval_mode,
