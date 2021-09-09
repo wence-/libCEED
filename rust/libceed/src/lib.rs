@@ -29,19 +29,20 @@ use std::sync::Once;
 
 pub mod prelude {
     pub use crate::{
-        basis::{self, Basis, BasisOpt},
-        elem_restriction::{self, ElemRestriction, ElemRestrictionOpt},
-        operator::{self, CompositeOperator, Operator},
+        basis::{self, Basis, BasisFieldOpt, BasisOpt},
+        elem_restriction::{self, ElemRestriction, ElemRestrictionFieldOpt, ElemRestrictionOpt},
+        operator::{self, CompositeOperator, Operator, OperatorField},
         qfunction::{
-            self, QFunction, QFunctionByName, QFunctionInputs, QFunctionOpt, QFunctionOutputs,
+            self, QFunction, QFunctionByName, QFunctionField, QFunctionInputs, QFunctionOpt,
+            QFunctionOutputs,
         },
-        vector::{self, Vector, VectorOpt},
+        vector::{self, Vector, VectorFieldOpt, VectorOpt},
         ElemTopology, EvalMode, MemType, NormType, QuadMode, Scalar, TransposeMode,
         CEED_STRIDES_BACKEND, EPSILON, MAX_QFUNCTION_FIELDS,
     };
     pub(crate) use libceed_sys::bind_ceed;
     pub(crate) use std::convert::TryFrom;
-    pub(crate) use std::ffi::CString;
+    pub(crate) use std::ffi::{CStr, CString};
     pub(crate) use std::fmt;
 }
 
@@ -122,7 +123,7 @@ pub enum ElemTopology {
     Hex = bind_ceed::CeedElemTopology_CEED_HEX as isize,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 /// Basis evaluation mode
 pub enum EvalMode {
     None = bind_ceed::CeedEvalMode_CEED_EVAL_NONE as isize,
@@ -131,6 +132,19 @@ pub enum EvalMode {
     Div = bind_ceed::CeedEvalMode_CEED_EVAL_DIV as isize,
     Curl = bind_ceed::CeedEvalMode_CEED_EVAL_CURL as isize,
     Weight = bind_ceed::CeedEvalMode_CEED_EVAL_WEIGHT as isize,
+}
+impl EvalMode {
+    pub(crate) fn from_u32(value: u32) -> EvalMode {
+        match value {
+            bind_ceed::CeedEvalMode_CEED_EVAL_NONE => EvalMode::None,
+            bind_ceed::CeedEvalMode_CEED_EVAL_INTERP => EvalMode::Interp,
+            bind_ceed::CeedEvalMode_CEED_EVAL_GRAD => EvalMode::Grad,
+            bind_ceed::CeedEvalMode_CEED_EVAL_DIV => EvalMode::Div,
+            bind_ceed::CeedEvalMode_CEED_EVAL_CURL => EvalMode::Curl,
+            bind_ceed::CeedEvalMode_CEED_EVAL_WEIGHT => EvalMode::Weight,
+            _ => panic!("Unknown value: {}", value),
+        }
+    }
 }
 
 // -----------------------------------------------------------------------------

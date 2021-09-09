@@ -22,7 +22,7 @@ use crate::prelude::*;
 // -----------------------------------------------------------------------------
 // CeedElemRestriction option
 // -----------------------------------------------------------------------------
-#[derive(Clone, Copy)]
+#[derive(Debug)]
 pub enum ElemRestrictionOpt<'a> {
     Some(&'a ElemRestriction<'a>),
     None,
@@ -46,8 +46,202 @@ impl<'a> ElemRestrictionOpt<'a> {
 }
 
 // -----------------------------------------------------------------------------
+// CeedElemRestriction field option
+// -----------------------------------------------------------------------------
+#[derive(Debug)]
+pub enum ElemRestrictionFieldOpt<'a> {
+    Some(ElemRestriction<'a>),
+    None,
+}
+impl<'a> ElemRestrictionFieldOpt<'a> {
+    /// Check if a ElemRestrictionFieldOpt is Some
+    ///
+    /// ```
+    /// # use libceed::prelude::*;
+    /// # let ceed = libceed::Ceed::default_init();
+    /// let qf = ceed.q_function_interior_by_name("Mass1DBuild").unwrap();
+    ///
+    /// // Operator field arguments
+    /// let ne = 3;
+    /// let q = 4 as usize;
+    /// let mut ind: Vec<i32> = vec![0; 2 * ne];
+    /// for i in 0..ne {
+    ///     ind[2 * i + 0] = i as i32;
+    ///     ind[2 * i + 1] = (i + 1) as i32;
+    /// }
+    /// let r = ceed
+    ///     .elem_restriction(ne, 2, 1, 1, ne + 1, MemType::Host, &ind)
+    ///     .unwrap();
+    /// let strides: [i32; 3] = [1, q as i32, q as i32];
+    /// let rq = ceed
+    ///     .strided_elem_restriction(ne, 2, 1, q * ne, strides)
+    ///     .unwrap();
+    ///
+    /// let b = ceed
+    ///     .basis_tensor_H1_Lagrange(1, 1, 2, q, QuadMode::Gauss)
+    ///     .unwrap();
+    ///
+    /// // Operator fields
+    /// let op = ceed
+    ///     .operator(&qf, QFunctionOpt::None, QFunctionOpt::None)
+    ///     .unwrap()
+    ///     .field("dx", &r, &b, VectorOpt::Active)
+    ///     .unwrap()
+    ///     .field("weights", ElemRestrictionOpt::None, &b, VectorOpt::None)
+    ///     .unwrap()
+    ///     .field("qdata", &rq, BasisOpt::Collocated, VectorOpt::Active)
+    ///     .unwrap();
+    ///
+    /// let inputs = op.inputs().unwrap();
+    ///
+    /// assert!(
+    ///     inputs[0].elem_restriction().is_some(),
+    ///     "Incorrect field ElemRestriction"
+    /// );
+    ///
+    /// let outputs = op.outputs().unwrap();
+    ///
+    /// assert!(
+    ///     outputs[0].elem_restriction().is_some(),
+    ///     "Incorrect field ElemRestriction"
+    /// );
+    /// ```
+    pub fn is_some(self) -> bool {
+        match self {
+            Self::Some(_) => true,
+            Self::None => false,
+        }
+    }
+
+    /// Check if a ElemRestrictionFieldOpt is None
+    ///
+    /// ```
+    /// # use libceed::prelude::*;
+    /// # let ceed = libceed::Ceed::default_init();
+    /// let qf = ceed.q_function_interior_by_name("Mass1DBuild").unwrap();
+    ///
+    /// // Operator field arguments
+    /// let ne = 3;
+    /// let q = 4 as usize;
+    /// let mut ind: Vec<i32> = vec![0; 2 * ne];
+    /// for i in 0..ne {
+    ///     ind[2 * i + 0] = i as i32;
+    ///     ind[2 * i + 1] = (i + 1) as i32;
+    /// }
+    /// let r = ceed
+    ///     .elem_restriction(ne, 2, 1, 1, ne + 1, MemType::Host, &ind)
+    ///     .unwrap();
+    /// let strides: [i32; 3] = [1, q as i32, q as i32];
+    /// let rq = ceed
+    ///     .strided_elem_restriction(ne, 2, 1, q * ne, strides)
+    ///     .unwrap();
+    ///
+    /// let b = ceed
+    ///     .basis_tensor_H1_Lagrange(1, 1, 2, q, QuadMode::Gauss)
+    ///     .unwrap();
+    ///
+    /// // Operator fields
+    /// let op = ceed
+    ///     .operator(&qf, QFunctionOpt::None, QFunctionOpt::None)
+    ///     .unwrap()
+    ///     .field("dx", &r, &b, VectorOpt::Active)
+    ///     .unwrap()
+    ///     .field("weights", ElemRestrictionOpt::None, &b, VectorOpt::None)
+    ///     .unwrap()
+    ///     .field("qdata", &rq, BasisOpt::Collocated, VectorOpt::Active)
+    ///     .unwrap();
+    ///
+    /// let inputs = op.inputs().unwrap();
+    ///
+    /// assert!(
+    ///     inputs[1].elem_restriction().is_none(),
+    ///     "Incorrect field ElemRestriction"
+    /// );
+    /// ```
+    pub fn is_none(self) -> bool {
+        match self {
+            Self::Some(_) => false,
+            Self::None => true,
+        }
+    }
+
+    /// Get the ElemRestriction for a ElemRestrictionFieldOpt
+    ///
+    /// ```
+    /// # use libceed::prelude::*;
+    /// # let ceed = libceed::Ceed::default_init();
+    /// let qf = ceed.q_function_interior_by_name("Mass1DBuild").unwrap();
+    ///
+    /// // Operator field arguments
+    /// let ne = 3;
+    /// let q = 4 as usize;
+    /// let mut ind: Vec<i32> = vec![0; 2 * ne];
+    /// for i in 0..ne {
+    ///     ind[2 * i + 0] = i as i32;
+    ///     ind[2 * i + 1] = (i + 1) as i32;
+    /// }
+    /// let r = ceed
+    ///     .elem_restriction(ne, 2, 1, 1, ne + 1, MemType::Host, &ind)
+    ///     .unwrap();
+    /// let strides: [i32; 3] = [1, q as i32, q as i32];
+    /// let rq = ceed
+    ///     .strided_elem_restriction(ne, 2, 1, q * ne, strides)
+    ///     .unwrap();
+    ///
+    /// let b = ceed
+    ///     .basis_tensor_H1_Lagrange(1, 1, 2, q, QuadMode::Gauss)
+    ///     .unwrap();
+    ///
+    /// // Operator fields
+    /// let op = ceed
+    ///     .operator(&qf, QFunctionOpt::None, QFunctionOpt::None)
+    ///     .unwrap()
+    ///     .field("dx", &r, &b, VectorOpt::Active)
+    ///     .unwrap()
+    ///     .field("weights", ElemRestrictionOpt::None, &b, VectorOpt::None)
+    ///     .unwrap()
+    ///     .field("qdata", &rq, BasisOpt::Collocated, VectorOpt::Active)
+    ///     .unwrap();
+    ///
+    /// let inputs = op.inputs().unwrap();
+    ///
+    /// assert!(
+    ///     inputs[0].elem_restriction().elem_restriction().is_ok(),
+    ///     "Incorrect field ElemRestriction"
+    /// );
+    /// assert!(
+    ///     inputs[1].elem_restriction().elem_restriction().is_err(),
+    ///     "Incorrect field ElemRestriction"
+    /// );
+    ///
+    /// let outputs = op.outputs().unwrap();
+    ///
+    /// assert!(
+    ///     outputs[0].elem_restriction().elem_restriction().is_ok(),
+    ///     "Incorrect field ElemRestriction"
+    /// );
+    /// ```
+    pub fn elem_restriction(self) -> crate::Result<ElemRestriction<'a>> {
+        match self {
+            Self::Some(restr) => Ok(restr),
+            Self::None => Err(crate::CeedError {
+                message: "None ElemRestrictionFieldOpt has no ElemRestriction".to_string(),
+            }),
+        }
+    }
+
+    pub fn unwrap(self) -> ElemRestriction<'a> {
+        match self {
+            Self::Some(restr) => restr,
+            Self::None => panic!("None ElemRestrictionFieldOpt has no ElemRestriction"),
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
 // CeedElemRestriction context wrapper
 // -----------------------------------------------------------------------------
+#[derive(Debug)]
 pub struct ElemRestriction<'a> {
     ceed: &'a crate::Ceed,
     pub(crate) ptr: bind_ceed::CeedElemRestriction,
@@ -168,6 +362,13 @@ impl<'a> ElemRestriction<'a> {
             )
         };
         ceed.check_error(ierr)?;
+        Ok(Self { ceed, ptr })
+    }
+
+    pub(crate) fn from_raw(
+        ceed: &'a crate::Ceed,
+        ptr: bind_ceed::CeedElemRestriction,
+    ) -> crate::Result<Self> {
         Ok(Self { ceed, ptr })
     }
 
