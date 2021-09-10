@@ -55,6 +55,7 @@ impl<'a> VectorOpt<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
     /// let ne = 4;
     /// let p = 3;
@@ -62,10 +63,10 @@ impl<'a> VectorOpt<'a> {
     /// let ndofs = p * ne - ne + 1;
     ///
     /// // Vectors
-    /// let mut qdata = ceed.vector(ne * q).unwrap();
+    /// let mut qdata = ceed.vector(ne * q)?;
     /// qdata.set_value(0.0);
-    /// let u = ceed.vector_from_slice(&vec![1.0; ndofs]).unwrap();
-    /// let mut v = ceed.vector(ndofs).unwrap();
+    /// let u = ceed.vector_from_slice(&vec![1.0; ndofs])?;
+    /// let mut v = ceed.vector(ndofs)?;
     ///
     /// // Restrictions
     /// let mut indu: Vec<i32> = vec![0; p * ne];
@@ -74,34 +75,26 @@ impl<'a> VectorOpt<'a> {
     ///     indu[p * i + 1] = (i + 1) as i32;
     ///     indu[p * i + 2] = (i + 2) as i32;
     /// }
-    /// let ru = ceed
-    ///     .elem_restriction(ne, 3, 1, 1, ndofs, MemType::Host, &indu)
-    ///     .unwrap();
+    /// let ru = ceed.elem_restriction(ne, 3, 1, 1, ndofs, MemType::Host, &indu)?;
     /// let strides: [i32; 3] = [1, q as i32, q as i32];
-    /// let rq = ceed
-    ///     .strided_elem_restriction(ne, q, 1, q * ne, strides)
-    ///     .unwrap();
+    /// let rq = ceed.strided_elem_restriction(ne, q, 1, q * ne, strides)?;
     ///
     /// // Bases
-    /// let bu = ceed
-    ///     .basis_tensor_H1_Lagrange(1, 1, p, q, QuadMode::Gauss)
-    ///     .unwrap();
+    /// let bu = ceed.basis_tensor_H1_Lagrange(1, 1, p, q, QuadMode::Gauss)?;
     ///
     /// // Mass operator
-    /// let qf_mass = ceed.q_function_interior_by_name("MassApply").unwrap();
+    /// let qf_mass = ceed.q_function_interior_by_name("MassApply")?;
     /// let op_mass = ceed
-    ///     .operator(&qf_mass, QFunctionOpt::None, QFunctionOpt::None)
-    ///     .unwrap()
-    ///     .field("u", &ru, &bu, VectorOpt::Active)
-    ///     .unwrap()
-    ///     .field("qdata", &rq, BasisOpt::Collocated, &qdata)
-    ///     .unwrap()
-    ///     .field("v", &ru, &bu, VectorOpt::Active)
-    ///     .unwrap();
+    ///     .operator(&qf_mass, QFunctionOpt::None, QFunctionOpt::None)?
+    ///     .field("u", &ru, &bu, VectorOpt::Active)?
+    ///     .field("qdata", &rq, BasisOpt::Collocated, &qdata)?
+    ///     .field("v", &ru, &bu, VectorOpt::Active)?;
     ///
-    /// let mut inputs = op_mass.inputs().unwrap();
+    /// let mut inputs = op_mass.inputs()?;
     ///
     /// assert!(inputs[1].vector().is_some(), "Incorrect field Vector");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn is_some(self) -> bool {
         match self {
@@ -115,8 +108,9 @@ impl<'a> VectorOpt<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let qf = ceed.q_function_interior_by_name("Mass1DBuild").unwrap();
+    /// let qf = ceed.q_function_interior_by_name("Mass1DBuild")?;
     ///
     /// // Operator field arguments
     /// let ne = 3;
@@ -126,32 +120,24 @@ impl<'a> VectorOpt<'a> {
     ///     ind[2 * i + 0] = i as i32;
     ///     ind[2 * i + 1] = (i + 1) as i32;
     /// }
-    /// let r = ceed
-    ///     .elem_restriction(ne, 2, 1, 1, ne + 1, MemType::Host, &ind)
-    ///     .unwrap();
+    /// let r = ceed.elem_restriction(ne, 2, 1, 1, ne + 1, MemType::Host, &ind)?;
     /// let strides: [i32; 3] = [1, q as i32, q as i32];
-    /// let rq = ceed
-    ///     .strided_elem_restriction(ne, 2, 1, q * ne, strides)
-    ///     .unwrap();
+    /// let rq = ceed.strided_elem_restriction(ne, 2, 1, q * ne, strides)?;
     ///
-    /// let b = ceed
-    ///     .basis_tensor_H1_Lagrange(1, 1, 2, q, QuadMode::Gauss)
-    ///     .unwrap();
+    /// let b = ceed.basis_tensor_H1_Lagrange(1, 1, 2, q, QuadMode::Gauss)?;
     ///
     /// // Operator fields
     /// let op = ceed
-    ///     .operator(&qf, QFunctionOpt::None, QFunctionOpt::None)
-    ///     .unwrap()
-    ///     .field("dx", &r, &b, VectorOpt::Active)
-    ///     .unwrap()
-    ///     .field("weights", ElemRestrictionOpt::None, &b, VectorOpt::None)
-    ///     .unwrap()
-    ///     .field("qdata", &rq, BasisOpt::Collocated, VectorOpt::Active)
-    ///     .unwrap();
+    ///     .operator(&qf, QFunctionOpt::None, QFunctionOpt::None)?
+    ///     .field("dx", &r, &b, VectorOpt::Active)?
+    ///     .field("weights", ElemRestrictionOpt::None, &b, VectorOpt::None)?
+    ///     .field("qdata", &rq, BasisOpt::Collocated, VectorOpt::Active)?;
     ///
-    /// let inputs = op.inputs().unwrap();
+    /// let inputs = op.inputs()?;
     ///
     /// assert!(inputs[0].vector().is_active(), "Incorrect field Vector");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn is_active(self) -> bool {
         match self {
@@ -165,8 +151,9 @@ impl<'a> VectorOpt<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let qf = ceed.q_function_interior_by_name("Mass1DBuild").unwrap();
+    /// let qf = ceed.q_function_interior_by_name("Mass1DBuild")?;
     ///
     /// // Operator field arguments
     /// let ne = 3;
@@ -176,32 +163,24 @@ impl<'a> VectorOpt<'a> {
     ///     ind[2 * i + 0] = i as i32;
     ///     ind[2 * i + 1] = (i + 1) as i32;
     /// }
-    /// let r = ceed
-    ///     .elem_restriction(ne, 2, 1, 1, ne + 1, MemType::Host, &ind)
-    ///     .unwrap();
+    /// let r = ceed.elem_restriction(ne, 2, 1, 1, ne + 1, MemType::Host, &ind)?;
     /// let strides: [i32; 3] = [1, q as i32, q as i32];
-    /// let rq = ceed
-    ///     .strided_elem_restriction(ne, 2, 1, q * ne, strides)
-    ///     .unwrap();
+    /// let rq = ceed.strided_elem_restriction(ne, 2, 1, q * ne, strides)?;
     ///
-    /// let b = ceed
-    ///     .basis_tensor_H1_Lagrange(1, 1, 2, q, QuadMode::Gauss)
-    ///     .unwrap();
+    /// let b = ceed.basis_tensor_H1_Lagrange(1, 1, 2, q, QuadMode::Gauss)?;
     ///
     /// // Operator fields
     /// let op = ceed
-    ///     .operator(&qf, QFunctionOpt::None, QFunctionOpt::None)
-    ///     .unwrap()
-    ///     .field("dx", &r, &b, VectorOpt::Active)
-    ///     .unwrap()
-    ///     .field("weights", ElemRestrictionOpt::None, &b, VectorOpt::None)
-    ///     .unwrap()
-    ///     .field("qdata", &rq, BasisOpt::Collocated, VectorOpt::Active)
-    ///     .unwrap();
+    ///     .operator(&qf, QFunctionOpt::None, QFunctionOpt::None)?
+    ///     .field("dx", &r, &b, VectorOpt::Active)?
+    ///     .field("weights", ElemRestrictionOpt::None, &b, VectorOpt::None)?
+    ///     .field("qdata", &rq, BasisOpt::Collocated, VectorOpt::Active)?;
     ///
-    /// let inputs = op.inputs().unwrap();
+    /// let inputs = op.inputs()?;
     ///
     /// assert!(inputs[1].vector().is_none(), "Incorrect field Vector");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn is_none(self) -> bool {
         match self {
@@ -248,8 +227,9 @@ impl<'a> fmt::Display for Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let vec = libceed::vector::Vector::from_slice(&ceed, &[1., 2., 3.]).unwrap();
+    /// let vec = libceed::vector::Vector::from_slice(&ceed, &[1., 2., 3.])?;
     /// assert_eq!(
     ///     vec.to_string(),
     ///     "CeedVector length 3
@@ -257,7 +237,9 @@ impl<'a> fmt::Display for Vector<'a> {
     ///     2.00000000
     ///     3.00000000
     /// "
-    /// )
+    /// );
+    /// # Ok(())
+    /// # }
     /// ```
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut ptr = std::ptr::null_mut();
@@ -302,9 +284,12 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let vec = vector::Vector::from_slice(&ceed, &[1., 2., 3.]).unwrap();
+    /// let vec = vector::Vector::from_slice(&ceed, &[1., 2., 3.])?;
     /// assert_eq!(vec.length(), 3, "Incorrect length from slice");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn from_slice(ceed: &'a crate::Ceed, v: &[crate::Scalar]) -> crate::Result<Self> {
         let mut x = Self::create(ceed, v.len())?;
@@ -320,11 +305,14 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
     /// let mut rust_vec = vec![1., 2., 3.];
-    /// let vec = libceed::vector::Vector::from_array(&ceed, &mut rust_vec).unwrap();
+    /// let vec = libceed::vector::Vector::from_array(&ceed, &mut rust_vec)?;
     ///
     /// assert_eq!(vec.length(), 3, "Incorrect length from slice");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn from_array(ceed: &'a crate::Ceed, v: &mut [crate::Scalar]) -> crate::Result<Self> {
         let x = Self::create(ceed, v.len())?;
@@ -342,11 +330,14 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let vec = ceed.vector(10).unwrap();
+    /// let vec = ceed.vector(10)?;
     ///
     /// let n = vec.length();
     /// assert_eq!(n, 10, "Incorrect length");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn length(&self) -> usize {
         let mut n = 0;
@@ -358,9 +349,12 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let vec = ceed.vector(10).unwrap();
+    /// let vec = ceed.vector(10)?;
     /// assert_eq!(vec.len(), 10, "Incorrect length");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn len(&self) -> usize {
         self.length()
@@ -374,16 +368,19 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
     /// let len = 10;
-    /// let mut vec = ceed.vector(len).unwrap();
+    /// let mut vec = ceed.vector(len)?;
     ///
     /// let val = 42.0;
-    /// vec.set_value(val).unwrap();
+    /// vec.set_value(val)?;
     ///
     /// vec.view().iter().for_each(|v| {
     ///     assert_eq!(*v, val, "Value not set correctly");
     /// });
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn set_value(&mut self, value: crate::Scalar) -> crate::Result<i32> {
         let ierr = unsafe { bind_ceed::CeedVectorSetValue(self.ptr, value) };
@@ -398,13 +395,16 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let mut vec = ceed.vector(4).unwrap();
-    /// vec.set_slice(&[10., 11., 12., 13.]).unwrap();
+    /// let mut vec = ceed.vector(4)?;
+    /// vec.set_slice(&[10., 11., 12., 13.])?;
     ///
     /// vec.view().iter().enumerate().for_each(|(i, v)| {
     ///     assert_eq!(*v, 10. + i as Scalar, "Slice not set correctly");
     /// });
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn set_slice(&mut self, slice: &[crate::Scalar]) -> crate::Result<i32> {
         assert_eq!(self.length(), slice.len());
@@ -431,17 +431,20 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
     /// let len = 10;
-    /// let mut vec = ceed.vector(len).unwrap();
+    /// let mut vec = ceed.vector(len)?;
     ///
     /// let val = 42.0;
     /// vec.set_value(val);
-    /// vec.sync(MemType::Host).unwrap();
+    /// vec.sync(MemType::Host)?;
     ///
     /// vec.view().iter().for_each(|v| {
     ///     assert_eq!(*v, val, "Value not set correctly");
     /// });
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn sync(&self, mtype: crate::MemType) -> crate::Result<i32> {
         let ierr =
@@ -453,8 +456,9 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let vec = ceed.vector_from_slice(&[10., 11., 12., 13.]).unwrap();
+    /// let vec = ceed.vector_from_slice(&[10., 11., 12., 13.])?;
     ///
     /// let v = vec.view();
     /// assert_eq!(v[0..2], [10., 11.]);
@@ -462,6 +466,8 @@ impl<'a> Vector<'a> {
     /// // It is valid to have multiple immutable views
     /// let w = vec.view();
     /// assert_eq!(v[1..], w[1..]);
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn view(&self) -> VectorView {
         VectorView::new(self)
@@ -471,8 +477,9 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let mut vec = ceed.vector_from_slice(&[10., 11., 12., 13.]).unwrap();
+    /// let mut vec = ceed.vector_from_slice(&[10., 11., 12., 13.])?;
     ///
     /// {
     ///     let mut v = vec.view_mut();
@@ -481,6 +488,8 @@ impl<'a> Vector<'a> {
     ///
     /// let w = vec.view();
     /// assert_eq!(w[2], 9., "View did not mutate data");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn view_mut(&mut self) -> VectorViewMut {
         VectorViewMut::new(self)
@@ -494,17 +503,20 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let vec = ceed.vector_from_slice(&[1., 2., 3., 4.]).unwrap();
+    /// let vec = ceed.vector_from_slice(&[1., 2., 3., 4.])?;
     ///
-    /// let max_norm = vec.norm(NormType::Max).unwrap();
+    /// let max_norm = vec.norm(NormType::Max)?;
     /// assert_eq!(max_norm, 4.0, "Incorrect Max norm");
     ///
-    /// let l1_norm = vec.norm(NormType::One).unwrap();
+    /// let l1_norm = vec.norm(NormType::One)?;
     /// assert_eq!(l1_norm, 10., "Incorrect L1 norm");
     ///
-    /// let l2_norm = vec.norm(NormType::Two).unwrap();
+    /// let l2_norm = vec.norm(NormType::Two)?;
     /// assert!((l2_norm - 5.477) < 1e-3, "Incorrect L2 norm");
+    /// # Ok(())
+    /// # }
     /// ```
     pub fn norm(&self, ntype: crate::NormType) -> crate::Result<crate::Scalar> {
         let mut res: crate::Scalar = 0.0;
@@ -523,13 +535,16 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let mut vec = ceed.vector_from_slice(&[0., 1., 2., 3., 4.]).unwrap();
+    /// let mut vec = ceed.vector_from_slice(&[0., 1., 2., 3., 4.])?;
     ///
-    /// vec = vec.scale(-1.0).unwrap();
+    /// vec = vec.scale(-1.0)?;
     /// vec.view().iter().enumerate().for_each(|(i, &v)| {
     ///     assert_eq!(v, -(i as Scalar), "Value not set correctly");
     /// });
+    /// # Ok(())
+    /// # }
     /// ```
     #[allow(unused_mut)]
     pub fn scale(mut self, alpha: crate::Scalar) -> crate::Result<Self> {
@@ -547,14 +562,17 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let x = ceed.vector_from_slice(&[0., 1., 2., 3., 4.]).unwrap();
-    /// let mut y = ceed.vector_from_slice(&[0., 1., 2., 3., 4.]).unwrap();
+    /// let x = ceed.vector_from_slice(&[0., 1., 2., 3., 4.])?;
+    /// let mut y = ceed.vector_from_slice(&[0., 1., 2., 3., 4.])?;
     ///
-    /// y = y.axpy(-0.5, &x).unwrap();
+    /// y = y.axpy(-0.5, &x)?;
     /// y.view().iter().enumerate().for_each(|(i, &v)| {
     ///     assert_eq!(v, (i as Scalar) / 2.0, "Value not set correctly");
     /// });
+    /// # Ok(())
+    /// # }
     /// ```
     #[allow(unused_mut)]
     pub fn axpy(mut self, alpha: crate::Scalar, x: &crate::Vector) -> crate::Result<Self> {
@@ -572,15 +590,18 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let mut w = ceed.vector_from_slice(&[0., 1., 2., 3., 4.]).unwrap();
-    /// let x = ceed.vector_from_slice(&[0., 1., 2., 3., 4.]).unwrap();
-    /// let y = ceed.vector_from_slice(&[0., 1., 2., 3., 4.]).unwrap();
+    /// let mut w = ceed.vector_from_slice(&[0., 1., 2., 3., 4.])?;
+    /// let x = ceed.vector_from_slice(&[0., 1., 2., 3., 4.])?;
+    /// let y = ceed.vector_from_slice(&[0., 1., 2., 3., 4.])?;
     ///
-    /// w = w.pointwise_mult(&x, &y).unwrap();
+    /// w = w.pointwise_mult(&x, &y)?;
     /// w.view().iter().enumerate().for_each(|(i, &v)| {
     ///     assert_eq!(v, (i as Scalar).powf(2.0), "Value not set correctly");
     /// });
+    /// # Ok(())
+    /// # }
     /// ```
     #[allow(unused_mut)]
     pub fn pointwise_mult(mut self, x: &crate::Vector, y: &crate::Vector) -> crate::Result<Self> {
@@ -597,14 +618,17 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let mut w = ceed.vector_from_slice(&[0., 1., 2., 3., 4.]).unwrap();
-    /// let x = ceed.vector_from_slice(&[0., 1., 2., 3., 4.]).unwrap();
+    /// let mut w = ceed.vector_from_slice(&[0., 1., 2., 3., 4.])?;
+    /// let x = ceed.vector_from_slice(&[0., 1., 2., 3., 4.])?;
     ///
-    /// w = w.pointwise_scale(&x).unwrap();
+    /// w = w.pointwise_scale(&x)?;
     /// w.view().iter().enumerate().for_each(|(i, &v)| {
     ///     assert_eq!(v, (i as Scalar).powf(2.0), "Value not set correctly");
     /// });
+    /// # Ok(())
+    /// # }
     /// ```
     #[allow(unused_mut)]
     pub fn pointwise_scale(mut self, x: &crate::Vector) -> crate::Result<Self> {
@@ -617,13 +641,16 @@ impl<'a> Vector<'a> {
     ///
     /// ```
     /// # use libceed::prelude::*;
+    /// # fn main() -> Result<(), libceed::CeedError> {
     /// # let ceed = libceed::Ceed::default_init();
-    /// let mut w = ceed.vector_from_slice(&[0., 1., 2., 3., 4.]).unwrap();
+    /// let mut w = ceed.vector_from_slice(&[0., 1., 2., 3., 4.])?;
     ///
-    /// w = w.pointwise_square().unwrap();
+    /// w = w.pointwise_square()?;
     /// w.view().iter().enumerate().for_each(|(i, &v)| {
     ///     assert_eq!(v, (i as Scalar).powf(2.0), "Value not set correctly");
     /// });
+    /// # Ok(())
+    /// # }
     /// ```
     #[allow(unused_mut)]
     pub fn pointwise_square(mut self) -> crate::Result<Self> {
