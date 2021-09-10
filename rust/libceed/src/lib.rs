@@ -29,14 +29,14 @@ use std::sync::Once;
 
 pub mod prelude {
     pub use crate::{
-        basis::{self, Basis, BasisFieldOpt, BasisOpt},
-        elem_restriction::{self, ElemRestriction, ElemRestrictionFieldOpt, ElemRestrictionOpt},
+        basis::{self, Basis, BasisOpt},
+        elem_restriction::{self, ElemRestriction, ElemRestrictionOpt},
         operator::{self, CompositeOperator, Operator, OperatorField},
         qfunction::{
             self, QFunction, QFunctionByName, QFunctionField, QFunctionInputs, QFunctionOpt,
             QFunctionOutputs,
         },
-        vector::{self, Vector, VectorFieldOpt, VectorOpt},
+        vector::{self, Vector, VectorOpt},
         ElemTopology, EvalMode, MemType, NormType, QuadMode, Scalar, TransposeMode,
         CEED_STRIDES_BACKEND, EPSILON, MAX_QFUNCTION_FIELDS,
     };

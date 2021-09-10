@@ -42,18 +42,8 @@ impl<'a> BasisOpt<'a> {
             Self::Collocated => unsafe { bind_ceed::CEED_BASIS_COLLOCATED },
         }
     }
-}
 
-// -----------------------------------------------------------------------------
-// CeedBasis field option
-// -----------------------------------------------------------------------------
-#[derive(Debug)]
-pub enum BasisFieldOpt<'a> {
-    Some(Basis<'a>),
-    Collocated,
-}
-impl<'a> BasisFieldOpt<'a> {
-    /// Check if a BasisFieldOpt is Some
+    /// Check if a BasisOpt is Some
     ///
     /// ```
     /// # use libceed::prelude::*;
@@ -103,7 +93,7 @@ impl<'a> BasisFieldOpt<'a> {
         }
     }
 
-    /// Check if a BasisFieldOpt is Active
+    /// Check if a BasisOpt is Active
     ///
     /// ```
     /// # use libceed::prelude::*;
@@ -149,69 +139,6 @@ impl<'a> BasisFieldOpt<'a> {
         match self {
             Self::Some(_) => false,
             Self::Collocated => true,
-        }
-    }
-
-    /// Get the Basis for a BasisFieldOpt
-    ///
-    /// ```
-    /// # use libceed::prelude::*;
-    /// # let ceed = libceed::Ceed::default_init();
-    /// let qf = ceed.q_function_interior_by_name("Mass1DBuild").unwrap();
-    ///
-    /// // Operator field arguments
-    /// let ne = 3;
-    /// let q = 4 as usize;
-    /// let mut ind: Vec<i32> = vec![0; 2 * ne];
-    /// for i in 0..ne {
-    ///     ind[2 * i + 0] = i as i32;
-    ///     ind[2 * i + 1] = (i + 1) as i32;
-    /// }
-    /// let r = ceed
-    ///     .elem_restriction(ne, 2, 1, 1, ne + 1, MemType::Host, &ind)
-    ///     .unwrap();
-    /// let strides: [i32; 3] = [1, q as i32, q as i32];
-    /// let rq = ceed
-    ///     .strided_elem_restriction(ne, 2, 1, q * ne, strides)
-    ///     .unwrap();
-    ///
-    /// let b = ceed
-    ///     .basis_tensor_H1_Lagrange(1, 1, 2, q, QuadMode::Gauss)
-    ///     .unwrap();
-    ///
-    /// // Operator fields
-    /// let op = ceed
-    ///     .operator(&qf, QFunctionOpt::None, QFunctionOpt::None)
-    ///     .unwrap()
-    ///     .field("dx", &r, &b, VectorOpt::Active)
-    ///     .unwrap()
-    ///     .field("weights", ElemRestrictionOpt::None, &b, VectorOpt::None)
-    ///     .unwrap()
-    ///     .field("qdata", &rq, BasisOpt::Collocated, VectorOpt::Active)
-    ///     .unwrap();
-    ///
-    /// let inputs = op.inputs().unwrap();
-    ///
-    /// assert!(inputs[0].basis().basis().is_ok(), "Incorrect field Basis");
-    /// assert!(inputs[1].basis().basis().is_ok(), "Incorrect field Basis");
-    ///
-    /// let outputs = op.outputs().unwrap();
-    ///
-    /// assert!(outputs[0].basis().basis().is_err(), "Incorrect field Basis");
-    /// ```
-    pub fn basis(self) -> crate::Result<Basis<'a>> {
-        match self {
-            Self::Some(basis) => Ok(basis),
-            Self::Collocated => Err(crate::CeedError {
-                message: "Collocated BasisFieldOpt has no Basis".to_string(),
-            }),
-        }
-    }
-
-    pub fn unwrap(self) -> Basis<'a> {
-        match self {
-            Self::Some(basis) => basis,
-            Self::Collocated => panic!("Collocated BasisFieldOpt has no Basis"),
         }
     }
 }

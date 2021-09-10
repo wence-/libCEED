@@ -50,19 +50,8 @@ impl<'a> VectorOpt<'a> {
             Self::None => unsafe { bind_ceed::CEED_VECTOR_NONE },
         }
     }
-}
 
-// -----------------------------------------------------------------------------
-// CeedVector field option
-// -----------------------------------------------------------------------------
-#[derive(Debug)]
-pub enum VectorFieldOpt<'a> {
-    Some(Vector<'a>),
-    Active,
-    None,
-}
-impl<'a> VectorFieldOpt<'a> {
-    /// Check if a VectorFieldOpt is Active
+    /// Check if a VectorOpt is Active
     ///
     /// ```
     /// # use libceed::prelude::*;
@@ -110,7 +99,7 @@ impl<'a> VectorFieldOpt<'a> {
     ///     .field("v", &ru, &bu, VectorOpt::Active)
     ///     .unwrap();
     ///
-    /// let inputs = op_mass.inputs().unwrap();
+    /// let mut inputs = op_mass.inputs().unwrap();
     ///
     /// assert!(inputs[1].vector().is_some(), "Incorrect field Vector");
     /// ```
@@ -122,7 +111,7 @@ impl<'a> VectorFieldOpt<'a> {
         }
     }
 
-    /// Check if a VectorFieldOpt is Active
+    /// Check if a VectorOpt is Active
     ///
     /// ```
     /// # use libceed::prelude::*;
@@ -172,7 +161,7 @@ impl<'a> VectorFieldOpt<'a> {
         }
     }
 
-    /// Check if a VectorFieldOpt is None
+    /// Check if a VectorOpt is None
     ///
     /// ```
     /// # use libceed::prelude::*;
@@ -219,120 +208,6 @@ impl<'a> VectorFieldOpt<'a> {
             Self::Some(_) => false,
             Self::Active => false,
             Self::None => true,
-        }
-    }
-
-    /// Get the Vector for a VectorFieldOpt
-    ///
-    /// ```
-    /// # use libceed::prelude::*;
-    /// # let ceed = libceed::Ceed::default_init();
-    /// let ne = 4;
-    /// let p = 3;
-    /// let q = 4;
-    /// let ndofs = p * ne - ne + 1;
-    ///
-    /// // Vectors
-    /// let x = ceed.vector_from_slice(&[-1., -0.5, 0.0, 0.5, 1.0]).unwrap();
-    /// let mut qdata = ceed.vector(ne * q).unwrap();
-    /// qdata.set_value(0.0);
-    /// let u = ceed.vector_from_slice(&vec![1.0; ndofs]).unwrap();
-    /// let mut v = ceed.vector(ndofs).unwrap();
-    ///
-    /// // Restrictions
-    /// let mut indx: Vec<i32> = vec![0; 2 * ne];
-    /// for i in 0..ne {
-    ///     indx[2 * i + 0] = i as i32;
-    ///     indx[2 * i + 1] = (i + 1) as i32;
-    /// }
-    /// let rx = ceed
-    ///     .elem_restriction(ne, 2, 1, 1, ne + 1, MemType::Host, &indx)
-    ///     .unwrap();
-    /// let mut indu: Vec<i32> = vec![0; p * ne];
-    /// for i in 0..ne {
-    ///     indu[p * i + 0] = i as i32;
-    ///     indu[p * i + 1] = (i + 1) as i32;
-    ///     indu[p * i + 2] = (i + 2) as i32;
-    /// }
-    /// let ru = ceed
-    ///     .elem_restriction(ne, 3, 1, 1, ndofs, MemType::Host, &indu)
-    ///     .unwrap();
-    /// let strides: [i32; 3] = [1, q as i32, q as i32];
-    /// let rq = ceed
-    ///     .strided_elem_restriction(ne, q, 1, q * ne, strides)
-    ///     .unwrap();
-    ///
-    /// // Bases
-    /// let bx = ceed
-    ///     .basis_tensor_H1_Lagrange(1, 1, 2, q, QuadMode::Gauss)
-    ///     .unwrap();
-    /// let bu = ceed
-    ///     .basis_tensor_H1_Lagrange(1, 1, p, q, QuadMode::Gauss)
-    ///     .unwrap();
-    ///
-    /// // Build quadrature data
-    /// let qf_build = ceed.q_function_interior_by_name("Mass1DBuild").unwrap();
-    /// let op_build = ceed
-    ///     .operator(&qf_build, QFunctionOpt::None, QFunctionOpt::None)
-    ///     .unwrap()
-    ///     .field("dx", &rx, &bx, VectorOpt::Active)
-    ///     .unwrap()
-    ///     .field("weights", ElemRestrictionOpt::None, &bx, VectorOpt::None)
-    ///     .unwrap()
-    ///     .field("qdata", &rq, BasisOpt::Collocated, VectorOpt::Active)
-    ///     .unwrap();
-    ///
-    /// // Mass operator
-    /// let qf_mass = ceed.q_function_interior_by_name("MassApply").unwrap();
-    /// let op_mass = ceed
-    ///     .operator(&qf_mass, QFunctionOpt::None, QFunctionOpt::None)
-    ///     .unwrap()
-    ///     .field("u", &ru, &bu, VectorOpt::Active)
-    ///     .unwrap()
-    ///     .field("qdata", &rq, BasisOpt::Collocated, &qdata)
-    ///     .unwrap()
-    ///     .field("v", &ru, &bu, VectorOpt::Active)
-    ///     .unwrap();
-    ///
-    /// let inputs = op_build.inputs().unwrap();
-    ///
-    /// assert!(
-    ///     inputs[0].vector().vector().is_err(),
-    ///     "Incorrect field Vector"
-    /// );
-    /// assert!(
-    ///     inputs[1].vector().vector().is_err(),
-    ///     "Incorrect field Vector"
-    /// );
-    ///
-    /// let inputs = op_mass.inputs().unwrap();
-    ///
-    /// assert!(
-    ///     inputs[0].vector().vector().is_err(),
-    ///     "Incorrect field Vector"
-    /// );
-    /// assert!(
-    ///     inputs[1].vector().vector().is_ok(),
-    ///     "Incorrect field Vector"
-    /// );
-    /// ```
-    pub fn vector(self) -> crate::Result<Vector<'a>> {
-        match self {
-            Self::Some(vec) => Ok(vec),
-            Self::Active => Err(crate::CeedError {
-                message: "Active VectorFieldOpt has no Vector".to_string(),
-            }),
-            Self::None => Err(crate::CeedError {
-                message: "None VectorFieldOpt has no Vector".to_string(),
-            }),
-        }
-    }
-
-    pub fn unwrap(self) -> Vector<'a> {
-        match self {
-            Self::Some(vec) => vec,
-            Self::Active => panic!("Active VectorFieldOpt has no Vector"),
-            Self::None => panic!("None VectorFieldOpt has no Vector"),
         }
     }
 }

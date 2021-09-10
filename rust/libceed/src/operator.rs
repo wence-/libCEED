@@ -27,6 +27,9 @@ use crate::prelude::*;
 pub struct OperatorField<'a> {
     ceed: &'a crate::Ceed,
     pub(crate) ptr: bind_ceed::CeedOperatorField,
+    elem_restriction: crate::ElemRestriction<'a>,
+    basis: crate::Basis<'a>,
+    vector: crate::Vector<'a>,
 }
 
 // -----------------------------------------------------------------------------
@@ -128,29 +131,16 @@ impl<'a> OperatorField<'a> {
     ///     inputs[0].elem_restriction().is_some(),
     ///     "Incorrect field ElemRestriction"
     /// );
-    /// assert_eq!(
-    ///     inputs[0].elem_restriction().unwrap().num_elements(),
-    ///     ne,
-    ///     "Incorrect field ElemRestriction"
-    /// );
     /// assert!(
     ///     inputs[1].elem_restriction().is_none(),
     ///     "Incorrect field ElemRestriction"
     /// );
     /// ```
-    pub fn elem_restriction(&self) -> ElemRestrictionFieldOpt {
-        let mut ptr = std::ptr::null_mut();
-        unsafe {
-            bind_ceed::CeedOperatorFieldGetElemRestriction(self.ptr, &mut ptr);
-        }
-        if ptr == unsafe { bind_ceed::CEED_ELEMRESTRICTION_NONE } {
-            ElemRestrictionFieldOpt::None
+    pub fn elem_restriction(&self) -> ElemRestrictionOpt {
+        if self.elem_restriction.ptr == unsafe { bind_ceed::CEED_ELEMRESTRICTION_NONE } {
+            ElemRestrictionOpt::None
         } else {
-            let mut ptr_copy = std::ptr::null_mut();
-            unsafe {
-                bind_ceed::CeedElemRestrictionReferenceCopy(ptr, &mut ptr_copy);
-            }
-            ElemRestrictionFieldOpt::Some(ElemRestriction::from_raw(self.ceed, ptr_copy).unwrap())
+            ElemRestrictionOpt::Some(&self.elem_restriction)
         }
     }
 
@@ -195,35 +185,17 @@ impl<'a> OperatorField<'a> {
     /// let inputs = op.inputs().unwrap();
     ///
     /// assert!(inputs[0].basis().is_some(), "Incorrect field Basis");
-    /// assert_eq!(
-    ///     inputs[0].basis().unwrap().num_quadrature_points(),
-    ///     q,
-    ///     "Incorrect field Basis"
-    /// );
     /// assert!(inputs[1].basis().is_some(), "Incorrect field Basis");
-    /// assert_eq!(
-    ///     inputs[1].basis().unwrap().num_quadrature_points(),
-    ///     q,
-    ///     "Incorrect field Basis"
-    /// );
     ///
     /// let outputs = op.outputs().unwrap();
     ///
     /// assert!(outputs[0].basis().is_collocated(), "Incorrect field Basis");
     /// ```
-    pub fn basis(&self) -> BasisFieldOpt {
-        let mut ptr = std::ptr::null_mut();
-        unsafe {
-            bind_ceed::CeedOperatorFieldGetBasis(self.ptr, &mut ptr);
-        }
-        if ptr == unsafe { bind_ceed::CEED_BASIS_COLLOCATED } {
-            BasisFieldOpt::Collocated
+    pub fn basis(&self) -> BasisOpt {
+        if self.basis.ptr == unsafe { bind_ceed::CEED_BASIS_COLLOCATED } {
+            BasisOpt::Collocated
         } else {
-            let mut ptr_copy = std::ptr::null_mut();
-            unsafe {
-                bind_ceed::CeedBasisReferenceCopy(ptr, &mut ptr_copy);
-            }
-            BasisFieldOpt::Some(Basis::from_raw(self.ceed, ptr_copy).unwrap())
+            BasisOpt::Some(&self.basis)
         }
     }
 
@@ -270,21 +242,13 @@ impl<'a> OperatorField<'a> {
     /// assert!(inputs[0].vector().is_active(), "Incorrect field Vector");
     /// assert!(inputs[1].vector().is_none(), "Incorrect field Vector");
     /// ```
-    pub fn vector(&self) -> VectorFieldOpt {
-        let mut ptr = std::ptr::null_mut();
-        unsafe {
-            bind_ceed::CeedOperatorFieldGetVector(self.ptr, &mut ptr);
-        }
-        if ptr == unsafe { bind_ceed::CEED_VECTOR_ACTIVE } {
-            VectorFieldOpt::Active
-        } else if ptr == unsafe { bind_ceed::CEED_VECTOR_NONE } {
-            VectorFieldOpt::None
+    pub fn vector(&self) -> VectorOpt {
+        if self.vector.ptr == unsafe { bind_ceed::CEED_VECTOR_ACTIVE } {
+            VectorOpt::Active
+        } else if self.vector.ptr == unsafe { bind_ceed::CEED_VECTOR_NONE } {
+            VectorOpt::None
         } else {
-            let mut ptr_copy = std::ptr::null_mut();
-            unsafe {
-                bind_ceed::CeedVectorReferenceCopy(ptr, &mut ptr_copy);
-            }
-            VectorFieldOpt::Some(Vector::from_raw(self.ceed, ptr_copy).unwrap())
+            VectorOpt::Some(&self.vector)
         }
     }
 }
@@ -864,10 +828,39 @@ impl<'a> Operator<'a> {
         // Convert raw C pointers to fixed length array
         let inputs_slice = unsafe { std::slice::from_raw_parts(inputs_ptr, num_inputs as usize) };
         let mut inputs = Vec::new();
+
         for i in 0..num_inputs as usize {
+            let field_ptr = inputs_slice[i];
+            let mut elem_restriction_ptr = std::ptr::null_mut();
+            let mut ptr_copy = std::ptr::null_mut();
+            unsafe {
+                bind_ceed::CeedOperatorFieldGetElemRestriction(
+                    field_ptr,
+                    &mut elem_restriction_ptr,
+                );
+                bind_ceed::CeedElemRestrictionReferenceCopy(elem_restriction_ptr, &mut ptr_copy);
+            }
+            let elem_restriction = ElemRestriction::from_raw(self.op_core.ceed, ptr_copy)?;
+            let mut basis_ptr = std::ptr::null_mut();
+            let mut ptr_copy = std::ptr::null_mut();
+            unsafe {
+                bind_ceed::CeedOperatorFieldGetBasis(field_ptr, &mut basis_ptr);
+                bind_ceed::CeedBasisReferenceCopy(basis_ptr, &mut ptr_copy);
+            }
+            let basis = Basis::from_raw(self.op_core.ceed, ptr_copy)?;
+            let mut vector_ptr = std::ptr::null_mut();
+            let mut ptr_copy = std::ptr::null_mut();
+            unsafe {
+                bind_ceed::CeedOperatorFieldGetVector(field_ptr, &mut vector_ptr);
+                bind_ceed::CeedVectorReferenceCopy(vector_ptr, &mut ptr_copy);
+            }
+            let vector = Vector::from_raw(self.op_core.ceed, ptr_copy)?;
             inputs.push(OperatorField {
                 ceed: self.op_core.ceed,
-                ptr: inputs_slice[i] as bind_ceed::CeedOperatorField,
+                ptr: field_ptr,
+                elem_restriction: elem_restriction,
+                basis: basis,
+                vector: vector,
             })
         }
         Ok(inputs)
@@ -934,9 +927,37 @@ impl<'a> Operator<'a> {
             unsafe { std::slice::from_raw_parts(outputs_ptr, num_outputs as usize) };
         let mut outputs = Vec::new();
         for i in 0..num_outputs as usize {
+            let field_ptr = outputs_slice[i];
+            let mut elem_restriction_ptr = std::ptr::null_mut();
+            let mut ptr_copy = std::ptr::null_mut();
+            unsafe {
+                bind_ceed::CeedOperatorFieldGetElemRestriction(
+                    field_ptr,
+                    &mut elem_restriction_ptr,
+                );
+                bind_ceed::CeedElemRestrictionReferenceCopy(elem_restriction_ptr, &mut ptr_copy);
+            }
+            let elem_restriction = ElemRestriction::from_raw(self.op_core.ceed, ptr_copy)?;
+            let mut basis_ptr = std::ptr::null_mut();
+            let mut ptr_copy = std::ptr::null_mut();
+            unsafe {
+                bind_ceed::CeedOperatorFieldGetBasis(field_ptr, &mut basis_ptr);
+                bind_ceed::CeedBasisReferenceCopy(basis_ptr, &mut ptr_copy);
+            }
+            let basis = Basis::from_raw(self.op_core.ceed, ptr_copy)?;
+            let mut vector_ptr = std::ptr::null_mut();
+            let mut ptr_copy = std::ptr::null_mut();
+            unsafe {
+                bind_ceed::CeedOperatorFieldGetVector(field_ptr, &mut vector_ptr);
+                bind_ceed::CeedVectorReferenceCopy(vector_ptr, &mut ptr_copy);
+            }
+            let vector = Vector::from_raw(self.op_core.ceed, ptr_copy)?;
             outputs.push(OperatorField {
                 ceed: self.op_core.ceed,
-                ptr: outputs_slice[i] as bind_ceed::CeedOperatorField,
+                ptr: field_ptr,
+                elem_restriction: elem_restriction,
+                basis: basis,
+                vector: vector,
             })
         }
         Ok(outputs)
