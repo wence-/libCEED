@@ -90,6 +90,15 @@ for ((i=0;i<${#backends[@]};++i)); do
         continue;
     fi
 
+    # Bug: OCCA requires fully specified Operator to be able to destroy
+    if [[ "$backend" = *occa* && \
+            ( "$1" = t508* ) ]]; then
+        printf "ok $i0 # SKIP - OCCA OperatorDestroy bug with $backend\n"
+        printf "ok $i1 # SKIP - OCCA OperatorDestroy bug with $backend stdout\n"
+        printf "ok $i2 # SKIP - OCCA OperatorDestroy bug with $backend stderr\n"
+        continue;
+    fi
+
     # Nek5000 integration not currently supported in OCCA
     if [[ "$backend" = *occa* && \
             ( "$1" = nek-* ) ]]; then
