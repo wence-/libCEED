@@ -288,7 +288,7 @@ impl<'a> QFunctionCore<'a> {
         self.ceed.check_error(ierr)
     }
 
-    pub fn inputs(&self) -> crate::Result<Vec<crate::QFunctionField>> {
+    pub fn inputs(&self) -> crate::Result<&[crate::QFunctionField]> {
         // Get array of raw C pointers for inputs
         let mut num_inputs = 0;
         let mut inputs_ptr = std::ptr::null_mut();
@@ -303,17 +303,16 @@ impl<'a> QFunctionCore<'a> {
         };
         self.ceed.check_error(ierr)?;
         // Convert raw C pointers to fixed length array
-        let inputs_slice = unsafe { std::slice::from_raw_parts(inputs_ptr, num_inputs as usize) };
-        let mut inputs = Vec::new();
-        for i in 0..num_inputs as usize {
-            inputs.push(QFunctionField {
-                ptr: inputs_slice[i] as bind_ceed::CeedQFunctionField,
-            })
-        }
-        Ok(inputs)
+        let inputs_slice = unsafe {
+            std::slice::from_raw_parts(
+                inputs_ptr as *const crate::QFunctionField,
+                num_inputs as usize,
+            )
+        };
+        Ok(inputs_slice)
     }
 
-    pub fn outputs(&self) -> crate::Result<Vec<crate::QFunctionField>> {
+    pub fn outputs(&self) -> crate::Result<&[crate::QFunctionField]> {
         // Get array of raw C pointers for outputs
         let mut num_outputs = 0;
         let mut outputs_ptr = std::ptr::null_mut();
@@ -328,15 +327,10 @@ impl<'a> QFunctionCore<'a> {
         };
         self.ceed.check_error(ierr)?;
         // Convert raw C pointers to fixed length array
-        let outputs_slice =
-            unsafe { std::slice::from_raw_parts(outputs_ptr, num_outputs as usize) };
-        let mut outputs = Vec::new();
-        for i in 0..num_outputs as usize {
-            outputs.push(QFunctionField {
-                ptr: outputs_slice[i] as bind_ceed::CeedQFunctionField,
-            })
-        }
-        Ok(outputs)
+        let outputs_slice = unsafe {
+            std::slice::from_raw_parts(outputs_ptr as *const QFunctionField, num_outputs as usize)
+        };
+        Ok(outputs_slice)
     }
 }
 
@@ -653,7 +647,7 @@ impl<'a> QFunction<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn inputs(&self) -> crate::Result<Vec<crate::QFunctionField>> {
+    pub fn inputs(&self) -> crate::Result<&[crate::QFunctionField]> {
         self.qf_core.inputs()
     }
 
@@ -683,7 +677,7 @@ impl<'a> QFunction<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn outputs(&self) -> crate::Result<Vec<crate::QFunctionField>> {
+    pub fn outputs(&self) -> crate::Result<&[crate::QFunctionField]> {
         self.qf_core.outputs()
     }
 }
@@ -785,7 +779,7 @@ impl<'a> QFunctionByName<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn inputs(&self) -> crate::Result<Vec<crate::QFunctionField>> {
+    pub fn inputs(&self) -> crate::Result<&[crate::QFunctionField]> {
         self.qf_core.inputs()
     }
 
@@ -804,7 +798,7 @@ impl<'a> QFunctionByName<'a> {
     /// # Ok(())
     /// # }
     /// ```
-    pub fn outputs(&self) -> crate::Result<Vec<crate::QFunctionField>> {
+    pub fn outputs(&self) -> crate::Result<&[crate::QFunctionField]> {
         self.qf_core.outputs()
     }
 }
