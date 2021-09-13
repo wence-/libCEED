@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
   // Process command line options
   // ---------------------------------------------------------------------------
   comm = PETSC_COMM_WORLD;
-
+  //TODO: loop?
   // -- Set mesh file, polynomial degree, problem type
   ierr = PetscCalloc1(1, &app_ctx); CHKERRQ(ierr);
   ierr = ProcessCommandLineOptions(comm, app_ctx); CHKERRQ(ierr);
@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
   CeedGetPreferredMemType(ceed, &mem_type_backend);
   // Setup physics context and wrap in libCEED object
   {
-    PetscErrorCode (*SetupPhysics)(MPI_Comm, Ceed, Units *, CeedQFunctionContext *);
+    PetscErrorCode (*SetupPhysics)(MPI_Comm, Ceed, Units *, CeedQFunctionContext *); //TODO: need to loop over arrays for all problem types in use
     ierr = PetscFunctionListFind(problem_functions->setupPhysics, app_ctx->name,
                                  &SetupPhysics); CHKERRQ(ierr);
     if (!SetupPhysics)
@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
                                  app_ctx->name, &SetupSmootherPhysics);
     CHKERRQ(ierr);
     if (!SetupSmootherPhysics)
-      SETERRQ1(PETSC_COMM_SELF, 1, "Smoother physics setup for '%s' not found",
+      SETERRQ1(PETSC_COMM_SELF, 1, "Smoother physics setup for '%s' not found", // TODO: add in lop later
                app_ctx->name);
     ierr = (*SetupSmootherPhysics)(comm, ceed, ctx_phys, &ctx_phys_smoother);
     CHKERRQ(ierr);

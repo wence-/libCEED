@@ -167,4 +167,11 @@ typedef struct {
   const char *const *field_names;
 } ProblemData;
 
+typedef struct {
+  const char name; //ex. epoxy or beads
+  const char label;
+  PetscInt *label_value; // cell sets to apply to
+  problemType problem; // maths model to use
+} materialsInfo;
+
 #endif // structs_h

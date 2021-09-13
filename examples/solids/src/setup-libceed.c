@@ -90,8 +90,8 @@ PetscInt Involute(PetscInt i) {
 
 // Utility function to create local CEED restriction from DMPlex
 PetscErrorCode CreateRestrictionFromPlex(Ceed ceed, DM dm, CeedInt P,
-    CeedInt height, DMLabel domain_label, CeedInt value,
-    CeedElemRestriction *elem_restr) {
+    CeedInt height, DMLabel domain_label, CeedInt *values,
+    CeedElemRestriction *elem_restr) { // TODO: changed to multiple values
 
   PetscSection section;
   PetscInt p, num_elem, num_dof, *restr_indices, elem_offset, num_fields, dim,
@@ -121,7 +121,10 @@ PetscErrorCode CreateRestrictionFromPlex(Ceed ceed, DM dm, CeedInt P,
   CHKERRQ(ierr);
   if (domain_label) {
     IS domain_is;
-    ierr = DMLabelGetStratumIS(domain_label, value, &domain_is); CHKERRQ(ierr);
+    for(PetscInt v = 0; v < sizeof(values); v++)
+      {
+      ierr = DMLabelGetStratumIS(domain_label, values[v], &domain_is); CHKERRQ(ierr);
+      }
     if (domain_is) { // domainIS is non-empty
       ierr = ISIntersect(depth_is, domain_is, &iter_is); CHKERRQ(ierr);
       ierr = ISDestroy(&domain_is); CHKERRQ(ierr);
@@ -241,12 +244,12 @@ PetscErrorCode GetRestrictionForDomain(Ceed ceed, DM dm, CeedInt height,
   ierr = DMPlexSetClosurePermutationTensor(dm_coord, PETSC_DETERMINE, NULL);
   CHKERRQ(ierr);
   if (elem_restr_q) {
-    ierr = CreateRestrictionFromPlex(ceed, dm, P, height, domain_label, value,
+    ierr = CreateRestrictionFromPlex(ceed, dm, P, height, domain_label, &value,
                                      elem_restr_q); CHKERRQ(ierr);
   }
   if (elem_restr_x) {
     ierr = CreateRestrictionFromPlex(ceed, dm_coord, 2, height, domain_label,
-                                     value, elem_restr_x); CHKERRQ(ierr);
+                                     &value, elem_restr_x); CHKERRQ(ierr);
   }
   if (elem_restr_qd_i) {
     CeedElemRestrictionGetNumElements(*elem_restr_q, &num_local_elem);
@@ -266,7 +269,7 @@ PetscErrorCode SetupLibceedFineLevel(DM dm, DM dm_energy, DM dm_diagnostic,
                                      PetscInt fine_level, PetscInt num_comp_u,
                                      PetscInt U_g_size, PetscInt U_loc_size,
                                      CeedVector force_ceed,
-                                     CeedVector neumann_ceed, CeedData *data) {
+                                     CeedVector neumann_ceed, CeedData *data) { //TODO: needs to take in cell sets values
   int           ierr;
   CeedInt       P = app_ctx->level_degrees[fine_level] + 1;
   CeedInt       Q = app_ctx->level_degrees[fine_level] + 1 + app_ctx->q_extra;
@@ -314,19 +317,19 @@ PetscErrorCode SetupLibceedFineLevel(DM dm, DM dm_energy, DM dm_diagnostic,
 
   // -- Coordinate restriction
   ierr = CreateRestrictionFromPlex(ceed, dm_coord, 2, 0, 0, 0,
-                                   &(data[fine_level]->elem_restr_x));
+                                   &(data[fine_level]->elem_restr_x)); //TODO: needs to take in cell sets values
   CHKERRQ(ierr);
   // -- Solution restriction
   ierr = CreateRestrictionFromPlex(ceed, dm, P, 0, 0, 0,
-                                   &data[fine_level]->elem_restr_u);
+                                   &data[fine_level]->elem_restr_u); //TODO: needs to take in cell sets values
   CHKERRQ(ierr);
   // -- Energy restriction
   ierr = CreateRestrictionFromPlex(ceed, dm_energy, P, 0, 0, 0,
-                                   &data[fine_level]->elem_restr_energy);
+                                   &data[fine_level]->elem_restr_energy); //TODO: needs to take in cell sets values
   CHKERRQ(ierr);
   // -- Diagnostic data restriction
   ierr = CreateRestrictionFromPlex(ceed, dm_diagnostic, P, 0, 0, 0,
-                                   &data[fine_level]->elem_restr_diagnostic);
+                                   &data[fine_level]->elem_restr_diagnostic);//TODO: needs to take in cell sets values
   CHKERRQ(ierr);
 
   // -- Stored data at quadrature points
@@ -740,7 +743,7 @@ PetscErrorCode SetupLibceedFineLevel(DM dm, DM dm_energy, DM dm_diagnostic,
   CeedVectorDestroy(&x_coord);
 
   PetscFunctionReturn(0);
-};
+}; // end of SetupLibceedFineLevel
 
 // Set up libCEED multigrid level for a given degree
 //   Prolongation and Restriction are between level and level+1
@@ -748,7 +751,7 @@ PetscErrorCode SetupLibceedLevel(DM dm, Ceed ceed, AppCtx app_ctx,
                                  ProblemData problem_data, PetscInt level,
                                  PetscInt num_comp_u, PetscInt U_g_size,
                                  PetscInt U_loc_size, CeedVector fine_mult,
-                                 CeedData *data) {
+                                 CeedData *data) { //TODO: needs to take in cell sets values
   PetscErrorCode ierr;
   CeedInt        fine_level = app_ctx->num_levels - 1;
   CeedInt        P = app_ctx->level_degrees[level] + 1;
@@ -765,7 +768,7 @@ PetscErrorCode SetupLibceedLevel(DM dm, Ceed ceed, AppCtx app_ctx,
   // ---------------------------------------------------------------------------
   // -- Solution restriction
   ierr = CreateRestrictionFromPlex(ceed, dm, P, 0, 0, 0,
-                                   &data[level]->elem_restr_u);
+                                   &data[level]->elem_restr_u);//TODO: needs to take in cell sets values
   CHKERRQ(ierr);
 
   // ---------------------------------------------------------------------------
@@ -798,4 +801,4 @@ PetscErrorCode SetupLibceedLevel(DM dm, Ceed ceed, AppCtx app_ctx,
   data[level+1]->op_restrict = op_restrict;
 
   PetscFunctionReturn(0);
-};
+}; // end of SetupLibceedLevel

@@ -16,12 +16,12 @@ PetscInt Involute(PetscInt i);
 
 // Utility function to create local CEED restriction from DMPlex
 PetscErrorCode CreateRestrictionFromPlex(Ceed ceed, DM dm, CeedInt P,
-    CeedInt height, DMLabel domain_label, CeedInt value,
+    CeedInt height, DMLabel domain_label, CeedInt *values,
     CeedElemRestriction *elem_restr);
 
 // Utility function to get Ceed Restriction for each domain
 PetscErrorCode GetRestrictionForDomain(Ceed ceed, DM dm, CeedInt height,
-                                       DMLabel domain_label, PetscInt value, CeedInt P,
+                                       DMLabel domain_label, CeedInt value, CeedInt P,
                                        CeedInt Q, CeedInt q_data_size,
                                        CeedElemRestriction *elem_restr_q,
                                        CeedElemRestriction *elem_restr_x,

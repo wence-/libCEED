@@ -42,44 +42,10 @@ PetscErrorCode ProcessCommandLineOptions(MPI_Comm comm, AppCtx app_ctx) {
                             app_ctx->mesh_file, app_ctx->mesh_file,
                             sizeof(app_ctx->mesh_file), NULL); CHKERRQ(ierr);
 
-  app_ctx->problem_choice  = ELAS_LINEAR;       // Default - Linear Elasticity
-  ierr = PetscOptionsEnum("-problem",
-                          "Solves Elasticity & Hyperelasticity Problems",
-                          NULL, problemTypes, (PetscEnum)app_ctx->problem_choice,
-                          (PetscEnum *)&app_ctx->problem_choice, NULL);
-  CHKERRQ(ierr);
-  app_ctx->name = problemTypes[app_ctx->problem_choice];
-  app_ctx->name_for_disp = problemTypesForDisp[app_ctx->problem_choice];
-
   app_ctx->num_increments = app_ctx->problem_choice == ELAS_LINEAR ? 1 : 10;
   ierr = PetscOptionsInt("-num_steps", "Number of pseudo-time steps",
                          NULL, app_ctx->num_increments, &app_ctx->num_increments,
                          NULL); CHKERRQ(ierr);
-
-  app_ctx->forcing_choice  = FORCE_NONE;     // Default - no forcing term
-  ierr = PetscOptionsEnum("-forcing", "Set forcing function option", NULL,
-                          forcing_types, (PetscEnum)app_ctx->forcing_choice,
-                          (PetscEnum *)&app_ctx->forcing_choice, NULL);
-  CHKERRQ(ierr);
-
-  PetscInt max_n = 3;
-  app_ctx->forcing_vector[0] = 0;
-  app_ctx->forcing_vector[1] = -1;
-  app_ctx->forcing_vector[2] = 0;
-  ierr = PetscOptionsScalarArray("-forcing_vec",
-                                 "Direction to apply constant force", NULL,
-                                 app_ctx->forcing_vector, &max_n, NULL);
-  CHKERRQ(ierr);
-
-  if ((app_ctx->problem_choice == ELAS_FSInitial_NH1 ||
-       app_ctx->problem_choice == ELAS_FSInitial_NH2 ||
-       app_ctx->problem_choice == ELAS_FSCurrent_NH1 ||
-       app_ctx->problem_choice == ELAS_FSCurrent_NH2 ||
-       app_ctx->problem_choice == ELAS_FSInitial_MR1) &&
-      app_ctx->forcing_choice == FORCE_CONST)
-    SETERRQ(PETSC_COMM_SELF, PETSC_ERR_SUP,
-            "Cannot use constant forcing and finite strain formulation. "
-            "Constant forcing in reference frame currently unavaliable.");
 
   // Dirichlet boundary conditions
   app_ctx->bc_clamp_count = 16;
@@ -88,6 +54,8 @@ PetscErrorCode ProcessCommandLineOptions(MPI_Comm comm, AppCtx app_ctx) {
                               NULL, app_ctx->bc_clamp_faces, &app_ctx->bc_clamp_count,
                               NULL); CHKERRQ(ierr);
   // Set vector for each clamped BC
+  PetscInt max_n = 3;
+
   for (PetscInt i = 0; i < app_ctx->bc_clamp_count; i++) {
     // Translation vector
     char option_name[25];
@@ -202,8 +170,60 @@ PetscErrorCode ProcessCommandLineOptions(MPI_Comm comm, AppCtx app_ctx) {
     // initially loaded configurations (because a truly at-rest initial state may not be realizable).
     ierr = PetscViewerASCIIPrintf(app_ctx->energy_viewer, "%f,%e\n", 0., 0.);
     CHKERRQ(ierr);
-  }
-  ierr = PetscOptionsEnd(); CHKERRQ(ierr); // End of setting AppCtx
+  } 
+  
+  // command line options for multi materials (including only one material)
+  app_ctx->problem_choice  = ELAS_LINEAR;       // Default - Linear Elasticity
+  ierr = PetscOptionsEnum("-materials", // was -problem; change to accept and save multiple materials. 
+                          "Solves Elasticity & Hyperelasticity Problems",
+                          NULL, problemTypes, (PetscEnum)app_ctx->problem_choice,
+                          (PetscEnum *)&app_ctx->problem_choice, NULL);
+  CHKERRQ(ierr);
+  app_ctx->name = problemTypes[app_ctx->problem_choice];
+  app_ctx->name_for_disp = problemTypesForDisp[app_ctx->problem_choice];
+  //TODO: finish these, at least hard coded. 
+  // -epoxy_label_name default: Cell Sets
+  // -epoxy_label_value [1] // list
+  // -epoxy_material_E 2.8 // in process physics
+  // -epoxy_material_nu 0.4 // in process physics
+  // -epoxy_material_type FSCurrent-NH2
+  // -glass_label_name Cell Sets
+  // -glass_label_value [2] // list
+  // -glass_material_mu_1 1.0 // in process physics
+  // -glass_material_mu_2 0.0 // in process physics
+  // -glass_material_nu 0.4 // in process physics
+  // -glass_material_type FSInitial-MR1
+  
+  // setup forcing options 
+  app_ctx->forcing_choice  = FORCE_NONE;     // Default - no forcing term
+  ierr = PetscOptionsEnum("-forcing", "Set forcing function option", NULL,
+                          forcing_types, (PetscEnum)app_ctx->forcing_choice,
+                          (PetscEnum *)&app_ctx->forcing_choice, NULL);
+  CHKERRQ(ierr);
+
+  max_n = 3;
+  app_ctx->forcing_vector[0] = 0;
+  app_ctx->forcing_vector[1] = -1;
+  app_ctx->forcing_vector[2] = 0;
+  ierr = PetscOptionsScalarArray("-forcing_vec",
+                                 "Direction to apply constant force", NULL,
+                                 app_ctx->forcing_vector, &max_n, NULL);
+  CHKERRQ(ierr);
+
+  // check to make sure we can use forcing options. TODO: put in loop over all materials. 
+  if ((app_ctx->problem_choice == ELAS_FSInitial_NH1 ||
+       app_ctx->problem_choice == ELAS_FSInitial_NH2 ||
+       app_ctx->problem_choice == ELAS_FSCurrent_NH1 ||
+       app_ctx->problem_choice == ELAS_FSCurrent_NH2 ||
+       app_ctx->problem_choice == ELAS_FSInitial_MR1) &&
+      app_ctx->forcing_choice == FORCE_CONST)
+    SETERRQ(PETSC_COMM_SELF, PETSC_ERR_SUP,
+            "Cannot use constant forcing and finite strain formulation. "
+            "Constant forcing in reference frame currently unavaliable.");
+
+
+  ierr = PetscOptionsEnd(); CHKERRQ(ierr);
+  // End of setting AppCtx
 
   // Check for all required values set
   if (app_ctx->test_mode) {
