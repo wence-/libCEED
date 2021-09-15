@@ -4,7 +4,7 @@
 
 // Build libCEED context object
 PetscErrorCode PhysicsContext_NH(MPI_Comm comm, Ceed ceed, Units *units,
-                                 CeedQFunctionContext *ctx) {
+                                 CeedQFunctionContext *ctx, char prefix[]) {
   PetscErrorCode ierr;
   Physics_NH phys;
 
@@ -12,7 +12,7 @@ PetscErrorCode PhysicsContext_NH(MPI_Comm comm, Ceed ceed, Units *units,
 
   ierr = PetscMalloc1(1, units); CHKERRQ(ierr);
   ierr = PetscMalloc1(1, &phys); CHKERRQ(ierr);
-  ierr = ProcessPhysics_NH(comm, phys, *units); CHKERRQ(ierr);
+  ierr = ProcessPhysics_NH(comm, phys, *units, prefix); CHKERRQ(ierr);
   CeedQFunctionContextCreate(ceed, ctx);
   CeedQFunctionContextSetData(*ctx, CEED_MEM_HOST, CEED_COPY_VALUES,
                               sizeof(*phys), phys);
@@ -23,7 +23,7 @@ PetscErrorCode PhysicsContext_NH(MPI_Comm comm, Ceed ceed, Units *units,
 
 // Build libCEED smoother context object
 PetscErrorCode PhysicsSmootherContext_NH(MPI_Comm comm, Ceed ceed,
-    CeedQFunctionContext ctx, CeedQFunctionContext *ctx_smoother) {
+    CeedQFunctionContext ctx, CeedQFunctionContext *ctx_smoother, char prefix[]) {
   PetscErrorCode ierr;
   PetscScalar nu_smoother = 0;
   PetscBool nu_flag = PETSC_FALSE;
@@ -31,7 +31,7 @@ PetscErrorCode PhysicsSmootherContext_NH(MPI_Comm comm, Ceed ceed,
 
   PetscFunctionBegin;
 
-  ierr = PetscOptionsBegin(comm, NULL,
+  ierr = PetscOptionsBegin(comm, prefix,
                            "Neo-Hookean physical parameters for smoother", NULL);
   CHKERRQ(ierr);
 
@@ -61,7 +61,7 @@ PetscErrorCode PhysicsSmootherContext_NH(MPI_Comm comm, Ceed ceed,
 }
 
 // Process physics options - Neo-Hookean
-PetscErrorCode ProcessPhysics_NH(MPI_Comm comm, Physics_NH phys, Units units) {
+PetscErrorCode ProcessPhysics_NH(MPI_Comm comm, Physics_NH phys, Units units, char prefix[]) {
   PetscErrorCode ierr;
   PetscBool nu_flag = PETSC_FALSE;
   PetscBool Young_flag = PETSC_FALSE;
@@ -73,7 +73,7 @@ PetscErrorCode ProcessPhysics_NH(MPI_Comm comm, Physics_NH phys, Units units) {
 
   PetscFunctionBeginUser;
 
-  ierr = PetscOptionsBegin(comm, NULL, "Neo-Hookean physical parameters", NULL);
+  ierr = PetscOptionsBegin(comm, prefix, "Neo-Hookean physical parameters", NULL);
   CHKERRQ(ierr);
 
   ierr = PetscOptionsScalar("-nu", "Poisson's ratio", NULL, phys->nu, &phys->nu,

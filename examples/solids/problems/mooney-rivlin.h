@@ -17,11 +17,11 @@ struct Physics_MR_ {
 
 // Create context object
 PetscErrorCode PhysicsContext_MR(MPI_Comm comm, Ceed ceed, Units *units,
-                                 CeedQFunctionContext *ctx);
+                                 CeedQFunctionContext *ctx, char prefix[]);
 PetscErrorCode PhysicsSmootherContext_MR(MPI_Comm comm, Ceed ceed,
-    CeedQFunctionContext ctx, CeedQFunctionContext *ctx_smoother);
+    CeedQFunctionContext ctx, CeedQFunctionContext *ctx_smoother, char prefix[]);
 
 // Process physics options - Mooney-Rivlin
-PetscErrorCode ProcessPhysics_MR(MPI_Comm comm, Physics_MR phys, Units units);
+PetscErrorCode ProcessPhysics_MR(MPI_Comm comm, Physics_MR phys, Units units, char prefix[]);
 
 #endif // mooney_rivlin_h

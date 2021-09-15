@@ -11,6 +11,9 @@
 // Destroy libCEED objects
 PetscErrorCode CeedDataDestroy(CeedInt level, CeedData data);
 
+// creates subdoman operators for mulitmaterials
+PetscErrorCode CreateMaterialSubdomainOpsFromOptions(DM dm, char *prefix, char *cell_set_name, PetscInt *cell_set_value, MaterialSubdomainOps ops);
+
 // Utility function - essential BC dofs are encoded in closure indices as -(i+1)
 PetscInt Involute(PetscInt i);
 

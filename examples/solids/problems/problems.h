@@ -7,7 +7,7 @@
 #include "../problems/neo-hookean.h"
 #include "../problems/mooney-rivlin.h"
 
-// Physics options
+// Physics options; TODO: pass in prefix? 
 #define SOLIDS_PROBLEM_REGISTER(list, name, fname, physics) \
   ierr = PetscFunctionListAdd(&list->setupPhysics, name,                          \
                               PhysicsContext_ ## physics); CHKERRQ(ierr);         \

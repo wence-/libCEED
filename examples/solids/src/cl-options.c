@@ -174,7 +174,7 @@ PetscErrorCode ProcessCommandLineOptions(MPI_Comm comm, AppCtx app_ctx) {
   
   // command line options for multi materials (including only one material)
   app_ctx->problem_choice  = ELAS_LINEAR;       // Default - Linear Elasticity
-  ierr = PetscOptionsEnum("-materials", // was -problem; change to accept and save multiple materials. 
+  ierr = PetscOptionsEnum("-problem", // change to -materials?
                           "Solves Elasticity & Hyperelasticity Problems",
                           NULL, problemTypes, (PetscEnum)app_ctx->problem_choice,
                           (PetscEnum *)&app_ctx->problem_choice, NULL);
@@ -182,18 +182,37 @@ PetscErrorCode ProcessCommandLineOptions(MPI_Comm comm, AppCtx app_ctx) {
   app_ctx->name = problemTypes[app_ctx->problem_choice];
   app_ctx->name_for_disp = problemTypesForDisp[app_ctx->problem_choice];
   //TODO: finish these, at least hard coded. 
-  // -epoxy_label_name default: Cell Sets
-  // -epoxy_label_value [1] // list
-  // -epoxy_material_E 2.8 // in process physics
-  // -epoxy_material_nu 0.4 // in process physics
-  // -epoxy_material_type FSCurrent-NH2
-  // -glass_label_name Cell Sets
-  // -glass_label_value [2] // list
-  // -glass_material_mu_1 1.0 // in process physics
-  // -glass_material_mu_2 0.0 // in process physics
-  // -glass_material_nu 0.4 // in process physics
-  // -glass_material_type FSInitial-MR1
-  
+
+  // -materials [list of strings]
+  PetscBool useMultiMaterials;
+  app_ctx->numMaterials = 0;
+  ierr = PetscOptionsStringArray("-materials","list of material subdomains","",
+                                &app_ctx->materialNames,&app_ctx->numMaterials, &useMultiMaterials);
+  CHKERRQ(ierr);
+
+  if(useMultiMaterials)
+  for(PetscInt i = 0; i < app_ctx->numMaterials; i++){
+    char *label_name = "Cell Sets";  
+    // TODO: actually read these in and check that they are the same value
+    // -epoxy_label_name default: Cell Sets
+    // -glass_label_name Cell Sets
+
+
+    // -epoxy_label_value [1] // list
+    // -glass_label_value [2] // list
+    PetscInt *cellArray;
+    ierr = PetscOptionsIntArray(strcat(app_ctx->materialNames[i], "_label_value"),"list of cell sets to apply the material to","",
+                                      &cellArray,NULL,NULL); CHKERRQ(ierr);
+
+    // -epoxy_material_type FSCurrent-NH2
+    // -glass_material_type FSInitial-MR1
+    ierr = PetscOptionsEnum(strcat(app_ctx->materialNames[i], "_material_type"), 
+                          "Solves Elasticity & Hyperelasticity Problems",
+                          NULL, problemTypes, (PetscEnum)app_ctx->problem_choice,
+                          (PetscEnum *)&app_ctx->problem_choice, NULL);
+  CHKERRQ(ierr);
+  //TODO: send this info to CreateMaterialSubdomainOpsFromOptions here? or do this in elasticy.c?
+  }
   // setup forcing options 
   app_ctx->forcing_choice  = FORCE_NONE;     // Default - no forcing term
   ierr = PetscOptionsEnum("-forcing", "Set forcing function option", NULL,

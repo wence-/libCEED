@@ -80,6 +80,8 @@ struct AppCtx_ {
   PetscScalar   forcing_vector[3];
   PetscReal     test_tol;
   PetscReal     expect_final_strain;
+  PetscInt      numMaterials;
+  char          *materialNames;
 };
 
 // Problem specific data
@@ -168,10 +170,9 @@ typedef struct {
 } ProblemData;
 
 typedef struct {
-  const char name; //ex. epoxy or beads
-  const char label;
-  PetscInt *label_value; // cell sets to apply to
-  problemType problem; // maths model to use
-} materialsInfo;
+  CeedOperator op_residual;
+  CeedOperator op_jacobian;
+  CeedOperator op_diagnostics;
+} MaterialSubdomainOps;
 
 #endif // structs_h

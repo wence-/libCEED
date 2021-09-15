@@ -4,7 +4,7 @@
 
 // Build libCEED context object
 PetscErrorCode PhysicsContext_MR(MPI_Comm comm, Ceed ceed, Units *units,
-                                 CeedQFunctionContext *ctx) {
+                                 CeedQFunctionContext *ctx, char prefix[]) {
   PetscErrorCode ierr;
   Physics_MR phys;
 
@@ -12,7 +12,7 @@ PetscErrorCode PhysicsContext_MR(MPI_Comm comm, Ceed ceed, Units *units,
 
   ierr = PetscMalloc1(1, units); CHKERRQ(ierr);
   ierr = PetscMalloc1(1, &phys); CHKERRQ(ierr);
-  ierr = ProcessPhysics_MR(comm, phys, *units); CHKERRQ(ierr);
+  ierr = ProcessPhysics_MR(comm, phys, *units, prefix); CHKERRQ(ierr);
   CeedQFunctionContextCreate(ceed, ctx);
   CeedQFunctionContextSetData(*ctx, CEED_MEM_HOST, CEED_COPY_VALUES,
                               sizeof(*phys), phys);
@@ -23,7 +23,7 @@ PetscErrorCode PhysicsContext_MR(MPI_Comm comm, Ceed ceed, Units *units,
 
 // Build libCEED smoother context object
 PetscErrorCode PhysicsSmootherContext_MR(MPI_Comm comm, Ceed ceed,
-    CeedQFunctionContext ctx, CeedQFunctionContext *ctx_smoother) {
+    CeedQFunctionContext ctx, CeedQFunctionContext *ctx_smoother, char prefix[]) {
   PetscErrorCode ierr;
   PetscScalar nu_smoother = 0;
   PetscBool nu_flag = PETSC_FALSE;
@@ -31,7 +31,7 @@ PetscErrorCode PhysicsSmootherContext_MR(MPI_Comm comm, Ceed ceed,
 
   PetscFunctionBegin;
 
-  ierr = PetscOptionsBegin(comm, NULL,
+  ierr = PetscOptionsBegin(comm, prefix,
                            "Mooney Rivlin physical parameters for smoother", NULL);
   CHKERRQ(ierr);
 
@@ -65,7 +65,7 @@ PetscErrorCode PhysicsSmootherContext_MR(MPI_Comm comm, Ceed ceed,
 }
 
 // Process physics options - Mooney-Rivlin
-PetscErrorCode ProcessPhysics_MR(MPI_Comm comm, Physics_MR phys, Units units) {
+PetscErrorCode ProcessPhysics_MR(MPI_Comm comm, Physics_MR phys, Units units, char prefix[]) {
   PetscErrorCode ierr;
   PetscReal nu = -1;
   phys->mu_1 = -1;
@@ -77,7 +77,7 @@ PetscErrorCode ProcessPhysics_MR(MPI_Comm comm, Physics_MR phys, Units units) {
 
   PetscFunctionBeginUser;
 
-  ierr = PetscOptionsBegin(comm, NULL, "Mooney Rivlin physical parameters", NULL);
+  ierr = PetscOptionsBegin(comm, prefix, "Mooney Rivlin physical parameters", NULL);
   CHKERRQ(ierr);
 
   ierr = PetscOptionsScalar("-mu_1", "Material Property mu_1", NULL,

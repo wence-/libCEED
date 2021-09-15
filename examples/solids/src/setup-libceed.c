@@ -83,6 +83,13 @@ PetscErrorCode CeedDataDestroy(CeedInt level, CeedData data) {
   PetscFunctionReturn(0);
 };
 
+PetscErrorCode CreateMaterialSubdomainOpsFromOptions(DM dm, char *prefix, char *cell_set_name, 
+                                          PetscInt *cell_set_value, MaterialSubdomainOps ops){
+  // set stuff in here and save to ops
+  
+  PetscFunctionReturn(0);
+}
+
 // Utility function - essential BC dofs are encoded in closure indices as -(i+1)
 PetscInt Involute(PetscInt i) {
   return i >= 0 ? i : -(i + 1);

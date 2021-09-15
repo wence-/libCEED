@@ -15,11 +15,11 @@ struct Physics_NH_ {
 
 // Create context object
 PetscErrorCode PhysicsContext_NH(MPI_Comm comm, Ceed ceed, Units *units,
-                                 CeedQFunctionContext *ctx);
+                                 CeedQFunctionContext *ctx, char prefix[]);
 PetscErrorCode PhysicsSmootherContext_NH(MPI_Comm comm, Ceed ceed,
-    CeedQFunctionContext ctx, CeedQFunctionContext *ctx_smoother);
+    CeedQFunctionContext ctx, CeedQFunctionContext *ctx_smoother, char prefix[]);
 
 // Process physics options
-PetscErrorCode ProcessPhysics_NH(MPI_Comm comm, Physics_NH phys, Units units);
+PetscErrorCode ProcessPhysics_NH(MPI_Comm comm, Physics_NH phys, Units units, char prefix[]);
 
 #endif // neo_hookean_h

@@ -105,10 +105,11 @@ int main(int argc, char **argv) {
   CeedMemType mem_type_backend;
   CeedGetPreferredMemType(ceed, &mem_type_backend);
   // Setup physics context and wrap in libCEED object
+  for(PetscInt i = 0; i < app_ctx->numMaterials; i++) //TODO: need to loop over arrays for all problem types in use
   {
-    PetscErrorCode (*SetupPhysics)(MPI_Comm, Ceed, Units *, CeedQFunctionContext *); //TODO: need to loop over arrays for all problem types in use
+    PetscErrorCode (*SetupPhysics)(MPI_Comm, Ceed, Units *, CeedQFunctionContext *); 
     ierr = PetscFunctionListFind(problem_functions->setupPhysics, app_ctx->name,
-                                 &SetupPhysics); CHKERRQ(ierr);
+                                 &SetupPhysics); CHKERRQ(ierr); // this line errors when using strcat(app_ctx->materialNames[i], "_material_") for prefix
     if (!SetupPhysics)
       SETERRQ1(PETSC_COMM_SELF, 1, "Physics setup for '%s' not found",
                app_ctx->name);
