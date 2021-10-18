@@ -6,8 +6,8 @@
 #include "../qfunctions/common.h"
 #include "../qfunctions/finite-strain-neo-hookean-initial-1-ad.h"
 
-static const char *const field_names[] = {"gradu"};
-static CeedInt field_sizes[] = {9};
+static const char *const field_names[] = {"gradu, Swork, tape"};
+static CeedInt field_sizes[] = {9, 6, 6};
 
 ProblemData finite_strain_neo_Hookean_initial_1_ad = {
   .setup_geo = SetupGeo,
