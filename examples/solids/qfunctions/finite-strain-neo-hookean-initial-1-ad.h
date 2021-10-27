@@ -159,11 +159,13 @@ CEED_QFUNCTION_HELPER int computeS(CeedScalar Swork[6], CeedScalar E2work[6],
   // Compute the Second Piola-Kirchhoff (S)
   const CeedInt indj[6] = {0, 1, 2, 1, 0, 0}, indk[6] = {0, 1, 2, 2, 2, 1};
   const CeedScalar logJ = log1p_series_shifted(detCm1) / 2.;
+
   for (CeedInt m = 0; m < 6; m++) {
     Swork[m] = lambda*logJ*Cinvwork[m];
     for (CeedInt n = 0; n < 3; n++)
       Swork[m] += mu*C_inv[indj[m]][n]*E2[n][indk[m]];
   }
+
 
   return 0;
 };
