@@ -129,6 +129,7 @@ CEED_QFUNCTION_HELPER int computeMatinvSym(const CeedScalar A[3][3],
 CEED_QFUNCTION_HELPER int computeS(CeedScalar Swork[6], CeedScalar E2work[6],
                                    const CeedScalar lambda, const CeedScalar mu) {
   // *INDENT-OFF*
+  /*
   CeedScalar E2[3][3] = {{E2work[0], E2work[5], E2work[4]},
                          {E2work[5], E2work[1], E2work[3]},
                          {E2work[4], E2work[3], E2work[2]}
@@ -146,7 +147,9 @@ CEED_QFUNCTION_HELPER int computeS(CeedScalar Swork[6], CeedScalar E2work[6],
 
   // Compute C^(-1) : C-Inverse
   CeedScalar Cinvwork[6];
-  const CeedScalar detCm1 = computeDetCM1(E2work);
+  */
+  //const CeedScalar detCm1 = computeDetCM1(E2work);
+  /*
   computeMatinvSym(C, detCm1+1, Cinvwork);
 
   // *INDENT-OFF*
@@ -154,16 +157,17 @@ CEED_QFUNCTION_HELPER int computeS(CeedScalar Swork[6], CeedScalar E2work[6],
                                   {Cinvwork[5], Cinvwork[1], Cinvwork[3]},
                                   {Cinvwork[4], Cinvwork[3], Cinvwork[2]}
                                  };
+  */
   // *INDENT-ON*
 
   // Compute the Second Piola-Kirchhoff (S)
-  const CeedInt indj[6] = {0, 1, 2, 1, 0, 0}, indk[6] = {0, 1, 2, 2, 2, 1};
-  const CeedScalar logJ = log1p_series_shifted(detCm1) / 2.;
+  //const CeedInt indj[6] = {0, 1, 2, 1, 0, 0}, indk[6] = {0, 1, 2, 2, 2, 1};
+  //const CeedScalar logJ = log1p_series_shifted(detCm1) / 2.;
 
   for (CeedInt m = 0; m < 6; m++) {
-    Swork[m] = lambda*logJ*Cinvwork[m];
-    for (CeedInt n = 0; n < 3; n++)
-      Swork[m] += mu*C_inv[indj[m]][n]*E2[n][indk[m]];
+    Swork[m] = E2work[m]*E2work[m];
+    //for (CeedInt n = 0; n < 3; n++)
+    //  Swork[m] += mu*C_inv[indj[m]][n]*E2[n][indk[m]];
   }
 
 
@@ -191,14 +195,14 @@ CEED_QFUNCTION_HELPER void grad_S_fwd(double *S, double *dS, double *E,
                                       double *dE, const double lambda, const double mu, void *tape) {
   int size = getEnzymeSize((void *)computeS);
   __enzyme_augmentfwd((void *)computeS, enzyme_allocated, size, enzyme_tape, tape,
-                      S, dS, E, dE, lambda, mu);
+                      S, dS, E, dE, enzyme_const, lambda, enzyme_const, mu);
 }
 
 CEED_QFUNCTION_HELPER void grad_S_rev(double *S, double *dS, double *E,
                                       double *dE, const double lambda, const double mu, void *tape) {
   int size = getEnzymeSize((void *)computeS);
   __enzyme_reverse((void *)computeS, enzyme_allocated, size, enzyme_tape, tape,
-                   S, dS, E, dE, lambda, mu);
+                   S, dS, E, dE, enzyme_const, lambda, enzyme_const, mu);
 }
 
 // -----------------------------------------------------------------------------
@@ -370,6 +374,8 @@ CEED_QFUNCTION(ElasFSInitialNH1F_AD)(void *ctx, CeedInt Q,
   return 0;
 }
 
+#include <assert.h>
+
 // -----------------------------------------------------------------------------
 // Jacobian evaluation for hyperelasticity, finite strain
 // -----------------------------------------------------------------------------
@@ -500,7 +506,10 @@ CEED_QFUNCTION(ElasFSInitialNH1dF_AD)(void *ctx, CeedInt Q,
     //CeedScalar Swork[6];
     for (CeedInt j=0; j<6; j++) {
       double dSwork[6]  = {0., 0., 0., 0., 0., 0.}; dSwork[j] = 1.;
+      assert(tape[j][i] != 0xDEADBEEF);
       grad_S_rev(Swork_, dSwork, E2work, J[j], lambda, mu, tape[j][i]);
+      free(tape[j][i]);
+      tape[j][i] = 0xDEADBEEF;
     }
 
     CeedScalar deltaSwork[6];

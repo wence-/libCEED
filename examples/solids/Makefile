@@ -36,7 +36,7 @@ LDLIBS = $(call pkgconf, --libs-only-l $(PETSc.pc) $(ceed.pc)) -lm
 
 # Enzyme-AD
 ENZYME_LIB ?=
-ENZYMEFLAGS = -Xclang -load -Xclang $(ENZYME_LIB) -O2 -mllvm -enzyme-print
+ENZYMEFLAGS = -Xclang -load -Xclang $(ENZYME_LIB) -O2 -mllvm -enzyme-print -fno-unroll-loops
 
 ifneq ($(ENZYME_LIB),)
   CFLAGS += $(ENZYMEFLAGS)
