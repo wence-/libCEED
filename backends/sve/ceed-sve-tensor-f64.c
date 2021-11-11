@@ -16,7 +16,9 @@
 
 #include <ceed/ceed.h>
 #include <ceed/backend.h>
+#ifdef __ARM_FEATURE_SVE
 #include <arm_sve.h>
+#endif
 #include <stdbool.h>
 #include "ceed-sve.h"
 
@@ -30,26 +32,6 @@ static int CeedTensorContractApply_Sve(CeedTensorContract contract, CeedInt A,
                                        const CeedInt add,
                                        const double *restrict u,
                                        double *restrict v) {
-  const CeedInt blk_size = 8;
-
-  if (!add)
-    for (CeedInt q=0; q<A*J*C; q++)
-      v[q] = (double) 0.0;
-
-  if (C == 1) {
-    // Serial C=1 Case
-    CeedTensorContract_Avx_Single_4_8(contract, A, B, C, J, t, t_mode, true, u,
-                                      v);
-  } else {
-    // Blocks of 8 columns
-    if (C >= blk_size)
-      CeedTensorContract_Avx_Blocked_4_8(contract, A, B, C, J, t, t_mode, true,
-                                         u, v);
-    // Remainder of columns
-    if (C % blk_size)
-      CeedTensorContract_Avx_Remainder_8_8(contract, A, B, C, J, t, t_mode, true,
-                                           u, v);
-  }
 
   return CEED_ERROR_SUCCESS;
 }
