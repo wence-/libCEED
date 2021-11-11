@@ -339,7 +339,7 @@ endif
 # SVE Backed
 SVE_STATUS = Disabled
 SVE_FLAG := $(if $(filter clang,$(CC_VENDOR)),+sve,-msve)
-SVE := $(filter $(SVE_FLAG),$(shell $(CC) $(OPT) -v -E -x c /dev/null 2>&1))
+SVE := 1
 SVE_BACKENDS = /cpu/self/sve/serial /cpu/self/sve/blocked
 ifneq ($(SVE),)
   SVE_STATUS = Enabled
