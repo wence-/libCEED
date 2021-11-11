@@ -37,7 +37,7 @@ static inline int CeedTensorContract_Sve_Blocked(CeedTensorContract contract,
   for (CeedInt a=0; a<A; a++)
     for (CeedInt b=0; b<B; b++)
       // Blocks of JJ rows
-      for (CeedInt j=0; j<(J/JJ)*JJ; j+=JJ) {
+      for (CeedInt j=0; j<(J/JJ)*JJ; j+=JJ)
         for (CeedInt jj=0; jj<JJ; jj++) { // unroll
           // C vectorization by compiler
           int64_t i = (a*J+j+jj)*C;
