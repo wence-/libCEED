@@ -325,7 +325,7 @@ ifeq ($(MEMCHK),1)
   BACKENDS_MAKE += $(MEMCHK_BACKENDS)
 endif
 
-# AVX Backed
+# AVX Backends
 AVX_STATUS = Disabled
 AVX_FLAG := $(if $(filter clang,$(CC_VENDOR)),+avx,-mavx)
 AVX := $(filter $(AVX_FLAG),$(shell $(CC) $(OPT) -v -E -x c /dev/null 2>&1))
@@ -336,7 +336,7 @@ ifneq ($(AVX),)
   BACKENDS_MAKE += $(AVX_BACKENDS)
 endif
 
-# SVE Backed
+# SVE Backends
 SVE_STATUS = Disabled
 SVE_FLAG := $(if $(filter clang,$(CC_VENDOR)),+sve,-msve)
 SVE := 1
@@ -423,7 +423,7 @@ ifneq ($(HIP_LIB_DIR),)
   BACKENDS_MAKE += $(HIP_BACKENDS)
 endif
 
-# MAGMA Backend
+# MAGMA Backends
 ifneq ($(wildcard $(MAGMA_DIR)/lib/libmagma.*),)
   MAGMA_ARCH=$(shell nm -g $(MAGMA_DIR)/lib/libmagma.* | grep -c "hipblas")
   ifeq ($(MAGMA_ARCH), 0) #CUDA MAGMA
