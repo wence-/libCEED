@@ -61,23 +61,114 @@ static inline int CeedTensorContract_Sve_Blocked(CeedTensorContract contract,
     for (CeedInt a=0; a<A; a++)
       for (CeedInt b=0; b<B; b++)
         // Blocks of JJ rows
-          for (CeedInt jj=0; jj<J-j; jj++) { // not unrolled
-            // C vectorization by compiler
-            int32_t i = (a*J+j+jj)*C;
-            svbool_t pg = svwhilelt_b64(i, C);
+        for (CeedInt jj=0; jj<J-j; jj++) { // not unrolled
+          // C vectorization by compiler
+          int32_t i = (a*J+j+jj)*C;
+          svbool_t pg = svwhilelt_b64(i, C);
+          do {
+            // Load u, v into vectors
+            svfloat64_t u_vec = svld1(pg, &u[i]);
+            svfloat64_t v_vec = svld1(pg, &v[i]);
+            // Basis matrix value
+            double tq = t[(j+jj)*t_stride_0 + b*t_stride_1];
+            // fmadd
+            svst1(pg, &v[i], svmla_x(pg, v_vec, u_vec, tq));
+            // Loop update
+            i += svcntd();
+            pg = svwhilelt_b64(i, C);
+          } while (svptest_any(svptrue_b64(), pg));
+        }
+  }
+  return CEED_ERROR_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+// Serial Tensor Contract C=1
+//------------------------------------------------------------------------------
+static inline int CeedTensorContract_Sve_Single(CeedTensorContract contract,
+    CeedInt A, CeedInt B, CeedInt C, CeedInt J, const double *restrict t,
+    CeedTransposeMode t_mode, const CeedInt add, const double *restrict u,
+    double *restrict v, const CeedInt AA, const CeedInt JJ) {
+  CeedInt t_stride_0 = B, t_stride_1 = 1;
+  if (t_mode == CEED_TRANSPOSE) {
+    t_stride_0 = 1; t_stride_1 = J;
+  }
+
+  // Blocks of A rows
+  for (CeedInt a=0; a<(A/AA)*AA; a+=AA) {
+    for (CeedInt j=0; j<(J/JJ)*JJ; j+=JJ) {
+      for (CeedInt b=0; b<B; b++) {
+        for (CeedInt aa=0; aa<AA; aa++) {
+          for (CeedInt jj=0; jj<JJ; jj++) { // unroll
+            // A vectorization by compiler
+            int32_t i = (a+aa)*J;
+            svbool_t pg = svwhilelt_b64(i, A-a);
             do {
               // Load u, v into vectors
               svfloat64_t u_vec = svld1(pg, &u[i]);
               svfloat64_t v_vec = svld1(pg, &v[i]);
               // Basis matrix value
-              double tq = t[(j+jj)*t_stride_0 + b*t_stride_1];
+              // TODO: same path?
+              // double tq = _mm256_set_pd(t[(j+jj*4+3)*t_stride_0 + b*t_stride_1],
+              //                         t[(j+jj*4+2)*t_stride_0 + b*t_stride_1],
+              //                         t[(j+jj*4+1)*t_stride_0 + b*t_stride_1],
+              //                         t[(j+jj*4+0)*t_stride_0 + b*t_stride_1]);
+
               // fmadd
-              svst1(pg, &v[i], svmla_x(pg, v_vec, u_vec, tq));
+              svst(pg, &v[i], svmla_x(pg, v_vec, u_vec, tq));
               // Loop update
               i += svcntd();
-              pg = svwhilelt_b64(i, C);
+              pg = svwhilelt_b64(i, A-a);
             } while (svptest_any(svptrue_b64(), pg));
           }
+        }
+      }
+    }
+  }
+
+  // Remainder of rows
+  CeedInt a=(A/AA)*AA;
+  for (CeedInt j=0; j<(J/JJ)*JJ; j+=JJ) {
+    for (CeedInt aa=0; aa<A-a; aa++) {
+      for (CeedInt b=0; b<B; b++) {
+        for (CeedInt jj=0; jj<JJ/4; jj++) { // unroll
+          // A vectorization by compiler
+          int32_t i = (a+aa)*J;
+          svbool_t pg = svwhilelt_b64(i, AA);
+          do {
+            // Load u, v into vectors
+            svfloat64_t u_vec = svld1(pg, &u[i]);
+            svfloat64_t v_vec = svld1(pg, &v[i]);
+            // Basis matrix value
+            // TODO: same as avx?
+            double tq = t[(j+jj)*t_stride_0 + b*t_stride_1];
+            // fmadd
+            svst1(pg, &v[i], svmla_x(pg, v_vec, u_vec, tq));
+            // Loop update
+            i += svcntd();
+            pg = svwhilelt_b64(i, AA);
+          } while (svptest_any(svptrue_b64(), pg));
+        }
+      }
+    }
+  }
+
+  // Column remainder
+  CeedInt A_break = A%AA ? (A/AA)*AA : (A/AA-1)*AA;
+  for (CeedInt j = (J/JJ)*JJ; j<J; j+=A) {
+    // Blocks of A rows
+    for (CeedInt a=0; a<A_break; a+=AA) {
+    // TODO
+
+    }
+  }
+  // Remainder of rows, all columns
+  for (CeedInt b=0; b<B; b++) {
+    for (CeedInt j=(J/JJ)*JJ; j<J; j++) {
+      double tq = t[j*t_stride_0 + b*t_stride_1];
+      for (CeedInt a=A_break; a<A; a++)
+        v[a*J+j] += tq * u[a*B+b];
+    }
   }
   return CEED_ERROR_SUCCESS;
 }
@@ -91,6 +182,14 @@ static int CeedTensorContract_Sve_Blocked_4_8(CeedTensorContract contract,
     double *restrict v) {
   return CeedTensorContract_Sve_Blocked(contract, A, B, C, J, t, t_mode, add, u,
                                         v, 8);
+}
+
+static int CeedTensorContract_Sve_Single_8(CeedTensorContract contract,
+    CeedInt A, CeedInt B, CeedInt C, CeedInt J, const double *restrict t,
+    CeedTransposeMode t_mode, const CeedInt add, const double *restrict u,
+    double *restrict v) {
+  return CeedTensorContract_Sve_Single(contract, A, B, C, J, t, t_mode, add, u,
+                                       v, 8);
 }
 
 //------------------------------------------------------------------------------
