@@ -39,6 +39,11 @@ static int CeedInit_Sve(const char *resource, Ceed ceed) {
   CeedInit("/cpu/self/opt/blocked", &ceed_ref);
   ierr = CeedSetDelegate(ceed, ceed_ref); CeedChkBackend(ierr);
 
+// TODO: Make f64 and f32 versions
+    ierr = CeedSetBackendFunction(ceed, "Ceed", ceed, "TensorContractCreate",
+                                  CeedTensorContractCreate_f64_Sve);
+    CeedChkBackend(ierr);
+
   return CEED_ERROR_SUCCESS;
 }
 
