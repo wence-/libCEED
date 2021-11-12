@@ -38,11 +38,10 @@ static inline int CeedTensorContract_Sve_Blocked(CeedTensorContract contract,
     for (CeedInt b=0; b<B; b++)
       // Blocks of JJ rows
       for (CeedInt j=0; j<(J/JJ)*JJ; j+=JJ)
-        for (CeedInt jj=0; jj<JJ; jj++) { // unroll
+        for (CeedInt jj=0; jj<JJ; jj++) // unroll
           // C vectorization by compiler
-          int32_t c = 0;
-          svbool_t pg = svwhilelt_b64(c, C);
-          do {
+          for (int32_t c=0; c<C; c+=svcntd()) {
+            svbool_t pg = svwhilelt_b32(c, C);
             // Load u, v into vectors
             svfloat32_t u_vec = svld1(pg, &u[(a*B+b)*C+c]);
             svfloat32_t v_vec = svld1(pg, &v[(a*J+j+jj)*C+c]);
@@ -50,22 +49,18 @@ static inline int CeedTensorContract_Sve_Blocked(CeedTensorContract contract,
             float tq = t[(j+jj)*t_stride_0 + b*t_stride_1];
             // fmadd
             svst1(pg, &v[(a*J+j+jj)*C+c], svmla_x(pg, v_vec, u_vec, tq));
-            // Loop update
-            c += svcntd();
-            pg = svwhilelt_b64(c, C);
-          } while (svptest_any(svptrue_b64(), pg));
-        }
+          }
+
   // Remainder of rows
   CeedInt j=(J/JJ)*JJ;
-  if (j < J) {
+  if (j < J)
     for (CeedInt a=0; a<A; a++)
       for (CeedInt b=0; b<B; b++)
         // Blocks of JJ rows
-        for (CeedInt jj=0; jj<J-j; jj++) { // not unrolled
+        for (CeedInt jj=0; jj<J-j; jj++) // not unrolled
           // C vectorization by compiler
-          int32_t c = 0;
-          svbool_t pg = svwhilelt_b64(c, C);
-          do {
+          for (int32_t c=0; c<C; c+=svcntd()) {
+            svbool_t pg = svwhilelt_b32(c, C);
             // Load u, v into vectors
             svfloat32_t u_vec = svld1(pg, &u[(a*B+b)*C+c]);
             svfloat32_t v_vec = svld1(pg, &v[(a*J+j+jj)*C+c]);
@@ -73,12 +68,8 @@ static inline int CeedTensorContract_Sve_Blocked(CeedTensorContract contract,
             float tq = t[(j+jj)*t_stride_0 + b*t_stride_1];
             // fmadd
             svst1(pg, &v[(a*J+j+jj)*C+c], svmla_x(pg, v_vec, u_vec, tq));
-            // Loop update
-            c += svcntd();
-            pg = svwhilelt_b64(c, C);
-          } while (svptest_any(svptrue_b64(), pg));
-        }
-  }
+          }
+
   return CEED_ERROR_SUCCESS;
 }
 
