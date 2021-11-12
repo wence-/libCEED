@@ -125,7 +125,7 @@ static int CeedTensorContract_Sve_Serial_8(CeedTensorContract contract,
     CeedTransposeMode t_mode, const CeedInt add, const double *restrict u,
     double *restrict v) {
   return CeedTensorContract_Sve_Serial(contract, A, B, C, J, t, t_mode, add, u, v,
-                                        8);
+                                       8);
 }
 
 //------------------------------------------------------------------------------
