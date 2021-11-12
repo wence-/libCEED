@@ -51,34 +51,18 @@ int CeedTensorContractApply_Serial_Opt(CeedTensorContract contract, CeedInt A,
                                        const CeedScalar *restrict t,
                                        CeedTransposeMode t_mode, const CeedInt add,
                                        const CeedScalar *restrict u,
-                                       CeedScalar *restrict v, const CeedInt JJ) {
+                                       CeedScalar *restrict v) {
   CeedInt t_stride_0 = B, t_stride_1 = 1;
   if (t_mode == CEED_TRANSPOSE) {
     t_stride_0 = 1; t_stride_1 = J;
   }
 
   for (CeedInt a=0; a<A; a++)
-    for (CeedInt b=0; b<B; b++) {
-      for (CeedInt j=0; j<(J/JJ)*JJ; j+=JJ)
-        for (CeedInt jj=0; jj<JJ; jj++)// unroll
-          v[a*J+(j+jj)] += t[(j+jj)*t_stride_0 + b*t_stride_1] * u[a*B+b];
-      CeedInt j = (J/JJ)*JJ;
-      for (CeedInt jj=0; jj<J-j; jj++)
-        v[a*J+(j+jj)] += t[(j+jj)*t_stride_0 + b*t_stride_1] * u[a*B+b];
-    }
+    for (CeedInt b=0; b<B; b++)
+      for (CeedInt j=0; j<J; j++)
+        v[a*J+j] += t[j*t_stride_0 + b*t_stride_1] * u[a*B+b];
 
   return CEED_ERROR_SUCCESS;
-}
-
-//------------------------------------------------------------------------------
-// Tensor Contract - Common Sizes
-//------------------------------------------------------------------------------
-static int CeedTensorContractApply_Serial_Opt_8(CeedTensorContract contract,
-    CeedInt A, CeedInt B, CeedInt C, CeedInt J, const CeedScalar *restrict t,
-    CeedTransposeMode t_mode, const CeedInt add, const CeedScalar *restrict u,
-    CeedScalar *restrict v) {
-  return CeedTensorContractApply_Serial_Opt(contract, A, B, C, J, t,
-         t_mode, add, u, v, 8);
 }
 
 //------------------------------------------------------------------------------
@@ -95,7 +79,7 @@ int CeedTensorContractApply_Opt(CeedTensorContract contract, CeedInt A,
       v[q] = (CeedScalar) 0.0;
 
   if (C == 1)
-    return CeedTensorContractApply_Serial_Opt_8(contract, A, B, C, J, t, t_mode,
+    return CeedTensorContractApply_Serial_Opt(contract, A, B, C, J, t, t_mode,
            add, u, v);
   else
     return CeedTensorContractApply_Blocked_Opt(contract, A, B, C, J, t, t_mode,
