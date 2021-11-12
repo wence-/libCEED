@@ -99,26 +99,24 @@ static inline int CeedTensorContract_Sve_Single(CeedTensorContract contract,
     for (CeedInt j=0; j<(J/JJ)*JJ; j+=JJ) {
       for (CeedInt b=0; b<B; b++) {
         for (CeedInt aa=0; aa<AA; aa++) {
-          for (CeedInt jj=0; jj<JJ; jj++) { // unroll
+          for (CeedInt jj=0; jj<JJ/4; jj++) { // unroll
             // A vectorization by compiler
             int32_t i = (a+aa)*J;
-            svbool_t pg = svwhilelt_b64(i, A-a);
+            svbool_t pg = svwhilelt_b64(i, AA);
             do {
               // Load u, v into vectors
-              svfloat64_t u_vec = svld1(pg, &u[i]);
-              svfloat64_t v_vec = svld1(pg, &v[i]);
+              svfloat64x4_t u_vec = svld4(pg, (float64_t*)&u[i]);
+              svfloat64x4_t v_vec = svld4(pg, (float64_t*)&v[i]);
               // Basis matrix value
-              // TODO: same path?
-              // double tq = _mm256_set_pd(t[(j+jj*4+3)*t_stride_0 + b*t_stride_1],
-              //                         t[(j+jj*4+2)*t_stride_0 + b*t_stride_1],
-              //                         t[(j+jj*4+1)*t_stride_0 + b*t_stride_1],
-              //                         t[(j+jj*4+0)*t_stride_0 + b*t_stride_1]);
-
+              svfloat64x4_t tq = {t[(j+jj*4+3)*t_stride_0 + b*t_stride_1],
+                                  t[(j+jj*4+2)*t_stride_0 + b*t_stride_1],
+                                  t[(j+jj*4+1)*t_stride_0 + b*t_stride_1],
+                                  t[(j+jj*4+0)*t_stride_0 + b*t_stride_1]};
               // fmadd
-              svst(pg, &v[i], svmla_x(pg, v_vec, u_vec, tq));
+              svst4(pg, (float64_t*)&v[i], svmla_x(pg, v_vec, u_vec, tq));
               // Loop update
               i += svcntd();
-              pg = svwhilelt_b64(i, A-a);
+              pg = svwhilelt_b64(i, AA);
             } while (svptest_any(svptrue_b64(), pg));
           }
         }
@@ -134,19 +132,21 @@ static inline int CeedTensorContract_Sve_Single(CeedTensorContract contract,
         for (CeedInt jj=0; jj<JJ/4; jj++) { // unroll
           // A vectorization by compiler
           int32_t i = (a+aa)*J;
-          svbool_t pg = svwhilelt_b64(i, AA);
+          svbool_t pg = svwhilelt_b64(i, A-a);
           do {
             // Load u, v into vectors
-            svfloat64_t u_vec = svld1(pg, &u[i]);
-            svfloat64_t v_vec = svld1(pg, &v[i]);
+            svfloat64x4_t u_vec = svld4(pg, (float64_t*)&u[i]);
+            svfloat64x4_t v_vec = svld4(pg, (float64_t*)&v[i]);
             // Basis matrix value
-            // TODO: same as avx?
-            double tq = t[(j+jj)*t_stride_0 + b*t_stride_1];
+            svfloat64x4_t tq = {t[(j+jj*4+3)*t_stride_0 + b*t_stride_1],
+                                t[(j+jj*4+2)*t_stride_0 + b*t_stride_1],
+                                t[(j+jj*4+1)*t_stride_0 + b*t_stride_1],
+                                t[(j+jj*4+0)*t_stride_0 + b*t_stride_1]};
             // fmadd
-            svst1(pg, &v[i], svmla_x(pg, v_vec, u_vec, tq));
+            svst4(pg, (float64_t*)&v[i], svmla_x(pg, v_vec, u_vec, tq));
             // Loop update
             i += svcntd();
-            pg = svwhilelt_b64(i, AA);
+            pg = svwhilelt_b64(i, A-a);
           } while (svptest_any(svptrue_b64(), pg));
         }
       }
@@ -158,8 +158,37 @@ static inline int CeedTensorContract_Sve_Single(CeedTensorContract contract,
   for (CeedInt j = (J/JJ)*JJ; j<J; j+=A) {
     // Blocks of A rows
     for (CeedInt a=0; a<A_break; a+=AA) {
-    // TODO
+      for (CeedInt b=0; b<B; b++) {
+        // Basis matrix value
+        svfloat64x4_t tq;
+        if (J-j == 1)
+          tq = {0.0, 0.0, 0.0, t[(j+0)*t_stride_0 + b*t_stride_1]};
+        else if (J-j == 2)
+          tq = {0.0, 0.0, t[(j+1)*t_stride_0 + b*t_stride_1],
+                          t[(j+0)*t_stride_0 + b*t_stride_1]};
+        else if (J-3 == j)
+          tq = {0.0, t[(j+2)*t_stride_0 + b*t_stride_1],
+                     t[(j+1)*t_stride_0 + b*t_stride_1],
+                     t[(j+0)*t_stride_0 + b*t_stride_1]};
+        else
+          tq = {t[(j+3)*t_stride_0 + b*t_stride_1],
+                t[(j+2)*t_stride_0 + b*t_stride_1],
+                t[(j+1)*t_stride_0 + b*t_stride_1],
+                t[(j+0)*t_stride_0 + b*t_stride_1]};
 
+          int32_t i = (a+aa)*J;
+          svbool_t pg = svwhilelt_b64(i, AA);
+          do {
+            // Load u, v into vectors
+            svfloat64x4_t u_vec = svld4(pg, (float64_t*)&u[i]);
+            svfloat64x4_t v_vec = svld4(pg, (float64_t*)&v[i]);
+            // fmadd
+            svst4(pg, (float64_t*)&v[i], svmla_x(pg, v_vec, u_vec, tq));
+            // Loop update
+            i += svcntd();
+            pg = svwhilelt_b64(i, AA);
+          } while (svptest_any(svptrue_b64(), pg));
+      }
     }
   }
   // Remainder of rows, all columns
@@ -184,12 +213,12 @@ static int CeedTensorContract_Sve_Blocked_4_8(CeedTensorContract contract,
                                         v, 8);
 }
 
-static int CeedTensorContract_Sve_Single_8(CeedTensorContract contract,
+static int CeedTensorContract_Sve_Single_4_8(CeedTensorContract contract,
     CeedInt A, CeedInt B, CeedInt C, CeedInt J, const double *restrict t,
     CeedTransposeMode t_mode, const CeedInt add, const double *restrict u,
     double *restrict v) {
   return CeedTensorContract_Sve_Single(contract, A, B, C, J, t, t_mode, add, u,
-                                       v, 8);
+                                       v, 4, 8);
 }
 
 //------------------------------------------------------------------------------
@@ -210,17 +239,12 @@ static int CeedTensorContractApply_Sve(CeedTensorContract contract, CeedInt A,
 
   if (C == 1) {
     // Serial C=1 Case
-    CeedTensorContract_Sve_Single_8(contract, A, B, C, J, t, t_mode, true, u,
+    CeedTensorContract_Sve_Single_4_8(contract, A, B, C, J, t, t_mode, true, u,
                                       v);
   } else {
     // Blocks of 8 columns
-    if (C >= blk_size)
-      CeedTensorContract_Sve_Blocked_8(contract, A, B, C, J, t, t_mode, true,
+      CeedTensorContract_Sve_Blocked_4_8(contract, A, B, C, J, t, t_mode, true,
                                          u, v);
-    // Remainder of columns
-    if (C % blk_size)
-      CeedTensorContract_Sve_Remainder_8(contract, A, B, C, J, t, t_mode, true,
-                                           u, v);
   }
 
   return CEED_ERROR_SUCCESS;
