@@ -108,7 +108,7 @@ static inline int CeedTensorContract_Sve_Single(CeedTensorContract contract,
               svfloat64_t u_vec = svld1(pg, &u[i]);
               svfloat64_t v_vec = svld1(pg, &v[i]);
               // Basis matrix value
-              double *tq = {t[(j+jj*4+3)*t_stride_0 + b*t_stride_1],
+              double tq[4] = {t[(j+jj*4+3)*t_stride_0 + b*t_stride_1],
                               t[(j+jj*4+2)*t_stride_0 + b*t_stride_1],
                               t[(j+jj*4+1)*t_stride_0 + b*t_stride_1],
                               t[(j+jj*4+0)*t_stride_0 + b*t_stride_1]};
@@ -138,11 +138,13 @@ static inline int CeedTensorContract_Sve_Single(CeedTensorContract contract,
             // Load u, v into vectors
             svfloat64_t u_vec = svld1(pg, &u[i]);
             svfloat64_t v_vec = svld1(pg, &v[i]);
+            svfloat64_t tq;
             // Basis matrix value
-            double *tq = {t[(j+jj*4+3)*t_stride_0 + b*t_stride_1],
+            double tqv[4] = {t[(j+jj*4+3)*t_stride_0 + b*t_stride_1],
                             t[(j+jj*4+2)*t_stride_0 + b*t_stride_1],
                             t[(j+jj*4+1)*t_stride_0 + b*t_stride_1],
                             t[(j+jj*4+0)*t_stride_0 + b*t_stride_1]};
+            svst(pg, &tq, tqv);
             // fmadd
             svst(pg, &v[i], svmla_x(pg, v_vec, u_vec, tq));
             // Loop update
@@ -162,7 +164,7 @@ static inline int CeedTensorContract_Sve_Single(CeedTensorContract contract,
       for (CeedInt b=0; b<B; b++) {
           int32_t i = (a+aa)*J;
           svbool_t pg = svwhilelt_b64(i, AA);
-          double *tq;
+          double tq[4];
           do {
             if (J-j == 1)
               tq = {0.0, 0.0, 0.0, t[(j+0)*t_stride_0 + b*t_stride_1]};
