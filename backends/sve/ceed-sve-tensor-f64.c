@@ -185,7 +185,7 @@ static inline int CeedTensorContract_Sve_Single(CeedTensorContract contract,
                     t[(j+2)*t_stride_0 + b*t_stride_1],
                     t[(j+1)*t_stride_0 + b*t_stride_1],
                     t[(j+0)*t_stride_0 + b*t_stride_1]};
-            vst4(pg, &tq, tqv);
+              svst(pg, &tq, tqv);
             }
             // Load u, v into vectors
             svfloat64_t u_vec = svld1(pg, &u[i]);
