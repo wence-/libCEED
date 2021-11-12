@@ -112,9 +112,9 @@ static inline int CeedTensorContract_Sve_Single(CeedTensorContract contract,
                                t[(j+jj*4+2)*t_stride_0 + b*t_stride_1],
                                t[(j+jj*4+1)*t_stride_0 + b*t_stride_1],
                                t[(j+jj*4+0)*t_stride_0 + b*t_stride_1]};
-              svst(pg, &tq[0], tqv);
+              svst1(pg, &tq, tqv);
               // fmadd
-              svst(pg, &v[(a+aa)*J+j], svmla_x(pg, v_vec, u_vec, &tq));
+              svst1(pg, &v[(a+aa)*J+j], svmla_x(pg, v_vec, u_vec, &tq));
               // Loop update
               j += svcntd();
               pg = svwhilelt_b64(j, (J/JJ)*JJ);
@@ -143,9 +143,9 @@ static inline int CeedTensorContract_Sve_Single(CeedTensorContract contract,
                            t[(j+jj*4+2)*t_stride_0 + b*t_stride_1],
                            t[(j+jj*4+1)*t_stride_0 + b*t_stride_1],
                            t[(j+jj*4+0)*t_stride_0 + b*t_stride_1]};
-          svst(pg, &tq[0], tqv);
+          svst1(pg, &tq, tqv);
           // fmadd
-          svst(pg, &v[(a+aa)*J+j], svmla_x(pg, v_vec, u_vec, tq));
+          svst1(pg, &v[(a+aa)*J+j], svmla_x(pg, v_vec, u_vec, tq));
           // Loop update
           j += svcntd();
           pg = svwhilelt_b64(j, (J/JJ)*JJ);
@@ -167,29 +167,29 @@ static inline int CeedTensorContract_Sve_Single(CeedTensorContract contract,
               svfloat64_t tq;
               if (J-j == 1) {
                 double tqv[4] = {0.0, 0.0, 0.0, t[(j+0)*t_stride_0 + b*t_stride_1]};
-                svst(pg, &tq[0], tqv);
+                svst1(pg, &tq, tqv);
               } else if (J-j == 2) {
                 double tqv[4] = {0.0, 0.0, t[(j+1)*t_stride_0 + b*t_stride_1],
                                  t[(j+0)*t_stride_0 + b*t_stride_1]};
-                svst(pg, &tq[0], tqv);
+                svst1(pg, &tq, tqv);
               } else if (J-3 == j) {
                 double tqv[4] = {0.0, t[(j+2)*t_stride_0 + b*t_stride_1],
                                  t[(j+1)*t_stride_0 + b*t_stride_1],
                                  t[(j+0)*t_stride_0 + b*t_stride_1]};
-                svst(pg, &tq[0], tqv);
+                svst1(pg, &tq, tqv);
               } else {
                 double tqv[4] = {t[(j+3)*t_stride_0 + b*t_stride_1],
                                  t[(j+2)*t_stride_0 + b*t_stride_1],
                                  t[(j+1)*t_stride_0 + b*t_stride_1],
                                  t[(j+0)*t_stride_0 + b*t_stride_1]};
-                svst(pg, &tq[0], tqv);
+                svst1(pg, &tq, tqv);
               }
               // Load u, v into vectors
               svfloat64_t u_vec = svld1(pg, &u[(a+aa)*B+b]);
               svfloat64_t v_vec = svld1(pg, &v[(a+aa)*J+j]);
 
               // fmadd
-              svst(pg, &v[(a+aa)*J+j], svmla_x(pg, v_vec, u_vec, tq));
+              svst1(pg, &v[(a+aa)*J+j], svmla_x(pg, v_vec, u_vec, tq));
               // Loop update
               j += svcntd();
               pg = svwhilelt_b64(j, J);
