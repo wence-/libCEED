@@ -39,10 +39,15 @@ static int CeedInit_Sve(const char *resource, Ceed ceed) {
   CeedInit("/cpu/self/opt/serial", &ceed_ref);
   ierr = CeedSetDelegate(ceed, ceed_ref); CeedChkBackend(ierr);
 
-// TODO: Make f64 and f32 versions
-  ierr = CeedSetBackendFunction(ceed, "Ceed", ceed, "TensorContractCreate",
-                                CeedTensorContractCreate_f64_Sve);
-  CeedChkBackend(ierr);
+  if (CEED_SCALAR_TYPE == CEED_SCALAR_FP64) {
+    ierr = CeedSetBackendFunction(ceed, "Ceed", ceed, "TensorContractCreate",
+                                  CeedTensorContractCreate_f64_Sve);
+    CeedChkBackend(ierr);
+  } else {
+    ierr = CeedSetBackendFunction(ceed, "Ceed", ceed, "TensorContractCreate",
+                                  CeedTensorContractCreate_f32_Sve);
+    CeedChkBackend(ierr);
+  }
 
   return CEED_ERROR_SUCCESS;
 }
