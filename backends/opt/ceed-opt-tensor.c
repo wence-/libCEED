@@ -24,7 +24,7 @@
 int CeedTensorContractApply_Blocked_Opt(CeedTensorContract contract, CeedInt A,
                                         CeedInt B, CeedInt C, CeedInt J,
                                         const CeedScalar *restrict t,
-                                        CeedTransposeMode t_mode, const CeedInt add,
+                                        const CeedTransposeMode t_mode, const CeedInt add,
                                         const CeedScalar *restrict u,
                                         CeedScalar *restrict v, const CeedInt CC) {
   CeedInt t_stride_0 = B, t_stride_1 = 1;
@@ -53,7 +53,7 @@ int CeedTensorContractApply_Blocked_Opt(CeedTensorContract contract, CeedInt A,
 int CeedTensorContractApply_Serial_Opt(CeedTensorContract contract, CeedInt A,
                                        CeedInt B, CeedInt C, CeedInt J,
                                        const CeedScalar *restrict t,
-                                       CeedTransposeMode t_mode, const CeedInt add,
+                                       const CeedTransposeMode t_mode, const CeedInt add,
                                        const CeedScalar *restrict u,
                                        CeedScalar *restrict v, const CeedInt JJ) {
   CeedInt t_stride_0 = B, t_stride_1 = 1;
@@ -81,17 +81,31 @@ static int CeedTensorContractApply_Blocked_Opt_8(CeedTensorContract contract,
     CeedInt A, CeedInt B, CeedInt C, CeedInt J, const CeedScalar *restrict t,
     CeedTransposeMode t_mode, const CeedInt add, const CeedScalar *restrict u,
     CeedScalar *restrict v) {
-  return CeedTensorContractApply_Blocked_Opt(contract, A, B, C, J, t, t_mode, add,
-         u,
-         v, 8);
+  return CeedTensorContractApply_Blocked_Opt(contract, A, B, C, J, t,
+         CEED_NOTRANSPOSE, add, u, v, 8);
+}
+static int CeedTensorContractApply_Blocked_Opt_8_T(CeedTensorContract contract,
+    CeedInt A, CeedInt B, CeedInt C, CeedInt J, const CeedScalar *restrict t,
+    CeedTransposeMode t_mode, const CeedInt add, const CeedScalar *restrict u,
+    CeedScalar *restrict v) {
+  return CeedTensorContractApply_Blocked_Opt(contract, A, B, C, J, t,
+         CEED_TRANSPOSE, add, u, v, 8);
 }
 
 static int CeedTensorContractApply_Serial_Opt_8(CeedTensorContract contract,
     CeedInt A, CeedInt B, CeedInt C, CeedInt J, const CeedScalar *restrict t,
     CeedTransposeMode t_mode, const CeedInt add, const CeedScalar *restrict u,
     CeedScalar *restrict v) {
-  return CeedTensorContractApply_Serial_Opt(contract, A, B, C, J, t, t_mode, add,
-         u, v, 8);
+  return CeedTensorContractApply_Serial_Opt(contract, A, B, C, J, t,
+         CEED_NOTRANSPOSE, add, u, v, 8);
+}
+
+static int CeedTensorContractApply_Serial_Opt_8_T(CeedTensorContract contract,
+    CeedInt A, CeedInt B, CeedInt C, CeedInt J, const CeedScalar *restrict t,
+    CeedTransposeMode t_mode, const CeedInt add, const CeedScalar *restrict u,
+    CeedScalar *restrict v) {
+  return CeedTensorContractApply_Serial_Opt(contract, A, B, C, J, t,
+         CEED_TRANSPOSE, add, u, v, 8);
 }
 
 //------------------------------------------------------------------------------
@@ -108,10 +122,17 @@ int CeedTensorContractApply_Opt(CeedTensorContract contract, CeedInt A,
       v[q] = (CeedScalar) 0.0;
 
   if (C == 1)
-    return CeedTensorContractApply_Serial_Opt_8(contract, A, B, C, J, t, t_mode,
+    if (t_mode == CEED_NOTRANSPOSE)
+      return CeedTensorContractApply_Serial_Opt_8(contract, A, B, C, J, t, t_mode,
+             add, u, v);
+    else
+      return CeedTensorContractApply_Serial_Opt_8_T(contract, A, B, C, J, t, t_mode,
+             add, u, v);
+  else if (t_mode == CEED_NOTRANSPOSE)
+    return CeedTensorContractApply_Blocked_Opt_8(contract, A, B, C, J, t, t_mode,
            add, u, v);
   else
-    return CeedTensorContractApply_Blocked_Opt_8(contract, A, B, C, J, t, t_mode,
+    return CeedTensorContractApply_Blocked_Opt_8_T(contract, A, B, C, J, t, t_mode,
            add, u, v);
 
   return CEED_ERROR_SUCCESS;
