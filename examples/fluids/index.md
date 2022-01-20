@@ -504,6 +504,6 @@ The `STGRand.dat` file is the table of the random number set, $\{\bm{\sigma}^n,
 | $\varepsilon$   | eps    | Yes          | No   |
 | $\bm{R}$        | R_ij   | Yes          | No      |
 | $\bm{C}$        | C_ij   | Yes          | No      |
-| $q^n$           | q^n    | No           | Yes     |
+| $q^n$           | q^n    | Yes           | Yes     |
 | $\{\kappa^n\}_{n=1}^N$ | k^n  | No           | Yes      |
 | $h_i$           | h_i    | Yes          | No   |
