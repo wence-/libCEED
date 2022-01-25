@@ -172,9 +172,34 @@ CEED_QFUNCTION_HELPER int Exact_DC(CeedInt dim, CeedScalar time,
 }
 
 // *****************************************************************************
-// Helper function for computing flux Jacobian
+// Helper function for computing flux Jacobian with indicial notation
 // *****************************************************************************
-CEED_QFUNCTION_HELPER void computeFluxJacobian_NS(CeedScalar dF[3][5][5],
+CEED_QFUNCTION_HELPER void computeFluxJacobian_NS_1(CeedScalar dF[3][5][5],
+    const CeedScalar rho, const CeedScalar u[3], const CeedScalar E,
+    const CeedScalar gamma, const CeedScalar g, CeedScalar z) {
+  CeedScalar u_sq = u[0]*u[0] + u[1]*u[1] + u[2]*u[2]; // Velocity square
+  for (CeedInt i=0; i<3; i++) { // Jacobian matrices for 3 directions
+    for (CeedInt j=0; j<3; j++) { // Rows of each Jacobian matrix
+      dF[i][j+1][0] = ((i==j) ? ((gamma-1.)*(u_sq/2. - g*z)) : 0.) - u[i]*u[j];
+      for (CeedInt k=0; k<3; k++) { // Columns of each Jacobian matrix
+        dF[i][0][k+1]   = ((i==k) ? 1. : 0.);
+        dF[i][j+1][k+1] = ((j==k) ? u[i] : 0.) +
+                          ((i==k) ? u[j] : 0.) -
+                          ((i==j) ? u[k] : 0.) * (gamma-1.);
+        dF[i][4][k+1]   = ((i==k) ? (E*gamma/rho - (gamma-1.)*u_sq/2.) : 0.) -
+                          (gamma-1.)*u[i]*u[k];
+      }
+      dF[i][j+1][4] = ((i==j) ? (gamma-1.) : 0.);
+    }
+    dF[i][4][0] = u[i] * ((gamma-1.)*u_sq - E*gamma/rho);
+    dF[i][4][4] = u[i] * gamma;
+  }
+}
+
+// *****************************************************************************
+// Helper function for computing flux Jacobian with variational notation
+// *****************************************************************************
+CEED_QFUNCTION_HELPER void computeFluxJacobian_NS_2(CeedScalar dF[3][5][5],
     const CeedScalar rho, const CeedScalar u[3], const CeedScalar E,
     const CeedScalar gamma, const CeedScalar g, CeedScalar z) {
   CeedScalar u_sq = u[0]*u[0] + u[1]*u[1] + u[2]*u[2]; // Velocity square
@@ -434,7 +459,7 @@ CEED_QFUNCTION(DC)(void *ctx, CeedInt Q,
 
     // jacob_F_conv[3][5][5] = dF(convective)/dq at each direction
     CeedScalar jacob_F_conv[3][5][5] = {{{0.}}};
-    computeFluxJacobian_NS(jacob_F_conv, rho, u, E, gamma, g, x[2][i]);
+    computeFluxJacobian_NS_2(jacob_F_conv, rho, u, E, gamma, g, x[2][i]);
 
     // jacob_F_conv_T = jacob_F_conv^T
     CeedScalar jacob_F_conv_T[3][5][5];
