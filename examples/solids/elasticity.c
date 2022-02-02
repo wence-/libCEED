@@ -914,7 +914,7 @@ int main(int argc, char **argv) {
     ierr = PetscFree(diagnostic_ctx); CHKERRQ(ierr);
   }
 
-  if(ceed_data[fine_level]->qf_tape) {
+  if (ceed_data[fine_level]->qf_tape) {
     DM dm_tape;
     PetscInt num_comp_t = 1;
     ierr = DMClone(dm_orig, &dm_tape); CHKERRQ(ierr);
