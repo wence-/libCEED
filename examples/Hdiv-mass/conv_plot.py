@@ -54,7 +54,7 @@ def plot():
     ax.set_title('Convergence by h Refinement')
     #xlim(.06, .3)
     fig.tight_layout()
-    plt.savefig('convrate.png', bbox_inches='tight')
+    plt.savefig('convrate_mass.png', bbox_inches='tight')
     
 
 
