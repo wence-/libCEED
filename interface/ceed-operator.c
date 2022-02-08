@@ -88,11 +88,12 @@ static int CeedOperatorCheckField(Ceed ceed, CeedQFunctionField qf_field,
       // LCOV_EXCL_STOP
     }
   }
+  CeedFESpace FE_space = b->basis_space;
   // Field size
   switch(eval_mode) {
   case CEED_EVAL_NONE:
-    switch (b->basis_space) {
-    case 1: // H^1 discretization
+    switch (FE_space) {
+    case CEED_FE_SPACE_H1: // H^1 discretization
       if (size != restr_num_comp)
         // LCOV_EXCL_START
         return CeedError(ceed, CEED_ERROR_DIMENSION,
@@ -101,7 +102,7 @@ static int CeedOperatorCheckField(Ceed ceed, CeedQFunctionField qf_field,
                          restr_num_comp);
       // LCOV_EXCL_STOP
       break;
-    case 2: // H(div) discretization
+    case CEED_FE_SPACE_HDIV: // H(div) discretization
       if (size != dim)
         // LCOV_EXCL_START
         return CeedError(ceed, CEED_ERROR_DIMENSION,
@@ -113,8 +114,8 @@ static int CeedOperatorCheckField(Ceed ceed, CeedQFunctionField qf_field,
     }
     break;
   case CEED_EVAL_INTERP:
-    switch (b->basis_space) {
-    case 1: // H^1 discretization
+    switch (FE_space) {
+    case CEED_FE_SPACE_H1: // H^1 discretization
       if (size != num_comp)
         // LCOV_EXCL_START
         return CeedError(ceed, CEED_ERROR_DIMENSION,
@@ -123,7 +124,7 @@ static int CeedOperatorCheckField(Ceed ceed, CeedQFunctionField qf_field,
                          num_comp);
       // LCOV_EXCL_STOP
       break;
-    case 2: // H(div) discretization
+    case CEED_FE_SPACE_HDIV: // H(div) discretization
       if (size != dim)
         // LCOV_EXCL_START
         return CeedError(ceed, CEED_ERROR_DIMENSION,
@@ -148,7 +149,13 @@ static int CeedOperatorCheckField(Ceed ceed, CeedQFunctionField qf_field,
     // No additional checks required
     break;
   case CEED_EVAL_DIV:
-    // Not implemented
+    if (size != num_comp)
+      // LCOV_EXCL_START
+      return CeedError(ceed, CEED_ERROR_DIMENSION,
+                       "Field '%s' of size %d and EvalMode %s: ElemRestriction/Basis has %d components",
+                       qf_field->field_name, qf_field->size, CeedEvalModes[qf_field->eval_mode],
+                       num_comp);
+    // LCOV_EXCL_STOP
     break;
   case CEED_EVAL_CURL:
     // Not implemented
