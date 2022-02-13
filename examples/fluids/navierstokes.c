@@ -100,6 +100,17 @@ int main(int argc, char **argv) {
   user->comm = comm;
   ierr = ProcessCommandLineOptions(comm, app_ctx, bc); CHKERRQ(ierr);
 
+  //TEMPORARY -- Just testing STG functions
+  PetscBool stgbool = PETSC_FALSE;
+  ierr = PetscOptionsGetBool(NULL, NULL, "-stg_test", &stgbool, NULL);
+  if (stgbool) {
+    ierr = PetscPrintf(comm, "Running STG test\n"); CHKERRQ(ierr);
+    STGShur14Context test;
+    SetupSTGContext(test);
+    return 0;
+  }
+
+
   // ---------------------------------------------------------------------------
   // Initialize libCEED
   // ---------------------------------------------------------------------------
