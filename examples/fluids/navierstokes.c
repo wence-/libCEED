@@ -106,7 +106,8 @@ int main(int argc, char **argv) {
   if (stgbool) {
     ierr = PetscPrintf(comm, "Running STG test\n"); CHKERRQ(ierr);
     STGShur14Context test;
-    SetupSTGContext(test);
+    SetupSTGContext(comm, test);
+    ierr = PetscFinalize();
     return 0;
   }
 
