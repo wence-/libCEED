@@ -347,10 +347,10 @@ int main(int argc, char **argv) {
     if (!test_mode || reason < 0 || rnorm > 1e-8) {
       ierr = PetscPrintf(comm,
                          "  KSP:\n"
-                         "    KSP Type                           : %s\n"
-                         "    KSP Convergence                    : %s\n"
-                         "    Total KSP Iterations               : %D\n"
-                         "    Final rnorm                        : %e\n",
+                         "    KSP Type                                : %s\n"
+                         "    KSP Convergence                         : %s\n"
+                         "    Total KSP Iterations                    : %D\n"
+                         "    Final rnorm                             : %e\n",
                          ksp_type, KSPConvergedReasons[reason], its,
                          (double)rnorm); CHKERRQ(ierr);
     }
@@ -368,14 +368,14 @@ int main(int argc, char **argv) {
         ierr = MPI_Allreduce(&my_rt, &rt_max, 1, MPI_DOUBLE, MPI_MAX, comm);
         CHKERRQ(ierr);
         ierr = PetscPrintf(comm,
-                           "    Pointwise Error (max)              : %e\n"
-                           "    CG Solve Time                      : %g (%g) sec\n",
+                           "    Pointwise Error (max)                   : %e\n"
+                           "    CG Solve Time                           : %g (%g) sec\n",
                            (double)max_error, rt_max, rt_min); CHKERRQ(ierr);
       }
     }
     if (benchmark_mode && (!test_mode)) {
       ierr = PetscPrintf(comm,
-                         "    DoFs/Sec in CG                     : %g (%g) million\n",
+                         "    DoFs/Sec in CG                            : %g (%g) million\n",
                          1e-6*g_size*its/rt_max, 1e-6*g_size*its/rt_min); CHKERRQ(ierr);
     }
   }

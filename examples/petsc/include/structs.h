@@ -69,7 +69,7 @@ typedef enum {
 typedef struct RunParams_ *RunParams;
 struct RunParams_ {
   MPI_Comm comm;
-  PetscBool test_mode, read_mesh, user_l_nodes, write_solution;
+  PetscBool test_mode, read_mesh, user_l_nodes, write_solution, simplex;
   char *filename, *hostname;
   PetscInt local_nodes, degree, q_extra, dim, num_comp_u, *mesh_elem;
   PetscInt ksp_max_it_clip[2];

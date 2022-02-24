@@ -18,8 +18,10 @@ PetscErrorCode SetupDMByDegree(DM dm, PetscInt p_degree, PetscInt q_extra,
                                bool enforce_bc,  BCFunction bc_func);
 PetscErrorCode CreateRestrictionFromPlex(Ceed ceed, DM dm, CeedInt height,
     DMLabel domain_label, CeedInt value, CeedElemRestriction *elem_restr);
+CeedElemTopology ElemTopologyP2C(DMPolytopeType cell_type);
 PetscErrorCode CreateBasisFromPlex(Ceed ceed, DM dm, DMLabel domain_label,
                                    CeedInt label_value, CeedInt height,
                                    CeedInt dm_field, CeedBasis *basis);
 PetscErrorCode CreateDistributedDM(RunParams rp, DM *dm);
+
 #endif // libceed_petsc_examples_utils_h

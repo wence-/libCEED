@@ -210,7 +210,7 @@ PetscErrorCode CreateRestrictionFromPlex(Ceed ceed, DM dm, CeedInt height,
 // -----------------------------------------------------------------------------
 // Utility function - convert from DMPolytopeType to CeedElemTopology
 // -----------------------------------------------------------------------------
-static inline CeedElemTopology ElemTopologyP2C(DMPolytopeType cell_type) {
+CeedElemTopology ElemTopologyP2C(DMPolytopeType cell_type) {
   switch (cell_type) {
   case DM_POLYTOPE_TRIANGLE:      return CEED_TOPOLOGY_TRIANGLE;
   case DM_POLYTOPE_QUADRILATERAL: return CEED_TOPOLOGY_QUAD;
@@ -390,7 +390,7 @@ PetscErrorCode CreateDistributedDM(RunParams rp, DM *dm) {
         if (Max3(rp->mesh_elem) / Min3(rp->mesh_elem) <= 2) break;
       }
     }
-    ierr = DMPlexCreateBoxMesh(PETSC_COMM_WORLD, rp->dim, PETSC_FALSE,
+    ierr = DMPlexCreateBoxMesh(PETSC_COMM_WORLD, rp->dim, rp->simplex,
                                rp->mesh_elem,
                                NULL, NULL, NULL, PETSC_TRUE, dm); CHKERRQ(ierr);
   }

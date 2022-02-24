@@ -272,12 +272,17 @@ int main(int argc, char **argv) {
   PetscReal error = fabs(area - exact_surface_area);
   PetscReal tol = 5e-6;
   if (!test_mode || error > tol) {
-    ierr = PetscPrintf(comm, "Exact mesh surface area    : % .14g\n",
+    ierr = PetscPrintf(comm,
+                       "Exact mesh surface area                     : % .14g\n",
                        exact_surface_area);
     CHKERRQ(ierr);
-    ierr = PetscPrintf(comm, "Computed mesh surface area : % .14g\n", area);
+    ierr = PetscPrintf(comm,
+                       "Computed mesh surface area                  : % .14g\n",
+                       area);
     CHKERRQ(ierr);
-    ierr = PetscPrintf(comm, "Area error                 : % .14g\n", error);
+    ierr = PetscPrintf(comm,
+                       "Area error                                  : % .14g\n",
+                       error);
     CHKERRQ(ierr);
   }
 

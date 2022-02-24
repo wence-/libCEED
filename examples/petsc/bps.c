@@ -139,6 +139,9 @@ static PetscErrorCode RunWithDM(RunParams rp, DM dm,
 
     PetscInt c_start, c_end;
     ierr = DMPlexGetHeightStratum(dm, 0, &c_start, &c_end); CHKERRQ(ierr);
+    DMPolytopeType  cell_type;
+    ierr = DMPlexGetCellType(dm, c_start, &cell_type); CHKERRQ(ierr);
+    CeedElemTopology elem_topo = ElemTopologyP2C(cell_type);
     PetscMPIInt comm_size;
     ierr = MPI_Comm_size(rp->comm, &comm_size); CHKERRQ(ierr);
     ierr = PetscPrintf(rp->comm,
@@ -158,12 +161,14 @@ static PetscErrorCode RunWithDM(RunParams rp, DM dm,
                        "    Additional quadrature points (q_extra)  : %d\n"
                        "    Global nodes                            : %D\n"
                        "    Local Elements                          : %D\n"
+                       "    Element topology                        : %s\n"
                        "    Owned nodes                             : %D\n"
                        "    DoF per node                            : %D\n",
                        rp->bp_choice+1, rp->hostname, comm_size,
                        rp->ranks_per_node, vec_type, used_resource,
                        CeedMemTypes[mem_type_backend],
                        P, Q, rp->q_extra, g_size/rp->num_comp_u, c_end - c_start,
+                       CeedElemTopologies[elem_topo],
                        l_size/rp->num_comp_u, rp->num_comp_u);
     CHKERRQ(ierr);
   }
@@ -279,10 +284,10 @@ static PetscErrorCode RunWithDM(RunParams rp, DM dm,
     if (!rp->test_mode || reason < 0 || rnorm > 1e-8) {
       ierr = PetscPrintf(rp->comm,
                          "  KSP:\n"
-                         "    KSP Type                           : %s\n"
-                         "    KSP Convergence                    : %s\n"
-                         "    Total KSP Iterations               : %D\n"
-                         "    Final rnorm                        : %e\n",
+                         "    KSP Type                                : %s\n"
+                         "    KSP Convergence                         : %s\n"
+                         "    Total KSP Iterations                    : %D\n"
+                         "    Final rnorm                             : %e\n",
                          ksp_type, KSPConvergedReasons[reason], its,
                          (double)rnorm); CHKERRQ(ierr);
     }
@@ -300,14 +305,14 @@ static PetscErrorCode RunWithDM(RunParams rp, DM dm,
         ierr = MPI_Allreduce(&my_rt, &rt_max, 1, MPI_DOUBLE, MPI_MAX, rp->comm);
         CHKERRQ(ierr);
         ierr = PetscPrintf(rp->comm,
-                           "    Pointwise Error (max)              : %e\n"
-                           "    CG Solve Time                      : %g (%g) sec\n",
+                           "    Pointwise Error (max)                   : %e\n"
+                           "    CG Solve Time                           : %g (%g) sec\n",
                            (double)max_error, rt_max, rt_min); CHKERRQ(ierr);
       }
     }
     if (!rp->test_mode) {
       ierr = PetscPrintf(rp->comm,
-                         "    DoFs/Sec in CG                     : %g (%g) million\n",
+                         "    DoFs/Sec in CG                          : %g (%g) million\n",
                          1e-6*g_size*its/rt_max,
                          1e-6*g_size*its/rt_min); CHKERRQ(ierr);
     }
@@ -439,6 +444,10 @@ int main(int argc, char **argv) {
   rp->write_solution = PETSC_FALSE;
   ierr = PetscOptionsBool("-write_solution", "Write solution for visualization",
                           NULL, rp->write_solution, &rp->write_solution, NULL);
+  CHKERRQ(ierr);
+  rp->simplex = PETSC_FALSE;
+  ierr = PetscOptionsBool("-simplex", "Element topology (default:hex)",
+                          NULL, rp->simplex, &rp->simplex, NULL);
   CHKERRQ(ierr);
   degree[0] = rp->test_mode ? 3 : 2;
   ierr = PetscOptionsIntArray("-degree",

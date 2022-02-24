@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
            mesh_elem[3] = {3, 3, 3}, num_comp_u = 1, num_levels = degree, *level_degrees;
   PetscScalar *r;
   PetscScalar eps = 1.0;
-  PetscBool test_mode, benchmark_mode, read_mesh, write_solution;
+  PetscBool test_mode, benchmark_mode, read_mesh, write_solution, simplex;
   PetscLogStage solve_stage;
   PetscLogEvent assemble_event;
   DM  *dm, dm_orig;
@@ -117,6 +117,11 @@ int main(int argc, char **argv) {
                           "Write solution for visualization",
                           NULL, write_solution, &write_solution, NULL);
   CHKERRQ(ierr);
+  simplex = PETSC_FALSE;
+  ierr = PetscOptionsBool("-simplex",
+                          "Element topology (default:hex)",
+                          NULL, simplex, &simplex, NULL);
+  CHKERRQ(ierr);
   ierr = PetscOptionsScalar("-eps",
                             "Epsilon parameter for Kershaw mesh transformation",
                             NULL, eps, &eps, NULL);
@@ -160,7 +165,7 @@ int main(int argc, char **argv) {
                                 &dm_orig);
     CHKERRQ(ierr);
   } else {
-    ierr = DMPlexCreateBoxMesh(PETSC_COMM_WORLD, dim, PETSC_FALSE, mesh_elem, NULL,
+    ierr = DMPlexCreateBoxMesh(PETSC_COMM_WORLD, dim, simplex, mesh_elem, NULL,
                                NULL, NULL, PETSC_TRUE, &dm_orig); CHKERRQ(ierr);
   }
 
@@ -319,9 +324,9 @@ int main(int argc, char **argv) {
     // Print level information
     if (!test_mode && (i == 0 || i == fine_level)) {
       ierr = PetscPrintf(comm,"    Level %D (%s):\n"
-                         "      Number of 1D Basis Nodes (p)     : %d\n"
-                         "      Global Nodes                     : %D\n"
-                         "      Owned Nodes                      : %D\n",
+                         "      Number of 1D Basis Nodes (p)          : %d\n"
+                         "      Global Nodes                          : %D\n"
+                         "      Owned Nodes                           : %D\n",
                          i, (i? "fine" : "coarse"), level_degrees[i] + 1,
                          g_size[i]/num_comp_u, l_size[i]/num_comp_u); CHKERRQ(ierr);
     }
@@ -581,16 +586,16 @@ int main(int argc, char **argv) {
     if (!test_mode || reason < 0 || rnorm > 1e-8) {
       ierr = PetscPrintf(comm,
                          "  KSP:\n"
-                         "    KSP Type                           : %s\n"
-                         "    KSP Convergence                    : %s\n"
-                         "    Total KSP Iterations               : %D\n"
-                         "    Final rnorm                        : %e\n",
+                         "    KSP Type                                : %s\n"
+                         "    KSP Convergence                         : %s\n"
+                         "    Total KSP Iterations                    : %D\n"
+                         "    Final rnorm                             : %e\n",
                          ksp_type, KSPConvergedReasons[reason], its,
                          (double)rnorm); CHKERRQ(ierr);
       ierr = PetscPrintf(comm,
                          "  PCMG:\n"
-                         "    PCMG Type                          : %s\n"
-                         "    PCMG Cycle Type                    : %s\n",
+                         "    PCMG Type                               : %s\n"
+                         "    PCMG Cycle Type                         : %s\n",
                          PCMGTypes[pcmg_type],
                          PCMGCycleTypes[pcmg_cycle_type]); CHKERRQ(ierr);
     }
@@ -608,8 +613,8 @@ int main(int argc, char **argv) {
         ierr = MPI_Allreduce(&my_rt, &rt_max, 1, MPI_DOUBLE, MPI_MAX, comm);
         CHKERRQ(ierr);
         ierr = PetscPrintf(comm,
-                           "    Pointwise Error (max)              : %e\n"
-                           "    CG Solve Time                      : %g (%g) sec\n",
+                           "    Pointwise Error (max)                   : %e\n"
+                           "    CG Solve Time                           : %g (%g) sec\n",
                            (double)max_error, rt_max, rt_min); CHKERRQ(ierr);
       }
     }
