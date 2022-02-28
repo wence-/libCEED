@@ -18,7 +18,6 @@
 /// Utility functions for setting up DENSITY_CURRENT
 
 #include "../navierstokes.h"
-#include "../qfunctions/setupgeo.h"
 #include "../qfunctions/densitycurrent.h"
 #include "../qfunctions/newtonian.h"
 
